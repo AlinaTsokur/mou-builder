@@ -1,0 +1,26 @@
+{
+  "name": "goal-mou",
+  "version": "1.0.0",
+  "description": "Local-first MOU Builder for Google Docs templates.",
+  "private": true,
+  "main": "next.config.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "node --test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "googleapis": "^172.0.0",
+    "lucide-react": "^1.16.0",
+    "next": "^16.2.6",
+    "next-auth": "^4.24.14",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "zod": "^4.4.3"
+  }
+}

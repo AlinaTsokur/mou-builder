@@ -1,0 +1,6 @@
+rule_id,target_type,target_key,label,default_enabled,condition_field,operator,condition_value,action,notes
+includeArticle6,article,article_security_deposit_number,Article 6 - Security Deposit,Yes,includeArticle6,equals,No,disable,Matches current Apps Script behavior.
+includeArticle7,article,article_buyer_default_number,Article 7 - Buyer Default,Yes,includeArticle7,equals,No,disable,Matches current Apps Script behavior.
+includeArticle8,article,article_seller_default_number,Article 8 - Seller Default,Yes,includeArticle8,equals,No,disable,Matches current Apps Script behavior.
+includeArticle9,article,article_deposit_release_number,Article 9 - Deposit Release,Yes,includeArticle9,equals,No,disable,Matches current Apps Script behavior.
+includeArticle18,article,article_automatic_extension_number,Article 18 - Automatic Extension,Yes,includeArticle18,equals,No,disable,Matches current Apps Script behavior.
