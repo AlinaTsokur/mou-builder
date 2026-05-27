@@ -331,6 +331,7 @@ export default function HomePage() {
   const [busy, setBusy] = useState(false);
   const [loadingInit, setLoadingInit] = useState(false);
   const [message, setMessage] = useState("");
+  const [actionErrors, setActionErrors] = useState([]);
   const [result, setResult] = useState(null);
   const [draftRow, setDraftRow] = useState("");
   const [reservationMode, setReservationMode] = useState("date");
@@ -425,6 +426,7 @@ export default function HomePage() {
   async function createMou() {
     setBusy(true);
     setResult(null);
+    setActionErrors([]);
     setMessage("Creating MOU...");
     try {
       const data = await api("/api/mou", { method: "POST", body: JSON.stringify(form) });
@@ -433,7 +435,12 @@ export default function HomePage() {
       await loadInit();
     } catch (error) {
       const validation = error.payload?.validation;
-      if (validation) setPreview((current) => ({ ...(current || {}), validation }));
+      if (validation) {
+        setPreview((current) => ({ ...(current || {}), validation }));
+        setActionErrors(validation.errors || [error.message]);
+      } else {
+        setActionErrors([error.message]);
+      }
       setMessage(error.message);
     } finally {
       setBusy(false);
@@ -561,8 +568,9 @@ export default function HomePage() {
         </div>
       </header>
 
-      {message && <StatusLine text={message} type={message.includes("created") || message.includes("loaded") ? "ok" : "info"} />}
+      {message && <StatusLine text={message} type={message.includes("created") || message.includes("loaded") ? "ok" : actionErrors.length ? "error" : "info"} />}
       {result && <ResultBox result={result} />}
+      {actionErrors.length ? <ActionErrorBox errors={actionErrors} /> : null}
 
       <div className="workspace">
         <form className="formPanel" onSubmit={(e) => e.preventDefault()}>
@@ -712,6 +720,7 @@ export default function HomePage() {
               {busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Create MOU
             </button>
           </div>
+          {actionErrors.length ? <Notice title="MOU was not created" items={actionErrors} type="error" /> : null}
           <Preview preview={preview} />
         </aside>
       </div>
@@ -725,6 +734,15 @@ function FullScreenLoader({ text }) {
 
 function StatusLine({ text, type }) {
   return <div className={`status ${type}`}>{type === "ok" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />} {text}</div>;
+}
+
+function ActionErrorBox({ errors }) {
+  return (
+    <section className="actionErrorBox">
+      <strong>MOU was not created</strong>
+      <ul>{errors.map((error) => <li key={error}>{error}</li>)}</ul>
+    </section>
+  );
 }
 
 function ResultBox({ result }) {

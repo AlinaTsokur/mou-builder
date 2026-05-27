@@ -216,9 +216,14 @@ input::placeholder {
 }
 
 .status.ok { color: var(--ok); }
+.status.error {
+  color: var(--danger);
+  border-color: #ffd4cf;
+  background: var(--danger-bg);
+}
 .status.info { color: #34443f; }
 
-.resultBox {
+.resultBox, .actionErrorBox {
   position: fixed;
   right: 16px;
   bottom: 16px;
@@ -227,6 +232,18 @@ input::placeholder {
   justify-content: space-between;
   align-items: center;
   box-shadow: var(--shadow-md);
+}
+
+.actionErrorBox {
+  display: block;
+  border-color: #ffd4cf;
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.actionErrorBox ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
 }
 
 .resultBox p {
