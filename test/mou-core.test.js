@@ -273,6 +273,29 @@ test("ready unit forces NOC fee label in normalized form", () => {
   assert.equal(data.transferFeeLabel, "NOC Fee");
 });
 
+test("seller outstanding NOC phrase is included only for NOC deals", () => {
+  const transferData = base({ unitStatus: "Off-Plan", transferFeeLabel: "Transfer Fee" });
+  const transferReplacements = buildReplacements(transferData, calculate(transferData), buildArticleNumbers(transferData));
+  assert.equal(transferReplacements.seller_outstanding_noc_phrase, "");
+
+  const transferRequests = buildConditionalTextRequests({ body: { content: [] } }, transferData);
+  assert(
+    transferRequests.some((request) =>
+      request.replaceAllText?.containsText?.text === " or No Objection Certificate (NOC)" &&
+      request.replaceAllText?.replaceText === "",
+    ),
+  );
+
+  const nocData = base({ unitStatus: "Ready", transferFeeLabel: "Transfer Fee" });
+  const nocReplacements = buildReplacements(nocData, calculate(nocData), buildArticleNumbers(nocData));
+  const nocRequests = buildConditionalTextRequests({ body: { content: [] } }, nocData);
+  assert.equal(nocReplacements.seller_outstanding_noc_phrase, " or No Objection Certificate (NOC)");
+  assert.equal(
+    nocRequests.some((request) => request.replaceAllText?.containsText?.text === " or No Objection Certificate (NOC)"),
+    false,
+  );
+});
+
 test("amount to seller payment method replaces fixed payment wording", () => {
   const doc = { body: { content: [] } };
   const cashRequests = buildConditionalTextRequests(doc, base({ amountToSellerPaymentMethod: "cash" }));

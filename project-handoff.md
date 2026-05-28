@@ -399,6 +399,30 @@ Current safer approach:
 
 Recommendation: manually clean the Google Docs template so the base template contains only the Transfer Fee definition in that list item.
 
+### Seller Outstanding Charges NOC Phrase
+
+The phrase:
+
+```text
+ or No Objection Certificate (NOC)
+```
+
+must appear in Article Seller Outstanding Charges only for NOC deals.
+
+The preferred template placeholder is:
+
+```text
+{{seller_outstanding_noc_phrase}}
+```
+
+Use it inside the sentence like this:
+
+```text
+... in respect of the Property{{seller_outstanding_noc_phrase}} necessary for completion of the transfer.
+```
+
+For `Ready` / `NOC Fee`, it resolves to ` or No Objection Certificate (NOC)`. For Transfer Fee deals, it resolves to an empty string. The code also removes the literal phrase from existing templates for non-NOC deals as a compatibility fallback.
+
 ### Parties
 
 Each party has:
