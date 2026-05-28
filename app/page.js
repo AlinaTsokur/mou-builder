@@ -734,7 +734,7 @@ export default function HomePage() {
           <DepositSection side="buyer" title="Security Deposit - Buyer" form={form} patch={patch} lists={lists} status={sectionStatuses.buyerDeposit} preview={preview} />
           <DepositSection side="seller" title="Security Deposit - Seller" form={form} patch={patch} lists={lists} status={sectionStatuses.sellerDeposit} preview={preview} />
 
-          <Section title="Articles" status={sectionStatuses.articles}>
+          <Section title="Articles" status={sectionStatuses.articles} defaultOpen={false}>
             {form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No" ? (
               <p className="smallNote">Оба security cheque отключены: Article 6 снимается автоматически.</p>
             ) : null}
@@ -807,8 +807,8 @@ function ResultBox({ result }) {
   );
 }
 
-function Section({ title, children, status, grid = true, className = "" }) {
-  const [open, setOpen] = useState(true);
+function Section({ title, children, status, grid = true, className = "", defaultOpen = true }) {
+  const [open, setOpen] = useState(defaultOpen);
   const statusState = status?.state || "optional";
   const statusLabel = status?.label || "Optional";
 
