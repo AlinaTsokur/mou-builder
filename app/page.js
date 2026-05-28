@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 const DEFAULT_AGENT = "PRIME BRIDGE REAL ESTATE BROKERAGE L.L.C";
+const REQUIRED_FIELDS_BLOCKING = false;
 
 const initialParty = () => ({
   salutation: "",
@@ -1156,7 +1157,15 @@ function Preview({ preview }) {
 
   return (
     <div className="previewContent">
-      {validation.errors?.length ? <Notice title="Fix before creating" items={validation.errors} type="error" /> : <Notice title="Ready checks" items={["No blocking validation errors."]} type="ok" />}
+      {validation.errors?.length ? (
+        <Notice
+          title={REQUIRED_FIELDS_BLOCKING ? "Fix before creating" : "Test mode: these fields are not blocking now"}
+          items={validation.errors}
+          type={REQUIRED_FIELDS_BLOCKING ? "error" : "warning"}
+        />
+      ) : (
+        <Notice title="Ready checks" items={["No blocking validation errors."]} type="ok" />
+      )}
       {validation.warnings?.length ? <Notice title="Warnings" items={validation.warnings} type="warning" /> : null}
 
       <PreviewCard title="Parties">

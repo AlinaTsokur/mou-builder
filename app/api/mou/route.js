@@ -12,6 +12,8 @@ import {
 } from "@/lib/mou/core";
 import { buildArticleNumbers } from "@/lib/mou/articles";
 
+const REQUIRE_VALIDATION_BEFORE_CREATE = process.env.MOU_REQUIRE_VALIDATION === "true";
+
 export async function POST(request) {
   try {
     const { drive, docs, sheets } = await getGoogleClients();
@@ -19,7 +21,7 @@ export async function POST(request) {
     const rules = await readRules(sheets);
     const data = normalizeForm(form);
     const validation = validateMou(data);
-    if (!validation.ok) {
+    if (REQUIRE_VALIDATION_BEFORE_CREATE && !validation.ok) {
       return Response.json({ ok: false, validation }, { status: 422 });
     }
 
