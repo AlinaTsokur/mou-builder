@@ -207,13 +207,35 @@ test("fee definition keeps only one paragraph: NOC for ready or NOC label, other
             ],
           },
         },
+        {
+          startIndex: 310,
+          endIndex: 610,
+          paragraph: {
+            elements: [
+              {
+                textRun: {
+                  content:
+                    "Transfer fee – any fee levied by the Property Developer related to the transfer procedure of ownership and title registration.  NOC fee is a fee charged for issuing a No Objection Certificate (NOC) — an official document stating that the issuing authority has no objection to a specific action.\n",
+                },
+              },
+            ],
+          },
+        },
       ],
     },
   };
 
   const readyModeRequests = buildConditionalTextRequests(doc, base({ unitStatus: "Ready", transferFeeLabel: "Transfer Fee" }));
+  const readyCombinedReplace = readyModeRequests.find((item) =>
+    item.replaceAllText?.containsText?.text.includes("Transfer fee") &&
+    item.replaceAllText?.containsText?.text.includes("NOC fee"),
+  );
   const readyReplace = readyModeRequests.find((item) => item.replaceAllText?.containsText?.text.includes("Transfer fee"));
   const readyDefinitionDelete = readyModeRequests.find((item) => item.deleteContentRange?.range.startIndex === 140);
+  assert.equal(
+    readyCombinedReplace.replaceAllText.replaceText,
+    "NOC fee is a fee charged for issuing a No Objection Certificate (NOC) — an official document stating that the issuing authority has no objection to a specific action.",
+  );
   assert.equal(
     readyReplace.replaceAllText.replaceText,
     "NOC fee is a fee charged for issuing a No Objection Certificate (NOC) — an official document stating that the issuing authority has no objection to a specific action.",
@@ -221,11 +243,16 @@ test("fee definition keeps only one paragraph: NOC for ready or NOC label, other
   assert.equal(readyDefinitionDelete, undefined);
 
   const offPlanTransferRequests = buildConditionalTextRequests(doc, base({ unitStatus: "Off-Plan", transferFeeLabel: "Transfer Fee" }));
-  const offPlanDefinitionChange = offPlanTransferRequests.find((item) =>
-    item.deleteContentRange?.range.startIndex === 140 ||
-    item.replaceAllText?.containsText?.text.includes("Transfer fee"),
+  const offPlanCombinedFix = offPlanTransferRequests.find((item) =>
+    item.replaceAllText?.containsText?.text.includes("Transfer fee") &&
+    item.replaceAllText?.containsText?.text.includes("NOC fee"),
   );
-  assert.equal(offPlanDefinitionChange, undefined);
+  const offPlanDefinitionDelete = offPlanTransferRequests.find((item) => item.deleteContentRange?.range.startIndex === 140);
+  assert.equal(
+    offPlanCombinedFix.replaceAllText.replaceText,
+    "Transfer fee – any fee levied by the Property Developer related to the transfer procedure of ownership and title registration.",
+  );
+  assert.equal(offPlanDefinitionDelete, undefined);
 });
 
 test("ready unit forces NOC fee label in normalized form", () => {
