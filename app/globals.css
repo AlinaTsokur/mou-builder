@@ -773,6 +773,50 @@ label span:first-child {
 .articleOn { background: var(--primary-soft); color: var(--primary-dark); }
 .articleOff { background: #f0f3f2; color: #8a9692; text-decoration: line-through; }
 
+.articleHint {
+  position: relative;
+  cursor: help;
+  outline: none;
+}
+
+.articleHint::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 12px;
+  bottom: calc(100% + 7px);
+  z-index: 50;
+  display: none;
+  width: min(360px, calc(100vw - 48px));
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: #17202b;
+  color: #fff;
+  box-shadow: var(--shadow-md);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: normal;
+}
+
+.articleHint::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  bottom: calc(100% + 1px);
+  z-index: 51;
+  display: none;
+  border: 6px solid transparent;
+  border-top-color: #17202b;
+}
+
+.articleHint:hover::after,
+.articleHint:hover::before,
+.articleHint:focus-visible::after,
+.articleHint:focus-visible::before {
+  display: block;
+}
+
 .spin {
   animation: spin 0.9s linear infinite;
 }

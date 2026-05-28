@@ -17,6 +17,35 @@ import {
 
 const DEFAULT_AGENT = "PRIME BRIDGE REAL ESTATE BROKERAGE L.L.C";
 const REQUIRED_FIELDS_BLOCKING = false;
+const articleTips = {
+  article_sale_offer_number: "Основное согласие: Seller продает, Buyer покупает объект.",
+  article_effective_date_number: "Когда договор начинает действовать для сторон.",
+  article_property_details_number: "Описание объекта: проект, юнит, площадь, спальни, парковка.",
+  article_selling_price_number: "Фиксирует согласованную цену сделки.",
+  article_payment_table_number: "Все платежи: seller, developer, fees, deposits, agency.",
+  article_security_deposit_number: "Кто дает security cheque, сумма, банк и условия хранения.",
+  article_buyer_default_number: "Что происходит, если Buyer не завершает сделку.",
+  article_seller_default_number: "Что происходит, если Seller не завершает сделку.",
+  article_deposit_release_number: "Когда и как можно вернуть или удержать security deposit.",
+  article_termination_agreement_number: "Как стороны оформляют расторжение сделки.",
+  article_buyer_own_funds_number: "Buyer подтверждает, что у него есть деньги на сделку.",
+  article_seller_outstanding_charges_number: "Seller отвечает за долги и платежи до transfer date.",
+  article_property_hold_number: "Seller держит объект за Buyer и не продает другим.",
+  article_seller_documents_number: "Какие документы Seller должен предоставить для сделки.",
+  article_spa_assignment_number: "Переуступка SPA и обязательств Buyer перед developer.",
+  article_power_of_attorney_number: "Что делать, если сторона действует через POA.",
+  article_reservation_period_number: "Крайний срок завершения transfer / assignment.",
+  article_automatic_extension_number: "Когда срок может автоматически продлиться.",
+  article_developer_approval_number: "Сделка зависит от approval / NOC / KYC developer.",
+  article_force_majeure_number: "Что делать при событиях вне контроля сторон.",
+  article_indemnity_number: "Кто покрывает убытки и претензии после сделки.",
+  article_aml_number: "AML, KYC и compliance требования для сторон.",
+  article_amicable_dispute_number: "Сначала стороны пытаются решить спор мирно.",
+  article_court_jurisdiction_number: "Если спор не решен, куда обращаться в суд.",
+  article_entire_agreement_number: "MOU заменяет предыдущие договоренности по сделке.",
+  article_confidentiality_number: "Условия сделки нельзя раскрывать посторонним.",
+  article_electronic_signature_number: "Электронная подпись имеет силу как обычная.",
+};
 
 const initialParty = () => ({
   salutation: "",
@@ -1206,7 +1235,12 @@ function Preview({ preview }) {
       <PreviewCard title="Articles">
         <div className="articleGrid">
           {(preview.articles || []).map((article) => (
-            <span key={article.key} className={article.included ? "articleOn" : "articleOff"}>
+            <span
+              key={article.key}
+              className={article.included ? "articleOn articleHint" : "articleOff articleHint"}
+              data-tip={articleTips[article.key] || "Короткое описание этой статьи пока не добавлено."}
+              tabIndex={0}
+            >
               {article.included ? `Article ${article.number}` : "Removed"} - {article.title}
             </span>
           ))}
