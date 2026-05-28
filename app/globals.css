@@ -70,6 +70,12 @@ input, select {
   transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+}
+
 input:hover, select:hover {
   border-color: #9fb1ac;
 }
