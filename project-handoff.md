@@ -238,6 +238,14 @@ In the payment table, the ADM fee payee is taken from `Developer Name` when avai
 {{adm_fee_payee}}
 ```
 
+The ADM base label also has a placeholder:
+
+```text
+{{adm_fee_base_label}}
+```
+
+It resolves to `Selling Price` or `Original Price`, depending on which value was used as the ADM fee base.
+
 ### Transfer Threshold
 
 ```text

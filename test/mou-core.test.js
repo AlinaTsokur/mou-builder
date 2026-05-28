@@ -33,13 +33,19 @@ function base(overrides = {}) {
 }
 
 test("ADM fee uses the higher of selling price and original price plus admin fee", () => {
-  const calc = calculate(base());
+  const data = base();
+  const calc = calculate(data);
+  const replacements = buildReplacements(data, calc, buildArticleNumbers(data));
   assert.equal(calc.admFee, 1570000 * 0.02 + 575);
   assert.equal(calc.admFeeBase, 1570000);
+  assert.equal(replacements.adm_fee_base_label, "Selling Price");
 
-  const originalPriceBase = calculate(base({ sellingPrice: "1,200,000", originalPrice: "1,400,000" }));
+  const originalData = base({ sellingPrice: "1,200,000", originalPrice: "1,400,000" });
+  const originalPriceBase = calculate(originalData);
+  const originalReplacements = buildReplacements(originalData, originalPriceBase, buildArticleNumbers(originalData));
   assert.equal(originalPriceBase.admFee, 1400000 * 0.02 + 575);
   assert.equal(originalPriceBase.admFeeBase, 1400000);
+  assert.equal(originalReplacements.adm_fee_base_label, "Original Price");
 });
 
 test("threshold top-up and remaining developer balance are calculated", () => {
