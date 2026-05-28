@@ -466,13 +466,13 @@ The app renumbers articles after optional articles are disabled. It replaces pla
 
 Disabled article placeholders get an empty replacement and their article section is deleted from the copied Google Doc.
 
-Default optional article controls:
+Current article controls:
 
-- Article 6 - Security Deposit
-- Article 7 - Buyer Default
-- Article 8 - Seller Default
-- Article 9 - Deposit Release
-- Article 18 - Automatic Extension
+- Any article from 1 to 27 can be switched off in the UI.
+- Switched-off article keys are stored in `excludedArticleKeys`.
+- Old boolean fields `includeArticle6`, `includeArticle7`, `includeArticle8`, `includeArticle9`, and `includeArticle18` remain for backward compatibility with older drafts and the original RULES logic.
+- When an article is excluded, all following article numbers are recalculated.
+- If both Buyer and Seller security deposit cheques are disabled, Article 6 is automatically excluded.
 
 Article deletion happens by finding headings that contain:
 

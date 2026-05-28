@@ -135,6 +135,12 @@ test("article numbering closes gaps when optional articles are disabled", () => 
   assert.equal(numbers.article_seller_default_number, "6");
 });
 
+test("any article can be excluded and remaining articles are renumbered", () => {
+  const numbers = buildArticleNumbers(base({ excludedArticleKeys: ["article_property_details_number"] }), DEFAULT_RULES);
+  assert.equal(numbers.article_property_details_number, "");
+  assert.equal(numbers.article_selling_price_number, "3");
+});
+
 test("validation catches ownership and deposit details", () => {
   const data = base({
     buyers: [{ name: "Buyer One", ownershipPercent: "50" }],

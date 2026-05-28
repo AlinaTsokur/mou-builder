@@ -14,9 +14,17 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
+import { ARTICLE_DEFS } from "@/lib/mou/articles";
 
 const DEFAULT_AGENT = "PRIME BRIDGE REAL ESTATE BROKERAGE L.L.C";
 const REQUIRED_FIELDS_BLOCKING = false;
+const legacyArticleFields = {
+  article_security_deposit_number: "includeArticle6",
+  article_buyer_default_number: "includeArticle7",
+  article_seller_default_number: "includeArticle8",
+  article_deposit_release_number: "includeArticle9",
+  article_automatic_extension_number: "includeArticle18",
+};
 const articleTips = {
   article_sale_offer_number: "Основное согласие: Seller продает, Buyer покупает объект.",
   article_effective_date_number: "Когда договор начинает действовать для сторон.",
@@ -119,6 +127,7 @@ const initialForm = {
   includeArticle8: true,
   includeArticle9: true,
   includeArticle18: true,
+  excludedArticleKeys: [],
   sellerSignatureDate: "",
   buyerSignatureDate: "",
 };
@@ -497,6 +506,25 @@ export default function HomePage() {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
+  function toggleArticle(key, included) {
+    setForm((current) => {
+      const excluded = new Set(current.excludedArticleKeys || []);
+      if (included) {
+        excluded.delete(key);
+      } else {
+        excluded.add(key);
+      }
+
+      const next = {
+        ...current,
+        excludedArticleKeys: Array.from(excluded),
+      };
+      const legacyField = legacyArticleFields[key];
+      if (legacyField) next[legacyField] = included;
+      return next;
+    });
+  }
+
   function setAgreementDate(value) {
     setForm((current) => {
       const next = { ...current, agreementDate: value };
@@ -715,21 +743,15 @@ export default function HomePage() {
             {form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No" ? (
               <p className="smallNote">Оба security cheque отключены: Article 6 снимается автоматически.</p>
             ) : null}
-            {[
-              ["includeArticle6", "Include Article 6 - Security Deposit"],
-              ["includeArticle7", "Include Article 7 - Buyer Default"],
-              ["includeArticle8", "Include Article 8 - Seller Default"],
-              ["includeArticle9", "Include Article 9 - Deposit Release"],
-              ["includeArticle18", "Include Article 18 - Automatic Extension"],
-            ].map(([id, label]) => (
+            {ARTICLE_DEFS.map(([key, originalNumber, title]) => (
               <CheckboxField
-                key={id}
-                id={id}
-                label={label}
-                tip={tips.articles}
-                checked={form[id]}
-                onChange={patch}
-                disabled={id === "includeArticle6" && form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No"}
+                key={key}
+                id={key}
+                label={`Include Article ${originalNumber} - ${title}`}
+                tip={articleTips[key] || tips.articles}
+                checked={isArticleIncluded(form, key)}
+                onChange={(_, checked) => toggleArticle(key, checked)}
+                disabled={key === "article_security_deposit_number" && form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No"}
               />
             ))}
           </Section>
@@ -1149,6 +1171,16 @@ function rebalance(parties) {
     total += ownershipPercent;
     return { ...party, ownershipPercent: String(ownershipPercent).replace(".", ",") };
   });
+}
+
+function isArticleIncluded(form, key) {
+  if (key === "article_security_deposit_number" && form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No") {
+    return false;
+  }
+  if ((form.excludedArticleKeys || []).includes(key)) return false;
+  const legacyField = legacyArticleFields[key];
+  if (legacyField && form[legacyField] === false) return false;
+  return true;
 }
 
 function partyNameOptions(parties) {
