@@ -842,6 +842,14 @@ label span:first-child {
 }
 
 @media (max-width: 680px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .topbar, .previewHeader {
+    position: static;
+  }
+
   .appShell {
     padding: 8px;
   }
