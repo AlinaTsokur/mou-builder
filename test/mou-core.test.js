@@ -213,16 +213,19 @@ test("fee definition keeps only one paragraph: NOC for ready or NOC label, other
 
   const readyModeRequests = buildConditionalTextRequests(doc, base({ unitStatus: "Ready", transferFeeLabel: "Transfer Fee" }));
   const readyReplace = readyModeRequests.find((item) => item.replaceAllText?.containsText?.text.includes("Transfer fee"));
-  const readyDelete = readyModeRequests.find((item) => item.deleteContentRange);
+  const readyDefinitionDelete = readyModeRequests.find((item) => item.deleteContentRange?.range.startIndex === 140);
   assert.equal(
     readyReplace.replaceAllText.replaceText,
     "NOC fee is a fee charged for issuing a No Objection Certificate (NOC) — an official document stating that the issuing authority has no objection to a specific action.",
   );
-  assert.deepEqual(readyDelete.deleteContentRange.range, { startIndex: 140, endIndex: 309 });
+  assert.equal(readyDefinitionDelete, undefined);
 
   const offPlanTransferRequests = buildConditionalTextRequests(doc, base({ unitStatus: "Off-Plan", transferFeeLabel: "Transfer Fee" }));
-  const offPlanDelete = offPlanTransferRequests.find((item) => item.deleteContentRange);
-  assert.deepEqual(offPlanDelete.deleteContentRange.range, { startIndex: 140, endIndex: 309 });
+  const offPlanDefinitionChange = offPlanTransferRequests.find((item) =>
+    item.deleteContentRange?.range.startIndex === 140 ||
+    item.replaceAllText?.containsText?.text.includes("Transfer fee"),
+  );
+  assert.equal(offPlanDefinitionChange, undefined);
 });
 
 test("ready unit forces NOC fee label in normalized form", () => {
