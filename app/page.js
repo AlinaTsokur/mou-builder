@@ -1122,6 +1122,14 @@ function rebalance(parties) {
   });
 }
 
+function partyNameOptions(parties) {
+  return Array.from(new Set(
+    (parties || [])
+      .map((party) => String(party?.name || "").trim())
+      .filter(Boolean),
+  ));
+}
+
 function DepositSection({ side, title, form, patch, lists, status, preview }) {
   const cap = side[0].toUpperCase() + side.slice(1);
   const enabledKey = `${side}DepositEnabled`;
@@ -1129,6 +1137,10 @@ function DepositSection({ side, title, form, patch, lists, status, preview }) {
   const enabled = form[enabledKey] === "Yes";
   const fixed = String(form[calcTypeKey] || "").includes("Fixed");
   const depositAutoValue = preview?.summary?.[`${side}Deposit`];
+  const sellerNames = partyNameOptions(form.sellers);
+  const buyerNames = partyNameOptions(form.buyers);
+  const drawnByOptions = side === "buyer" ? buyerNames : sellerNames;
+  const inFavourOptions = side === "buyer" ? sellerNames : buyerNames;
 
   return (
     <Section title={title} status={status}>
@@ -1142,8 +1154,8 @@ function DepositSection({ side, title, form, patch, lists, status, preview }) {
           <Field id={`${side}ChequeNumber`} label="Cheque No." tip={tips.chequeNumber} value={form[`${side}ChequeNumber`]} onChange={patch} />
           <DateField id={`${side}ChequeDate`} label="Cheque Date" tip={tips.chequeDate} value={form[`${side}ChequeDate`]} onChange={patch} />
           <Field id={`${side}ChequeBank`} label="Cheque Bank" tip={tips.chequeBank} value={form[`${side}ChequeBank`]} onChange={patch} list={`${side}Banks`} options={lists.banks || []} />
-          <Field id={`${side}ChequeDrawnBy`} label="Drawn by" tip={tips.chequeDrawnBy} value={form[`${side}ChequeDrawnBy`]} onChange={patch} />
-          <Field id={`${side}ChequeInFavourOf`} label="In favour of" tip={tips.chequeInFavourOf} value={form[`${side}ChequeInFavourOf`]} onChange={patch} />
+          <Field id={`${side}ChequeDrawnBy`} label="Drawn by" tip={tips.chequeDrawnBy} value={form[`${side}ChequeDrawnBy`]} onChange={patch} options={drawnByOptions} />
+          <Field id={`${side}ChequeInFavourOf`} label="In favour of" tip={tips.chequeInFavourOf} value={form[`${side}ChequeInFavourOf`]} onChange={patch} options={inFavourOptions} />
         </>
       )}
     </Section>
