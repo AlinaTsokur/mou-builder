@@ -226,11 +226,17 @@ Numeric fields are parsed by helper `n()`. It accepts common human-entered forma
 Current formula:
 
 ```text
-admFeeBase = sellingPrice if present, otherwise originalPrice
+admFeeBase = max(Selling Price, Original Price) when both are present
 ADM Fee = admFeeBase * 2% + ADM Admin Fee
 ```
 
 `ADM Admin Fee` is autofilled from `PROJECTS` based on `Unit Status`.
+
+In the payment table, the ADM fee payee is taken from `Developer Name` when available. The replacement also supports a template placeholder:
+
+```text
+{{adm_fee_payee}}
+```
 
 ### Transfer Threshold
 
@@ -672,4 +678,3 @@ https://mou-builder-rho.vercel.app/api/auth/callback/google
    - Ready/NOC;
    - Off-plan/Transfer Fee.
 5. Consider adding a small admin/settings screen later for rules and labels, but only after core contract output is stable.
-

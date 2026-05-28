@@ -32,10 +32,14 @@ function base(overrides = {}) {
   });
 }
 
-test("ADM fee uses selling price plus admin fee", () => {
+test("ADM fee uses the higher of selling price and original price plus admin fee", () => {
   const calc = calculate(base());
   assert.equal(calc.admFee, 1570000 * 0.02 + 575);
   assert.equal(calc.admFeeBase, 1570000);
+
+  const originalPriceBase = calculate(base({ sellingPrice: "1,200,000", originalPrice: "1,400,000" }));
+  assert.equal(originalPriceBase.admFee, 1400000 * 0.02 + 575);
+  assert.equal(originalPriceBase.admFeeBase, 1400000);
 });
 
 test("threshold top-up and remaining developer balance are calculated", () => {
@@ -80,7 +84,7 @@ test("filled The Row MOU payment table matches automatic calculations", () => {
   assert.equal(calc.thresholdTopUpAmount, 1403075);
   assert.equal(calc.remainingDeveloperBalance, 3928610);
   assert.equal(calc.amountToSeller, 68315);
-  assert.equal(calc.admFee, 108575);
+  assert.equal(calc.admFee, 112821);
   assert.equal(calc.buyerDepositAmount, 540000);
   assert.equal(calc.sellerDepositAmount, 540000);
 });
@@ -283,6 +287,20 @@ test("amount to seller payment method replaces fixed payment wording", () => {
   assert(
     namedChequeRequests.some((request) =>
       request.replaceAllText?.replaceText === "Manager's Cheque issued in favour of John Smith.",
+    ),
+  );
+});
+
+test("ADM fee payee can be replaced with developer name", () => {
+  const requests = buildConditionalTextRequests(
+    { body: { content: [] } },
+    base({ developerName: "ALDAR DEVELOPMENT L.L.C" }),
+  );
+
+  assert(
+    requests.some((request) =>
+      request.replaceAllText?.containsText?.text === "to be paid by the Buyer to Abu Dhabi Municipality on the transfer date by a Manager’s Cheque" &&
+      request.replaceAllText?.replaceText === "to be paid by the Buyer to ALDAR DEVELOPMENT L.L.C on the transfer date by a Manager’s Cheque",
     ),
   );
 });
