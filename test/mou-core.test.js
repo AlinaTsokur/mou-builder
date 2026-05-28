@@ -95,11 +95,6 @@ test("filled The Row MOU payment table matches automatic calculations", () => {
   assert.equal(calc.sellerDepositAmount, 540000);
 });
 
-test("manual amount to seller overrides automatic calculation", () => {
-  const calc = calculate(base({ manualAmountToSeller: "Yes", amountToSeller: "500000" }));
-  assert.equal(calc.amountToSeller, 500000);
-});
-
 test("buyer and seller deposits support percent and fixed amount", () => {
   const calc = calculate(
     base({

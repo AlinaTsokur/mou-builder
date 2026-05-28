@@ -694,12 +694,7 @@ export default function HomePage() {
             <Field id="originalPrice" label="Original Price from SPA" tip={tips.originalPrice} value={form.originalPrice} onChange={patch} />
             <Field id="sellingPrice" label="Selling Price agreed by Parties" tip={tips.sellingPrice} value={form.sellingPrice} onChange={patch} />
             <Field id="paidAmountToDeveloper" label="Paid to Developer" tip={tips.paidAmountToDeveloper} value={form.paidAmountToDeveloper} onChange={patch} placeholder="Например 600,000" />
-            <SelectField id="manualAmountToSeller" label="Manual Amount to Seller?" tip={tips.manualAmountToSeller} value={form.manualAmountToSeller} onChange={patch} options={["No", "Yes"]} />
-            {form.manualAmountToSeller === "Yes" ? (
-              <Field id="amountToSeller" label="Amount to be paid to Seller" tip={tips.amountToSeller} value={form.amountToSeller} onChange={patch} placeholder="Введите сумму вручную" />
-            ) : (
-              <Field id="amountToSellerAuto" label="Amount to be paid to Seller" tip={tips.amountToSeller} value={preview?.summary?.amountToSeller ? `AED ${preview.summary.amountToSeller}` : ""} onChange={() => {}} placeholder="Посчитается автоматически" readOnly />
-            )}
+            <Field id="amountToSellerAuto" label="Amount to be paid to Seller" tip={tips.amountToSeller} value={preview?.summary?.amountToSeller ? `AED ${preview.summary.amountToSeller}` : ""} onChange={() => {}} placeholder="Посчитается автоматически" readOnly />
             <SelectField
               id="amountToSellerPaymentMethod"
               label="Amount to Seller Payment Method"
