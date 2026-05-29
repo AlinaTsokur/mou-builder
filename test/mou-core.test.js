@@ -245,11 +245,11 @@ test("fee definition keeps only one paragraph: NOC for ready or NOC label, other
   const readyDefinitionDelete = readyModeRequests.find((item) => item.deleteContentRange?.range.startIndex === 140);
   assert.equal(
     readyCombinedReplace.replaceAllText.replaceText,
-    "NOC fee is a fee charged for issuing a No Objection Certificate (NOC) — an official document stating that the issuing authority has no objection to a specific action.",
+    "<<NOC fee>> is a fee charged for issuing a <<No Objection Certificate (NOC)>> — an official document stating that the issuing authority has no objection to a specific action.",
   );
   assert.equal(
     readyReplace.replaceAllText.replaceText,
-    "NOC fee is a fee charged for issuing a No Objection Certificate (NOC) — an official document stating that the issuing authority has no objection to a specific action.",
+    "<<NOC fee>> is a fee charged for issuing a <<No Objection Certificate (NOC)>> — an official document stating that the issuing authority has no objection to a specific action.",
   );
   assert.equal(readyDefinitionDelete, undefined);
 
@@ -261,7 +261,7 @@ test("fee definition keeps only one paragraph: NOC for ready or NOC label, other
   const offPlanDefinitionDelete = offPlanTransferRequests.find((item) => item.deleteContentRange?.range.startIndex === 140);
   assert.equal(
     offPlanCombinedFix.replaceAllText.replaceText,
-    "Transfer fee – any fee levied by the Property Developer related to the transfer procedure of ownership and title registration.",
+    "<<Transfer fee>> – any fee levied by the <<Property Developer>> related to the transfer procedure of ownership and title registration.",
   );
   assert.equal(offPlanDefinitionDelete, undefined);
 });
