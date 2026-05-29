@@ -537,3 +537,23 @@ test("dynamic signature table includes local template styling", () => {
   assert.equal(rowHeightRequests.length, 7);
   assert.equal(rowHeightRequests[0].updateTableRowStyle.tableRowStyle.minRowHeight.magnitude, 28);
 });
+
+test("article 6 deposit block supports delayed cheque timing and drops agency label", () => {
+  const data = base({
+    sellerDepositEnabled: "Yes",
+    sellerDepositCalcType: "Fixed Amount",
+    sellerDepositFixedAmount: "360000",
+    sellerChequeTiming: "Delayed (within X days)",
+    sellerChequeDays: "5",
+    sellerAgentName: "PRIME BRIDGE REAL ESTATE BROKERAGE L.L.C - S.P.C",
+  });
+  const calc = calculate(data);
+  const replacements = buildReplacements(data, calc, {});
+  const block = replacements.seller_security_deposit_article6_block;
+  
+  const expected = "Similarly, upon signing this agreement, the <<Seller>> undertakes to provide a sum of <<AED 360.000,00>> as a holding <<Security Deposit cheque>> within <<5 (Five) calendar days>> from the date of this MOU. This cheque is to secure the purchase of the <<Property>> and will be held by <<PRIME BRIDGE REAL ESTATE BROKERAGE L.L.C - S.P.C (Seller’s Agency name)>> as stakeholder until the <<Transfer Date>> in accordance with the terms of this <<MOU>>.";
+  
+  if (block !== expected) {
+    throw new Error(`Deposit block does not match expected output.\nEXPECTED: ${expected}\nACTUAL:   ${block}`);
+  }
+});
