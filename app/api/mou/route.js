@@ -18,6 +18,7 @@ export async function POST(request) {
   try {
     const { drive, docs, sheets } = await getGoogleClients();
     const form = await request.json();
+    const templateId = form.templateId || "";
     const rules = await readRules(sheets);
     const data = normalizeForm(form);
     const validation = validateMou(data);
@@ -29,7 +30,7 @@ export async function POST(request) {
     const articleNumbers = buildArticleNumbers(data, rules);
     const replacements = buildReplacements(data, calc, articleNumbers);
     const title = buildDraftTitle(data);
-    const document = await createMouDocument({ drive, docs, title, data, rules, replacements });
+    const document = await createMouDocument({ drive, docs, title, data, rules, replacements, templateId });
 
     await appendDraftLog(sheets, {
       agreementDate: data.agreementDate,

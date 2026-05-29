@@ -1,5 +1,6 @@
 import { getGoogleClients, jsonError } from "@/lib/google/client";
 import { getInitData } from "@/lib/google/sheets";
+import { MOU_TEMPLATES } from "@/lib/mou/config";
 
 export async function GET() {
   try {
@@ -12,6 +13,7 @@ export async function GET() {
       config: {
         allowedDomain: process.env.GOOGLE_ALLOWED_DOMAIN || "",
         hasOutputFolder: Boolean(process.env.MOU_OUTPUT_FOLDER_ID),
+        templates: MOU_TEMPLATES,
       },
     });
   } catch (error) {

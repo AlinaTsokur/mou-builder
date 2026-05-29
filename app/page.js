@@ -377,6 +377,7 @@ export default function HomePage() {
   const [actionErrors, setActionErrors] = useState([]);
   const [result, setResult] = useState(null);
   const [draftRow, setDraftRow] = useState("");
+  const [templateId, setTemplateId] = useState("");
   const [reservationMode, setReservationMode] = useState("date");
   const [reservationDays, setReservationDays] = useState("");
   const [reservationDayType, setReservationDayType] = useState("calendar");
@@ -472,7 +473,7 @@ export default function HomePage() {
     setActionErrors([]);
     setMessage("Creating MOU...");
     try {
-      const data = await api("/api/mou", { method: "POST", body: JSON.stringify(form) });
+      const data = await api("/api/mou", { method: "POST", body: JSON.stringify({ ...form, templateId }) });
       setResult(data);
       setMessage("MOU created");
       await loadInit();
@@ -636,6 +637,22 @@ export default function HomePage() {
 
       <div className="workspace">
         <form className="formPanel" onSubmit={(e) => e.preventDefault()}>
+          {(init.config?.templates || []).length > 1 && (
+            <Section title="Template" status={{ state: templateId ? "ok" : "warning", label: templateId ? "Selected" : "Choose template" }}>
+              <SelectField
+                id="templateId"
+                label="Document Template"
+                tip="Выберите шаблон Google Doc, на основе которого будет создан MOU."
+                value={templateId}
+                onChange={(_, value) => setTemplateId(value)}
+                options={[
+                  { value: "", label: "Select template..." },
+                  ...(init.config?.templates || []).map((t) => ({ value: t.id, label: t.label })),
+                ]}
+              />
+            </Section>
+          )}
+
           <Section title="Agreement" status={sectionStatuses.agreement}>
             <DateField id="agreementDate" label="Agreement Date" tip={tips.agreementDate} value={form.agreementDate} onChange={(_, value) => setAgreementDate(value)} />
             <SelectField
