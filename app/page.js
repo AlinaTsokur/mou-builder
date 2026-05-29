@@ -761,6 +761,8 @@ export default function HomePage() {
             ) : null}
             {ARTICLE_DEFS.map(([key, originalNumber, title]) => {
               const isMandatory = [
+                "article_sale_offer_number",
+                "article_effective_date_number",
                 "article_property_details_number",
                 "article_selling_price_number",
                 "article_payment_table_number",
