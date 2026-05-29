@@ -759,17 +759,27 @@ export default function HomePage() {
             {form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No" ? (
               <p className="smallNote">Оба security cheque отключены: Article 6 снимается автоматически.</p>
             ) : null}
-            {ARTICLE_DEFS.map(([key, originalNumber, title]) => (
-              <CheckboxField
-                key={key}
-                id={key}
-                label={`Include Article ${originalNumber} - ${title}`}
-                tip={articleTips[key] || tips.articles}
-                checked={isArticleIncluded(form, key)}
-                onChange={(_, checked) => toggleArticle(key, checked)}
-                disabled={key === "article_security_deposit_number" && form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No"}
-              />
-            ))}
+            {ARTICLE_DEFS.map(([key, originalNumber, title]) => {
+              const isMandatory = [
+                "article_property_details_number",
+                "article_selling_price_number",
+                "article_payment_table_number",
+                "article_reservation_period_number"
+              ].includes(key);
+              const isSecurityDisabled = key === "article_security_deposit_number" && form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No";
+
+              return (
+                <CheckboxField
+                  key={key}
+                  id={key}
+                  label={`Include Article ${originalNumber} - ${title}`}
+                  tip={articleTips[key] || tips.articles}
+                  checked={isMandatory ? true : isArticleIncluded(form, key)}
+                  onChange={(_, checked) => !isMandatory && toggleArticle(key, checked)}
+                  disabled={isMandatory || isSecurityDisabled}
+                />
+              );
+            })}
           </Section>
 
           <Section title="Signatures" status={sectionStatuses.signatures}>
