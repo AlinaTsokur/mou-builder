@@ -644,7 +644,20 @@ export default function HomePage() {
                 label="Document Template"
                 tip="Выберите шаблон Google Doc, на основе которого будет создан MOU."
                 value={templateId}
-                onChange={(_, value) => setTemplateId(value)}
+                onChange={(_, value) => {
+                  setTemplateId(value);
+                  const selectedTemplate = init.config?.templates?.find((t) => t.id === value);
+                  if (selectedTemplate) {
+                    const label = (selectedTemplate.label || "").toLowerCase();
+                    if (label.includes("off-plan") || label.includes("off plan")) {
+                      patch("unitStatus", "Off-Plan");
+                      applyProjectData(form.projectName, "Off-Plan");
+                    } else if (label.includes("ready") || label.includes("cash")) {
+                      patch("unitStatus", "Ready");
+                      applyProjectData(form.projectName, "Ready");
+                    }
+                  }
+                }}
                 options={[
                   { value: "", label: "Select template..." },
                   ...(init.config?.templates || []).map((t) => ({ value: t.id, label: t.label })),
@@ -689,7 +702,15 @@ export default function HomePage() {
 
           <Section title="Project / Developer" status={sectionStatuses.project}>
             <Field id="projectName" label="Project" tip={tips.projectName} value={form.projectName} onChange={(id, value) => { patch(id, value); applyProjectData(value, form.unitStatus, { syncLocation: true }); }} list="projectsList" options={projectNames} />
-            <SelectField id="unitStatus" label="Unit Status" tip={tips.unitStatus} value={form.unitStatus} onChange={(id, value) => { patch(id, value); applyProjectData(form.projectName, value); }} options={["", "Off-Plan", "Ready"]} />
+            <SelectField
+              id="unitStatus"
+              label="Unit Status"
+              tip={tips.unitStatus}
+              value={form.unitStatus}
+              onChange={(id, value) => { patch(id, value); applyProjectData(form.projectName, value); }}
+              options={["", "Off-Plan", "Ready"]}
+              disabled={Boolean(templateId && (init.config?.templates?.find((t) => t.id === templateId)?.label || "").toLowerCase().match(/off-plan|off plan|ready|cash/))}
+            />
             <Field id="developerName" label="Developer Name" tip={tips.developerName} value={form.developerName} onChange={patch} />
             <Field id="developerLegalName" label="Developer Legal Name" tip={tips.developerLegalName} value={form.developerLegalName} onChange={patch} />
             <Field id="escrowAccountName" label="Escrow Account Name" tip={tips.escrowAccountName} value={form.escrowAccountName} onChange={patch} />
@@ -984,11 +1005,11 @@ function DateField({ id, label, tip, value, onChange }) {
   );
 }
 
-function SelectField({ id, label, tip, value, onChange, options }) {
+function SelectField({ id, label, tip, value, onChange, options, disabled }) {
   return (
     <div className="field">
       <Label label={label} tip={tip} />
-      <CustomSelect id={id} value={value || ""} options={options} onChange={(next) => onChange(id, next)} />
+      <CustomSelect id={id} value={value || ""} options={options} onChange={(next) => onChange(id, next)} disabled={disabled} />
     </div>
   );
 }
@@ -1007,13 +1028,14 @@ function normalizeSelectOption(option) {
   };
 }
 
-function CustomSelect({ id, value, options, onChange }) {
+function CustomSelect({ id, value, options, onChange, disabled }) {
   const [open, setOpen] = useState(false);
   const normalizedOptions = options.map(normalizeSelectOption);
   const menuOptions = normalizedOptions.filter((option) => String(option.value) !== "");
   const selected = normalizedOptions.find((option) => String(option.value) === String(value)) || normalizedOptions[0];
 
   function choose(nextValue) {
+    if (disabled) return;
     onChange(nextValue);
     setOpen(false);
   }
@@ -1026,8 +1048,10 @@ function CustomSelect({ id, value, options, onChange }) {
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
+        disabled={disabled}
+        onClick={() => !disabled && setOpen((current) => !current)}
         onKeyDown={(event) => {
+          if (disabled) return;
           if (event.key === "Escape") setOpen(false);
           if (event.key === "ArrowDown") {
             event.preventDefault();
