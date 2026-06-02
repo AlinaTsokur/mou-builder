@@ -14,7 +14,7 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
-import { ARTICLE_DEFS } from "@/lib/mou/articles";
+import { ARTICLE_DEFS, getArticleDefs } from "@/lib/mou/articles";
 
 const DEFAULT_AGENT = "PRIME BRIDGE REAL ESTATE BROKERAGE L.L.C";
 const REQUIRED_FIELDS_BLOCKING = false;
@@ -53,6 +53,7 @@ const articleTips = {
   article_entire_agreement_number: "MOU заменяет предыдущие договоренности по сделке.",
   article_confidentiality_number: "Условия сделки нельзя раскрывать посторонним.",
   article_electronic_signature_number: "Электронная подпись имеет силу как обычная.",
+  article_vacant_on_transfer_number: "Условия передачи объекта: vacant on Transfer Date или с действующим Tenancy Contract.",
 };
 
 const initialParty = () => ({
@@ -315,6 +316,7 @@ function depositSectionStatus(form, side) {
 }
 
 function buildSectionStatuses(form, reservationMode, reservationDays) {
+  const isReady = String(form.unitStatus || "").toLowerCase() === "ready";
   const agreementMissing = missingFields(form, [
     ["agreementDate", "Agreement Date"],
     ["reservationDeadline", "Reservation Deadline"],
@@ -322,29 +324,37 @@ function buildSectionStatuses(form, reservationMode, reservationDays) {
   if (reservationMode === "days" && !hasValue(reservationDays)) agreementMissing.push("Reservation Period Days");
 
   const paymentsRequired = [
-    ["originalPrice", "Original Price"],
     ["sellingPrice", "Selling Price"],
-    ["paidAmountToDeveloper", "Paid to Developer"],
-    ["transferThresholdPercent", "Transfer Threshold %"],
-    ["transferFee", "Transfer / NOC Fee"],
   ];
+  if (!isReady) {
+    paymentsRequired.push(
+      ["originalPrice", "Original Price"],
+      ["paidAmountToDeveloper", "Paid to Developer"],
+      ["transferThresholdPercent", "Transfer Threshold %"],
+    );
+  }
+  paymentsRequired.push(["transferFee", "Transfer / NOC Fee"]);
   if (form.manualAmountToSeller === "Yes") paymentsRequired.push(["amountToSeller", "Amount to Seller"]);
   paymentsRequired.push(["amountToSellerPaymentMethod", "Amount to Seller Payment Method"]);
   if (form.amountToSellerPaymentMethod === "manager_cheque_in_favour") {
     paymentsRequired.push(["amountToSellerChequeInFavourOf", "Cheque in favour of"]);
   }
 
+  const projectRequired = [
+    ["projectName", "Project"],
+    ["unitStatus", "Unit Status"],
+    ["developerName", "Developer Name"],
+    ["developerLegalName", "Developer Legal Name"],
+  ];
+  if (!isReady) projectRequired.push(["escrowAccountName", "Escrow Account Name"]);
+  projectRequired.push(
+    ["admAdminFee", "ADM Admin Fee"],
+    ["transferFeeLabel", "Transfer Fee Label"],
+  );
+
   return {
     agreement: makeSectionStatus(agreementMissing),
-    project: makeSectionStatus(missingFields(form, [
-      ["projectName", "Project"],
-      ["unitStatus", "Unit Status"],
-      ["developerName", "Developer Name"],
-      ["developerLegalName", "Developer Legal Name"],
-      ["escrowAccountName", "Escrow Account Name"],
-      ["admAdminFee", "ADM Admin Fee"],
-      ["transferFeeLabel", "Transfer Fee Label"],
-    ])),
+    project: makeSectionStatus(missingFields(form, projectRequired)),
     property: makeSectionStatus(missingFields(form, [
       ["propertyLocation", "Property Location"],
       ["bedrooms", "Bedrooms"],
@@ -426,6 +436,8 @@ export default function HomePage() {
     () => buildSectionStatuses(form, reservationMode, reservationDays),
     [form, reservationMode, reservationDays],
   );
+  const isCashToCash = String(form.unitStatus || "").toLowerCase() === "ready";
+  const currentArticleDefs = getArticleDefs(form.unitStatus);
 
   async function api(path, options = {}) {
     const res = await fetch(path, {
@@ -713,7 +725,7 @@ export default function HomePage() {
             />
             <Field id="developerName" label="Developer Name" tip={tips.developerName} value={form.developerName} onChange={patch} />
             <Field id="developerLegalName" label="Developer Legal Name" tip={tips.developerLegalName} value={form.developerLegalName} onChange={patch} />
-            <Field id="escrowAccountName" label="Escrow Account Name" tip={tips.escrowAccountName} value={form.escrowAccountName} onChange={patch} />
+            {!isCashToCash && <Field id="escrowAccountName" label="Escrow Account Name" tip={tips.escrowAccountName} value={form.escrowAccountName} onChange={patch} />}
             <Field id="admAdminFee" label="ADM Admin Fee" tip={tips.admAdminFee} value={form.admAdminFee} onChange={patch} />
             <Field id="transferFeeLabel" label="Transfer Fee Label" tip={tips.transferFeeLabel} value={form.transferFeeLabel} onChange={patch} />
           </Section>
@@ -733,10 +745,10 @@ export default function HomePage() {
           <PartySection title="Buyer" type="buyers" parties={form.buyers} setForm={setForm} lists={lists} status={sectionStatuses.buyers} />
 
           <Section title="Payments" status={sectionStatuses.payments}>
-            <Field id="originalPrice" label="Original Price from SPA" tip={tips.originalPrice} value={form.originalPrice} onChange={patch} />
+            {!isCashToCash && <Field id="originalPrice" label="Original Price from SPA" tip={tips.originalPrice} value={form.originalPrice} onChange={patch} />}
             <Field id="sellingPrice" label="Selling Price agreed by Parties" tip={tips.sellingPrice} value={form.sellingPrice} onChange={patch} />
-            <Field id="paidAmountToDeveloper" label="Paid to Developer" tip={tips.paidAmountToDeveloper} value={form.paidAmountToDeveloper} onChange={patch} placeholder="Например 600,000" />
-            <Field id="amountToSellerAuto" label="Amount to be paid to Seller" tip={tips.amountToSeller} value={preview?.summary?.amountToSeller ? `AED ${preview.summary.amountToSeller}` : ""} onChange={() => {}} placeholder="Посчитается автоматически" readOnly />
+            {!isCashToCash && <Field id="paidAmountToDeveloper" label="Paid to Developer" tip={tips.paidAmountToDeveloper} value={form.paidAmountToDeveloper} onChange={patch} placeholder="Например 600,000" />}
+            <Field id="amountToSellerAuto" label="Amount to be paid to Seller" tip={tips.amountToSeller} value={preview?.summary?.amountToSeller ? `AED ${preview.summary.amountToSeller}` : ""} onChange={() => {}} placeholder={isCashToCash ? "= Selling Price" : "Посчитается автоматически"} readOnly />
             <SelectField
               id="amountToSellerPaymentMethod"
               label="Amount to Seller Payment Method"
@@ -760,9 +772,9 @@ export default function HomePage() {
                 placeholder="Введите имя и фамилию"
               />
             ) : null}
-            <Field id="transferThresholdPercent" label="Transfer Threshold %" tip={tips.transferThresholdPercent} value={form.transferThresholdPercent} onChange={patch} list="thresholdList" options={lists.transfer_threshold_percent || []} />
-            <AutoMoneyField id="thresholdTopUpAmount" label="Threshold Top-up to Developer" tip={tips.thresholdTopUpAmount} value={form.thresholdTopUpAmount} autoValue={preview?.summary?.thresholdTopUpAmount} onChange={patch} placeholder="Посчитается автоматически" />
-            <AutoMoneyField id="remainingDeveloperBalance" label="Remaining Developer Balance" tip={tips.remainingDeveloperBalance} value={form.remainingDeveloperBalance} autoValue={preview?.summary?.remainingDeveloperBalance} onChange={patch} placeholder="Посчитается автоматически" />
+            {!isCashToCash && <Field id="transferThresholdPercent" label="Transfer Threshold %" tip={tips.transferThresholdPercent} value={form.transferThresholdPercent} onChange={patch} list="thresholdList" options={lists.transfer_threshold_percent || []} />}
+            {!isCashToCash && <AutoMoneyField id="thresholdTopUpAmount" label="Threshold Top-up to Developer" tip={tips.thresholdTopUpAmount} value={form.thresholdTopUpAmount} autoValue={preview?.summary?.thresholdTopUpAmount} onChange={patch} placeholder="Посчитается автоматически" />}
+            {!isCashToCash && <AutoMoneyField id="remainingDeveloperBalance" label="Remaining Developer Balance" tip={tips.remainingDeveloperBalance} value={form.remainingDeveloperBalance} autoValue={preview?.summary?.remainingDeveloperBalance} onChange={patch} placeholder="Посчитается автоматически" />}
             <Field id="transferFee" label="Transfer / NOC Fee" tip={tips.transferFee} value={form.transferFee} onChange={patch} />
           </Section>
 
@@ -780,7 +792,7 @@ export default function HomePage() {
             {form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No" ? (
               <p className="smallNote">Оба security cheque отключены: Article 6 снимается автоматически.</p>
             ) : null}
-            {ARTICLE_DEFS.map(([key, originalNumber, title]) => {
+            {currentArticleDefs.map(([key, originalNumber, title]) => {
               const isMandatory = [
                 "article_sale_offer_number",
                 "article_effective_date_number",

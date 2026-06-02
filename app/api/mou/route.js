@@ -10,7 +10,7 @@ import {
   normalizeForm,
   validateMou,
 } from "@/lib/mou/core";
-import { buildArticleNumbers } from "@/lib/mou/articles";
+import { buildArticleNumbers, getArticleDefs } from "@/lib/mou/articles";
 
 const REQUIRE_VALIDATION_BEFORE_CREATE = process.env.MOU_REQUIRE_VALIDATION === "true";
 
@@ -27,7 +27,8 @@ export async function POST(request) {
     }
 
     const calc = calculate(data);
-    const articleNumbers = buildArticleNumbers(data, rules);
+    const articleDefs = getArticleDefs(data.unitStatus);
+    const articleNumbers = buildArticleNumbers(data, rules, articleDefs);
     const replacements = buildReplacements(data, calc, articleNumbers);
     const title = buildDraftTitle(data);
     const document = await createMouDocument({ drive, docs, title, data, rules, replacements, templateId });
