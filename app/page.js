@@ -17,7 +17,7 @@ import {
 import { ARTICLE_DEFS, getArticleDefs } from "@/lib/mou/articles";
 import Holidays from "date-holidays";
 
-const hd = new Holidays("AE");
+const hd = new Holidays("AE", { languages: ["en"] });
 
 const DEFAULT_AGENT = "PRIME BRIDGE REAL ESTATE BROKERAGE L.L.C";
 const REQUIRED_FIELDS_BLOCKING = false;
