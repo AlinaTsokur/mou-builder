@@ -15,6 +15,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { ARTICLE_DEFS, getArticleDefs } from "@/lib/mou/articles";
+import Holidays from "date-holidays";
+
+const hd = new Holidays("AE");
 
 const DEFAULT_AGENT = "PRIME BRIDGE REAL ESTATE BROKERAGE L.L.C";
 const REQUIRED_FIELDS_BLOCKING = false;
@@ -186,7 +189,9 @@ function addReservationDays(startValue, daysValue, dayType) {
     while (added < days) {
       date.setDate(date.getDate() + 1);
       const day = date.getDay();
-      if (day !== 0 && day !== 6) added += 1;
+      const isWeekend = day === 0 || day === 6;
+      const isHoliday = hd.isHoliday(date);
+      if (!isWeekend && !isHoliday) added += 1;
     }
   } else {
     date.setDate(date.getDate() + days);
