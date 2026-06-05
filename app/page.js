@@ -200,6 +200,37 @@ function addReservationDays(startValue, daysValue, dayType) {
   return fromDateInputValue(`${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`);
 }
 
+function getHolidaysInRange(startValue, endValue) {
+  const startIso = toDateInputValue(startValue);
+  const endIso = toDateInputValue(endValue);
+  
+  if (!startIso || !endIso) return [];
+  
+  const startDate = new Date(`${startIso}T00:00:00`);
+  const endDate = new Date(`${endIso}T00:00:00`);
+  
+  if (startDate > endDate) return [];
+  
+  const holidaysFound = [];
+  const currentDate = new Date(startDate);
+  
+  let safeCount = 0;
+  while (currentDate <= endDate && safeCount < 365) {
+    const holidayArr = hd.isHoliday(currentDate);
+    if (holidayArr && holidayArr.length > 0) {
+      for (const h of holidayArr) {
+        const dateStr = `${pad2(currentDate.getDate())}.${pad2(currentDate.getMonth() + 1)}.${currentDate.getFullYear()}`;
+        if (!holidaysFound.some(ex => ex.name === h.name && ex.date === dateStr)) {
+          holidaysFound.push({ name: h.name, date: dateStr });
+        }
+      }
+    }
+    currentDate.setDate(currentDate.getDate() + 1);
+    safeCount++;
+  }
+  return holidaysFound;
+}
+
 const tips = {
   agreementDate: "Дата подписания MOU (договора). Можно писать в привычном формате, например 26.05.2026.",
   reservationDeadline: "Последний день, до которого стороны должны завершить transfer/assignment (передачу прав/переоформление). Можно выбрать конкретную дату или посчитать от Agreement Date по количеству дней.",
@@ -443,6 +474,10 @@ export default function HomePage() {
   );
   const isCashToCash = String(form.unitStatus || "").toLowerCase() === "ready";
   const currentArticleDefs = getArticleDefs(form.unitStatus);
+  const holidaysInRange = useMemo(
+    () => getHolidaysInRange(form.agreementDate, form.reservationDeadline),
+    [form.agreementDate, form.reservationDeadline]
+  );
 
   async function api(path, options = {}) {
     const res = await fetch(path, {
@@ -715,6 +750,18 @@ export default function HomePage() {
                 <DateField id="reservationDeadline" label="Reservation Deadline" tip={tips.reservationDeadline} value={form.reservationDeadline} onChange={patch} />
               </>
             )}
+            {holidaysInRange.length > 0 ? (
+              <div style={{ gridColumn: "1 / -1" }}>
+                <Notice 
+                  title="⚠️ Внимание: В выбранный период попадают государственные праздники ОАЭ!" 
+                  type="warning" 
+                  items={[
+                    ...holidaysInRange.map(h => `${h.name} (${h.date})`),
+                    "В расчётах использованы ожидаемые астрономические даты. Точные даты могут быть изменены правительством. Пожалуйста, проверьте дедлайн вручную."
+                  ]} 
+                />
+              </div>
+            ) : null}
           </Section>
 
           <Section title="Project / Developer" status={sectionStatuses.project}>
