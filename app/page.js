@@ -698,7 +698,6 @@ export default function HomePage() {
 
       {message && <StatusLine text={message} type={message.includes("created") || message.includes("loaded") ? "ok" : actionErrors.length ? "error" : "info"} />}
       {result && <ResultBox result={result} />}
-      {actionErrors.length ? <ActionErrorBox errors={actionErrors} /> : null}
 
       <div className="workspace">
         <form className="formPanel" onSubmit={(e) => e.preventDefault()}>
@@ -898,8 +897,7 @@ export default function HomePage() {
               {busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Create MOU
             </button>
           </div>
-          {actionErrors.length ? <Notice title="MOU was not created" items={actionErrors} type="error" /> : null}
-          <Preview preview={preview} />
+          <Preview preview={preview} actionErrors={actionErrors} />
         </aside>
       </div>
     </main>
@@ -1377,13 +1375,14 @@ function DepositSection({ side, title, form, patch, lists, status, preview }) {
   );
 }
 
-function Preview({ preview }) {
+function Preview({ preview, actionErrors }) {
   if (!preview) return <div className="emptyPreview">Preview will appear after data loads.</div>;
   const validation = preview.validation || { errors: [], warnings: [] };
   const s = preview.summary || {};
 
   return (
     <div className="previewContent">
+      {actionErrors?.length ? <Notice title="MOU was not created" items={actionErrors} type="error" /> : null}
       {validation.errors?.length ? (
         <Notice
           title={REQUIRED_FIELDS_BLOCKING ? "Fix before creating" : "Test mode: these fields are not blocking now"}
