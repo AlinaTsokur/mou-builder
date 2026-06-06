@@ -1291,6 +1291,9 @@ function PartySection({ title, type, parties, setForm, lists, status }) {
         <button className="secondary iconText" type="button" onClick={addParty}><Plus size={16} /> Add {title}</button>
         <span className={Math.round(total * 100) / 100 === 100 ? "okText" : "warningText"}>Ownership total (итого доля): {Math.round(total * 100) / 100}%</span>
       </div>
+      {Math.round(total * 100) / 100 !== 100 ? (
+        <Notice title="Ошибка долей" items={[`Сумма долей (${Math.round(total * 100) / 100}%) не равна 100%. Пожалуйста, распределите доли корректно.`]} type="error" />
+      ) : null}
     </Section>
   );
 }
