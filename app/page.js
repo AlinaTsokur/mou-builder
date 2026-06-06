@@ -521,6 +521,18 @@ export default function HomePage() {
   }
 
   async function createMou() {
+    const totalSellers = form.sellers.reduce((sum, p) => sum + (Number(String(p.ownershipPercent || "").replace(",", ".")) || 0), 0);
+    const totalBuyers = form.buyers.reduce((sum, p) => sum + (Number(String(p.ownershipPercent || "").replace(",", ".")) || 0), 0);
+    
+    if (Math.round(totalSellers * 100) / 100 !== 100) {
+      setActionErrors(["Сумма долей продавцов (Seller) должна быть ровно 100%."]);
+      return;
+    }
+    if (Math.round(totalBuyers * 100) / 100 !== 100) {
+      setActionErrors(["Сумма долей покупателей (Buyer) должна быть ровно 100%."]);
+      return;
+    }
+
     setBusy(true);
     setResult(null);
     setActionErrors([]);
