@@ -1273,7 +1273,7 @@ function PartySection({ title, type, parties, setForm, lists, status }) {
             <Field id={`${type}-${index}-name`} label="Name" tip={tips.partyName} value={party.name} onChange={(_, v) => setParty(index, "name", v)} />
             <Field id={`${type}-${index}-nationality`} label="Nationality" tip={tips.nationality} value={party.nationality} onChange={(_, v) => setParty(index, "nationality", v)} list={`${type}-${index}-nationalities`} options={lists.nationalities || []} />
             <Field id={`${type}-${index}-passport`} label="Passport" tip={tips.passport} value={party.passport} onChange={(_, v) => setParty(index, "passport", v)} />
-            <Field id={`${type}-${index}-eid`} label="EID" tip={tips.eid} value={party.eid} onChange={(_, v) => setParty(index, "eid", v)} />
+            <EidField id={`${type}-${index}-eid`} label="EID" tip={tips.eid} value={party.eid} onChange={(_, v) => setParty(index, "eid", v)} />
             <Field id={`${type}-${index}-ownership`} label="Ownership %" tip={tips.ownershipPercent} value={party.ownershipPercent} onChange={(_, v) => setParty(index, "ownershipPercent", v)} list={`${type}-${index}-ownerships`} options={lists.ownership_percent || []} />
             <SelectField id={`${type}-${index}-poa`} label="POA?" tip={tips.poa} value={party.hasPoa ? "Yes" : "No"} onChange={(_, v) => setParty(index, "hasPoa", v === "Yes")} options={["No", "Yes"]} />
           </div>
@@ -1282,7 +1282,7 @@ function PartySection({ title, type, parties, setForm, lists, status }) {
               <Field id={`${type}-${index}-poaName`} label="POA Name" tip="Имя представителя по Power of Attorney (доверенности)." value={party.poaName} onChange={(_, v) => setParty(index, "poaName", v)} />
               <Field id={`${type}-${index}-poaNationality`} label="POA Nationality" tip={tips.nationality} value={party.poaNationality} onChange={(_, v) => setParty(index, "poaNationality", v)} list={`${type}-${index}-poa-nationalities`} options={lists.nationalities || []} />
               <Field id={`${type}-${index}-poaPassport`} label="POA Passport" tip={tips.passport} value={party.poaPassport} onChange={(_, v) => setParty(index, "poaPassport", v)} />
-              <Field id={`${type}-${index}-poaEid`} label="POA EID" tip={tips.eid} value={party.poaEid} onChange={(_, v) => setParty(index, "poaEid", v)} />
+              <EidField id={`${type}-${index}-poaEid`} label="POA EID" tip={tips.eid} value={party.poaEid} onChange={(_, v) => setParty(index, "poaEid", v)} />
             </div>
           )}
         </div>
