@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { ARTICLE_DEFS, getArticleDefs } from "@/lib/mou/articles";
 import Holidays from "date-holidays";
+import { IMaskInput } from "react-imask";
 
 const hd = new Holidays("AE", { languages: ["en"] });
 
@@ -1029,6 +1030,22 @@ function Field({ id, label, tip, value, onChange, list, options, placeholder, re
           onChange={(e) => onChange(id, e.target.value)}
         />
       )}
+    </div>
+  );
+}
+
+function EidField({ id, label, tip, value, onChange }) {
+  return (
+    <div className="field">
+      <Label label={label} tip={tip} />
+      <IMaskInput
+        id={id}
+        mask="784-0000-0000000-0"
+        value={value || ""}
+        unmask={false}
+        onAccept={(val) => onChange(id, val)}
+        placeholder="784-XXXX-XXXXXXX-X"
+      />
     </div>
   );
 }
