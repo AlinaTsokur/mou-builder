@@ -1270,7 +1270,7 @@ function PartySection({ title, type, parties, setForm, lists, status }) {
                 "Ms.",
               ]}
             />
-            <Field id={`${type}-${index}-name`} label="Name" tip={tips.partyName} value={party.name} onChange={(_, v) => setParty(index, "name", v)} />
+            <Field id={`${type}-${index}-name`} label="Name Surname" tip={tips.partyName} value={party.name} onChange={(_, v) => setParty(index, "name", v)} />
             <Field id={`${type}-${index}-nationality`} label="Nationality" tip={tips.nationality} value={party.nationality} onChange={(_, v) => setParty(index, "nationality", v)} list={`${type}-${index}-nationalities`} options={lists.nationalities || []} />
             <Field id={`${type}-${index}-passport`} label="Passport" tip={tips.passport} value={party.passport} onChange={(_, v) => setParty(index, "passport", v)} />
             <EidField id={`${type}-${index}-eid`} label="EID" tip={tips.eid} value={party.eid} onChange={(_, v) => setParty(index, "eid", v)} />
@@ -1279,7 +1279,7 @@ function PartySection({ title, type, parties, setForm, lists, status }) {
           </div>
           {party.hasPoa && (
             <div className="grid poaGrid">
-              <Field id={`${type}-${index}-poaName`} label="POA Name" tip="Имя представителя по Power of Attorney (доверенности)." value={party.poaName} onChange={(_, v) => setParty(index, "poaName", v)} />
+              <Field id={`${type}-${index}-poaName`} label="POA Name Surname" tip="Имя представителя по Power of Attorney (доверенности)." value={party.poaName} onChange={(_, v) => setParty(index, "poaName", v)} />
               <Field id={`${type}-${index}-poaNationality`} label="POA Nationality" tip={tips.nationality} value={party.poaNationality} onChange={(_, v) => setParty(index, "poaNationality", v)} list={`${type}-${index}-poa-nationalities`} options={lists.nationalities || []} />
               <Field id={`${type}-${index}-poaPassport`} label="POA Passport" tip={tips.passport} value={party.poaPassport} onChange={(_, v) => setParty(index, "poaPassport", v)} />
               <EidField id={`${type}-${index}-poaEid`} label="POA EID" tip={tips.eid} value={party.poaEid} onChange={(_, v) => setParty(index, "poaEid", v)} />
