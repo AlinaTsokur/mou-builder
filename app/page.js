@@ -856,7 +856,7 @@ export default function HomePage() {
 
           <Section title="Articles" status={sectionStatuses.articles} defaultOpen={false}>
             {form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No" ? (
-              <p className="smallNote">Оба security cheque отключены: Article 6 снимается автоматически.</p>
+              <p className="smallNote">Оба security cheque отключены: Article 6 и Article 9 снимаются автоматически.</p>
             ) : null}
             {currentArticleDefs.map(([key, originalNumber, title]) => {
               const isMandatory = [
@@ -867,7 +867,7 @@ export default function HomePage() {
                 "article_payment_table_number",
                 "article_reservation_period_number"
               ].includes(key);
-              const isSecurityDisabled = key === "article_security_deposit_number" && form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No";
+              const isSecurityDisabled = (key === "article_security_deposit_number" || key === "article_deposit_release_number") && form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No";
 
               return (
                 <CheckboxField
@@ -1350,7 +1350,7 @@ function rebalance(parties) {
 }
 
 function isArticleIncluded(form, key) {
-  if (key === "article_security_deposit_number" && form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No") {
+  if ((key === "article_security_deposit_number" || key === "article_deposit_release_number") && form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No") {
     return false;
   }
   if ((form.excludedArticleKeys || []).includes(key)) return false;
