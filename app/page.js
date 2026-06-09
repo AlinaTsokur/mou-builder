@@ -792,7 +792,7 @@ export default function HomePage() {
             <Field id="developerName" label="Developer Name" tip={tips.developerName} value={form.developerName} onChange={patch} />
             <Field id="developerLegalName" label="Developer Legal Name" tip={tips.developerLegalName} value={form.developerLegalName} onChange={patch} />
             {!isCashToCash && <Field id="escrowAccountName" label="Escrow Account Name" tip={tips.escrowAccountName} value={form.escrowAccountName} onChange={patch} />}
-            <Field id="admAdminFee" label="ADM Admin Fee" tip={tips.admAdminFee} value={form.admAdminFee} onChange={patch} />
+            <AutoMoneyField id="admAdminFee" label="ADM Admin Fee" tip={tips.admAdminFee} value={form.admAdminFee} onChange={patch} />
             <Field id="transferFeeLabel" label="Transfer Fee Label" tip={tips.transferFeeLabel} value={form.transferFeeLabel} onChange={patch} />
           </Section>
 
@@ -1389,7 +1389,7 @@ function DepositSection({ side, title, form, patch, lists, status, preview }) {
         <>
           <SelectField id={calcTypeKey} label="Calculation Type" tip={tips.depositCalcType} value={form[calcTypeKey]} onChange={patch} options={["% of Selling Price", "Fixed Amount"]} />
           {!fixed && <Field id={`${side}DepositPercent`} label="Deposit %" tip={tips.depositPercent} value={form[`${side}DepositPercent`]} onChange={patch} />}
-          {fixed && <Field id={`${side}DepositFixedAmount`} label="Fixed Amount" tip={tips.depositFixedAmount} value={form[`${side}DepositFixedAmount`]} onChange={patch} />}
+          {fixed && <AutoMoneyField id={`${side}DepositFixedAmount`} label="Fixed Amount" tip={tips.depositFixedAmount} value={form[`${side}DepositFixedAmount`]} onChange={patch} />}
           <Field id={`${side}DepositCalculated`} label="Calculated Deposit Amount" tip="Автоматически посчитанная сумма deposit (депозита), которая попадет в MOU." value={depositAutoValue ? `AED ${depositAutoValue}` : ""} onChange={() => {}} placeholder="Посчитается автоматически" readOnly />
           <SelectField id={`${side}ChequeTiming`} label="Cheque Timing" tip="Когда должен быть передан чек" value={form[`${side}ChequeTiming`] || "Upon signing"} onChange={patch} options={["Upon signing", "Delayed (within X days)"]} />
           {form[`${side}ChequeTiming`] === "Delayed (within X days)" && <Field id={`${side}ChequeDays`} label="Days" tip="Количество дней на передачу чека (например, 5)" value={form[`${side}ChequeDays`]} onChange={patch} placeholder="5" />}
