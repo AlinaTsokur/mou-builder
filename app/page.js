@@ -113,6 +113,7 @@ const initialForm = {
   buyerDepositCalcType: "% of Selling Price",
   buyerDepositPercent: "",
   buyerDepositFixedAmount: "",
+  buyerDefaultPenaltyAmount: "",
   buyerChequeNumber: "",
   buyerChequeDate: "",
   buyerChequeBank: "",
@@ -124,6 +125,7 @@ const initialForm = {
   sellerDepositCalcType: "% of Selling Price",
   sellerDepositPercent: "",
   sellerDepositFixedAmount: "",
+  sellerDefaultPenaltyAmount: "",
   sellerChequeNumber: "",
   sellerChequeDate: "",
   sellerChequeBank: "",
@@ -1352,12 +1354,15 @@ function DepositSection({ side, title, form, patch, lists, status, preview }) {
   return (
     <Section title={title} status={status}>
       <SelectField id={enabledKey} label={`${cap} provides cheque?`} tip={tips.depositEnabled} value={form[enabledKey]} onChange={patch} options={["Yes", "No"]} />
-      <SelectField id={calcTypeKey} label="Calculation Type" tip={tips.depositCalcType} value={form[calcTypeKey]} onChange={patch} options={["% of Selling Price", "Fixed Amount"]} />
-      {!fixed && <Field id={`${side}DepositPercent`} label="Deposit %" tip={tips.depositPercent} value={form[`${side}DepositPercent`]} onChange={patch} />}
-      {fixed && <Field id={`${side}DepositFixedAmount`} label="Fixed Amount" tip={tips.depositFixedAmount} value={form[`${side}DepositFixedAmount`]} onChange={patch} />}
-      {enabled && <Field id={`${side}DepositCalculated`} label="Calculated Deposit Amount" tip="Автоматически посчитанная сумма deposit (депозита), которая попадет в MOU." value={depositAutoValue ? `AED ${depositAutoValue}` : ""} onChange={() => {}} placeholder="Посчитается автоматически" readOnly />}
+      {!enabled && (
+        <AutoMoneyField id={`${side}DefaultPenaltyAmount`} label="Default Penalty Amount" tip="Сумма штрафа в случае дефолта (по умолчанию 10% от Selling Price)" value={form[`${side}DefaultPenaltyAmount`]} autoValue={preview?.summary?.[`${side}DefaultPenaltyAmount`]} onChange={patch} placeholder="Пусто = 10% от Selling Price" />
+      )}
       {enabled && (
         <>
+          <SelectField id={calcTypeKey} label="Calculation Type" tip={tips.depositCalcType} value={form[calcTypeKey]} onChange={patch} options={["% of Selling Price", "Fixed Amount"]} />
+          {!fixed && <Field id={`${side}DepositPercent`} label="Deposit %" tip={tips.depositPercent} value={form[`${side}DepositPercent`]} onChange={patch} />}
+          {fixed && <Field id={`${side}DepositFixedAmount`} label="Fixed Amount" tip={tips.depositFixedAmount} value={form[`${side}DepositFixedAmount`]} onChange={patch} />}
+          <Field id={`${side}DepositCalculated`} label="Calculated Deposit Amount" tip="Автоматически посчитанная сумма deposit (депозита), которая попадет в MOU." value={depositAutoValue ? `AED ${depositAutoValue}` : ""} onChange={() => {}} placeholder="Посчитается автоматически" readOnly />
           <SelectField id={`${side}ChequeTiming`} label="Cheque Timing" tip="Когда должен быть передан чек" value={form[`${side}ChequeTiming`] || "Upon signing"} onChange={patch} options={["Upon signing", "Delayed (within X days)"]} />
           {form[`${side}ChequeTiming`] === "Delayed (within X days)" && <Field id={`${side}ChequeDays`} label="Days" tip="Количество дней на передачу чека (например, 5)" value={form[`${side}ChequeDays`]} onChange={patch} placeholder="5" />}
           {form[`${side}ChequeTiming`] !== "Delayed (within X days)" && (
@@ -1413,9 +1418,11 @@ function Preview({ preview, actionErrors }) {
         <Row label="Agency Fee Seller" value={aed(s.agencyFeeSeller)} />
         <Row label="Agency Fee Buyer" value={aed(s.agencyFeeBuyer)} />
       </PreviewCard>
-      <PreviewCard title="Security Deposits">
+      <PreviewCard title="Security Deposits / Penalties">
         <Row label="Buyer Deposit" value={aed(s.buyerDeposit)} />
         <Row label="Seller Deposit" value={aed(s.sellerDeposit)} />
+        <Row label="Buyer Penalty (No Deposit)" value={aed(s.buyerDefaultPenaltyAmount)} />
+        <Row label="Seller Penalty (No Deposit)" value={aed(s.sellerDefaultPenaltyAmount)} />
       </PreviewCard>
       <PreviewCard title="Articles">
         <div className="articleGrid">
