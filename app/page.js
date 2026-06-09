@@ -1065,7 +1065,35 @@ function EidField({ id, label, tip, value, onChange }) {
 function AutoMoneyField({ id, label, tip, value, autoValue, onChange, placeholder }) {
   const hasManualValue = String(value || "").trim() !== "";
   const hasAutoValue = String(autoValue || "").trim() !== "";
-  const displayValue = hasManualValue ? value : hasAutoValue ? `AED ${autoValue}` : "";
+
+  const formatWithCommas = (val) => {
+    if (!val) return "";
+    const str = String(val).replace(/,/g, "");
+    if (str === "-") return "-";
+    const parts = str.split(".");
+    const integerPart = parts[0];
+    const decimalPart = parts[1];
+    
+    if (isNaN(Number(integerPart)) && integerPart !== "" && integerPart !== "-") return val;
+    
+    let formattedInteger = integerPart;
+    if (integerPart !== "" && integerPart !== "-") {
+      formattedInteger = new Intl.NumberFormat("en-US").format(Number(integerPart));
+    }
+    
+    if (parts.length > 1) {
+      return `${formattedInteger}.${decimalPart}`;
+    }
+    return formattedInteger;
+  };
+
+  const displayValue = hasManualValue ? formatWithCommas(value) : hasAutoValue ? `AED ${formatWithCommas(autoValue)}` : "";
+
+  const handleChange = (e) => {
+    const val = e.target.value;
+    const cleaned = val.replace(/[^\d.,\-]/g, "");
+    onChange(id, formatWithCommas(cleaned));
+  };
 
   return (
     <div className="field">
@@ -1078,7 +1106,7 @@ function AutoMoneyField({ id, label, tip, value, autoValue, onChange, placeholde
         onFocus={(event) => {
           if (!hasManualValue && hasAutoValue) event.target.select();
         }}
-        onChange={(event) => onChange(id, event.target.value)}
+        onChange={handleChange}
       />
     </div>
   );
