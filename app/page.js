@@ -811,9 +811,9 @@ export default function HomePage() {
           <PartySection title="Buyer" type="buyers" parties={form.buyers} setForm={setForm} lists={lists} status={sectionStatuses.buyers} />
 
           <Section title="Payments" status={sectionStatuses.payments}>
-            {!isCashToCash && <Field id="originalPrice" label="Original Price from SPA" tip={tips.originalPrice} value={form.originalPrice} onChange={patch} />}
-            <Field id="sellingPrice" label="Selling Price agreed by Parties" tip={tips.sellingPrice} value={form.sellingPrice} onChange={patch} />
-            {!isCashToCash && <Field id="paidAmountToDeveloper" label="Paid to Developer" tip={tips.paidAmountToDeveloper} value={form.paidAmountToDeveloper} onChange={patch} placeholder="Например 600,000" />}
+            {!isCashToCash && <AutoMoneyField id="originalPrice" label="Original Price from SPA" tip={tips.originalPrice} value={form.originalPrice} onChange={patch} />}
+            <AutoMoneyField id="sellingPrice" label="Selling Price agreed by Parties" tip={tips.sellingPrice} value={form.sellingPrice} onChange={patch} />
+            {!isCashToCash && <AutoMoneyField id="paidAmountToDeveloper" label="Paid to Developer" tip={tips.paidAmountToDeveloper} value={form.paidAmountToDeveloper} onChange={patch} placeholder="Например 600,000" />}
             <Field id="amountToSellerAuto" label="Amount to be paid to Seller" tip={tips.amountToSeller} value={preview?.summary?.amountToSeller ? `AED ${preview.summary.amountToSeller}` : ""} onChange={() => {}} placeholder={isCashToCash ? "= Selling Price" : "Посчитается автоматически"} readOnly />
             <SelectField
               id="amountToSellerPaymentMethod"
@@ -841,7 +841,7 @@ export default function HomePage() {
             {!isCashToCash && <Field id="transferThresholdPercent" label="Transfer Threshold %" tip={tips.transferThresholdPercent} value={form.transferThresholdPercent} onChange={patch} list="thresholdList" options={lists.transfer_threshold_percent || []} />}
             {!isCashToCash && <AutoMoneyField id="thresholdTopUpAmount" label="Threshold Top-up to Developer" tip={tips.thresholdTopUpAmount} value={form.thresholdTopUpAmount} autoValue={preview?.summary?.thresholdTopUpAmount} onChange={patch} placeholder="Посчитается автоматически" />}
             {!isCashToCash && <AutoMoneyField id="remainingDeveloperBalance" label="Remaining Developer Balance" tip={tips.remainingDeveloperBalance} value={form.remainingDeveloperBalance} autoValue={preview?.summary?.remainingDeveloperBalance} onChange={patch} placeholder="Посчитается автоматически" />}
-            <Field id="transferFee" label="Transfer / NOC Fee" tip={tips.transferFee} value={form.transferFee} onChange={patch} />
+            <AutoMoneyField id="transferFee" label="Transfer / NOC Fee" tip={tips.transferFee} value={form.transferFee} onChange={patch} />
           </Section>
 
           <Section title="Agency" status={sectionStatuses.agency}>
