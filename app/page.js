@@ -847,20 +847,25 @@ export default function HomePage() {
           </Section>
 
           <Section title="Agency" status={sectionStatuses.agency}>
-            <CheckboxField id="sellerAgentEnabled" label="Seller has an Agent" tip="Есть ли агентство со стороны продавца?" checked={form.sellerAgentEnabled === "Yes"} onChange={(_, checked) => patch("sellerAgentEnabled", checked ? "Yes" : "No")} />
-            {form.sellerAgentEnabled === "Yes" ? (
-              <>
-                <Field id="sellerAgentName" label="Seller Agent" tip={tips.sellerAgentName} value={form.sellerAgentName} onChange={patch} list="agentsList" options={lists.agent || []} />
-                <AutoMoneyField id="agencyFeeSeller" label="Agency Fee Seller" tip={tips.agencyFeeSeller} value={form.agencyFeeSeller} autoValue={preview?.summary?.agencyFeeSeller} onChange={patch} placeholder="Пусто = auto 2.1%, 0 = нет комиссии" />
-              </>
-            ) : null}
-            <CheckboxField id="buyerAgentEnabled" label="Buyer has an Agent" tip="Есть ли агентство со стороны покупателя?" checked={form.buyerAgentEnabled === "Yes"} onChange={(_, checked) => patch("buyerAgentEnabled", checked ? "Yes" : "No")} />
-            {form.buyerAgentEnabled === "Yes" ? (
-              <>
-                <Field id="buyerAgentName" label="Buyer Agent" tip={tips.buyerAgentName} value={form.buyerAgentName} onChange={patch} list="agentsList" options={lists.agent || []} />
-                <AutoMoneyField id="agencyFeeBuyer" label="Agency Fee Buyer" tip={tips.agencyFeeBuyer} value={form.agencyFeeBuyer} autoValue={preview?.summary?.agencyFeeBuyer} onChange={patch} placeholder="Пусто = auto 2.1%, можно вручную" />
-              </>
-            ) : null}
+            <div style={{ display: "grid", gap: "10px", alignContent: "start" }}>
+              <CheckboxField id="sellerAgentEnabled" label="Seller has an Agent" tip="Есть ли агентство со стороны продавца?" checked={form.sellerAgentEnabled === "Yes"} onChange={(_, checked) => patch("sellerAgentEnabled", checked ? "Yes" : "No")} />
+              {form.sellerAgentEnabled === "Yes" ? (
+                <>
+                  <Field id="sellerAgentName" label="Seller Agent" tip={tips.sellerAgentName} value={form.sellerAgentName} onChange={patch} list="agentsList" options={lists.agent || []} />
+                  <AutoMoneyField id="agencyFeeSeller" label="Agency Fee Seller" tip={tips.agencyFeeSeller} value={form.agencyFeeSeller} autoValue={preview?.summary?.agencyFeeSeller} onChange={patch} placeholder="Пусто = auto 2.1%, 0 = нет комиссии" />
+                </>
+              ) : null}
+            </div>
+            
+            <div style={{ display: "grid", gap: "10px", alignContent: "start" }}>
+              <CheckboxField id="buyerAgentEnabled" label="Buyer has an Agent" tip="Есть ли агентство со стороны покупателя?" checked={form.buyerAgentEnabled === "Yes"} onChange={(_, checked) => patch("buyerAgentEnabled", checked ? "Yes" : "No")} />
+              {form.buyerAgentEnabled === "Yes" ? (
+                <>
+                  <Field id="buyerAgentName" label="Buyer Agent" tip={tips.buyerAgentName} value={form.buyerAgentName} onChange={patch} list="agentsList" options={lists.agent || []} />
+                  <AutoMoneyField id="agencyFeeBuyer" label="Agency Fee Buyer" tip={tips.agencyFeeBuyer} value={form.agencyFeeBuyer} autoValue={preview?.summary?.agencyFeeBuyer} onChange={patch} placeholder="Пусто = auto 2.1%, можно вручную" />
+                </>
+              ) : null}
+            </div>
           </Section>
 
           <DepositSection side="buyer" title="Security Deposit - Buyer" form={form} patch={patch} lists={lists} status={sectionStatuses.buyerDeposit} preview={preview} />
