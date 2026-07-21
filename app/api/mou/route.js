@@ -3,14 +3,17 @@ import { createMouDocument } from "@/lib/google/docs";
 import { appendDraftLog, readRules } from "@/lib/google/sheets";
 import {
   buildDraftTitle,
+  buildFlags,
   buildPreview,
   buildReplacements,
+  buildReplacementsV2,
   calculate,
   getMainPartyName,
   normalizeForm,
   validateMou,
 } from "@/lib/mou/core";
-import { buildArticleNumbers, getArticleDefs } from "@/lib/mou/articles";
+import { ARTICLE_DEFS_OFFPLAN_V2, buildArticleNumbers, getArticleDefs } from "@/lib/mou/articles";
+import { MOU_TEMPLATES } from "@/lib/mou/config";
 
 const REQUIRE_VALIDATION_BEFORE_CREATE = process.env.MOU_REQUIRE_VALIDATION === "true";
 
@@ -19,7 +22,9 @@ export async function POST(request) {
     const { drive, docs, sheets } = await getGoogleClients();
     const form = await request.json();
     const templateId = form.templateId || "";
-    const rules = await readRules(sheets);
+    const templateEntry = MOU_TEMPLATES.find((t) => t.id === templateId) || MOU_TEMPLATES[0];
+    const engine = templateEntry?.engine === "v2" ? "v2" : "legacy";
+
     const data = normalizeForm(form);
     const validation = validateMou(data);
     if (REQUIRE_VALIDATION_BEFORE_CREATE && !validation.ok) {
@@ -27,11 +32,29 @@ export async function POST(request) {
     }
 
     const calc = calculate(data);
-    const articleDefs = getArticleDefs(data.unitStatus);
-    const articleNumbers = buildArticleNumbers(data, rules, articleDefs);
-    const replacements = buildReplacements(data, calc, articleNumbers);
     const title = buildDraftTitle(data);
-    const document = await createMouDocument({ drive, docs, title, data, rules, replacements, templateId });
+
+    let document;
+    let rules;
+    if (engine === "v2") {
+      // v2: условия живут в шаблоне ({{#if}}/{{#row}}), правил-таблиц нет.
+      // Ручное отключение статей работает через excludedArticleKeys.
+      rules = [];
+      const articleNumbers = buildArticleNumbers(data, rules, ARTICLE_DEFS_OFFPLAN_V2);
+      const replacements = buildReplacementsV2(data, calc, articleNumbers);
+      const flags = buildFlags(data, calc);
+      document = await createMouDocument({
+        drive, docs, title, data, rules, replacements, flags, templateId, engine,
+      });
+    } else {
+      rules = await readRules(sheets);
+      const articleDefs = getArticleDefs(data.unitStatus);
+      const articleNumbers = buildArticleNumbers(data, rules, articleDefs);
+      const replacements = buildReplacements(data, calc, articleNumbers);
+      document = await createMouDocument({
+        drive, docs, title, data, rules, replacements, templateId,
+      });
+    }
 
     await appendDraftLog(sheets, {
       agreementDate: data.agreementDate,

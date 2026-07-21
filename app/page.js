@@ -109,6 +109,17 @@ const initialForm = {
   buyerAgentEnabled: "Yes",
   sellerAgentName: DEFAULT_AGENT,
   buyerAgentName: DEFAULT_AGENT,
+  sellerAgentFeeEnabled: "Yes",
+  buyerAgentFeeEnabled: "Yes",
+  sellerAgentRepresentative: "",
+  sellerAgentPosition: "",
+  sellerAgentLicense: "",
+  sellerAgentAddress: "",
+  buyerAgentRepresentative: "",
+  buyerAgentPosition: "",
+  buyerAgentLicense: "",
+  buyerAgentAddress: "",
+  buyerChequeThirdParty: "No",
   agencyFeeSeller: "",
   agencyFeeBuyer: "",
   buyerDepositEnabled: "Yes",
@@ -420,7 +431,7 @@ function buildSectionStatuses(form, reservationMode, reservationDays) {
 export default function HomePage() {
   const { data: session, status } = useSession();
   const [form, setForm] = useState(initialForm);
-  const [init, setInit] = useState({ projects: [], lists: {}, drafts: [], rules: [] });
+  const [init, setInit] = useState({ projects: [], lists: {}, drafts: [], rules: [], agents: [] });
   const [preview, setPreview] = useState(null);
   const [busy, setBusy] = useState(false);
   const [loadingInit, setLoadingInit] = useState(false);
@@ -578,6 +589,25 @@ export default function HomePage() {
 
   function patch(key, value) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  // Выбор агентства: подставляем реквизиты из справочника AGENTS (вкладка в Sheets)
+  function patchAgentName(sideKey, value) {
+    const record = (init.agents || []).find(
+      (a) => a.name.trim().toLowerCase() === String(value || "").trim().toLowerCase(),
+    );
+    setForm((current) => ({
+      ...current,
+      [`${sideKey}AgentName`]: value,
+      ...(record
+        ? {
+            [`${sideKey}AgentRepresentative`]: record.representative,
+            [`${sideKey}AgentPosition`]: record.position,
+            [`${sideKey}AgentLicense`]: record.license,
+            [`${sideKey}AgentAddress`]: record.address,
+          }
+        : {}),
+    }));
   }
 
   function toggleArticle(key, included) {
@@ -851,18 +881,30 @@ export default function HomePage() {
               <CheckboxField id="sellerAgentEnabled" label="Seller has an Agent" tip="Есть ли агентство со стороны продавца?" checked={form.sellerAgentEnabled === "Yes"} onChange={(_, checked) => patch("sellerAgentEnabled", checked ? "Yes" : "No")} />
               {form.sellerAgentEnabled === "Yes" ? (
                 <>
-                  <Field id="sellerAgentName" label="Seller Agent" tip={tips.sellerAgentName} value={form.sellerAgentName} onChange={patch} list="agentsList" options={lists.agent || []} />
-                  <AutoMoneyField id="agencyFeeSeller" label="Agency Fee Seller" tip={tips.agencyFeeSeller} value={form.agencyFeeSeller} autoValue={preview?.summary?.agencyFeeSeller} onChange={patch} placeholder="Пусто = auto 2.1%, 0 = нет комиссии" />
+                  <Field id="sellerAgentName" label="Seller Agent" tip={tips.sellerAgentName} value={form.sellerAgentName} onChange={(_, value) => patchAgentName("seller", value)} list="agentsList" options={(init.agents || []).map((a) => a.name).concat(lists.agent || []).filter((v, i, arr) => arr.indexOf(v) === i)} />
+                  <Field id="sellerAgentRepresentative" label="Representative" tip="Представитель агентства (из вкладки AGENTS, можно поправить)" value={form.sellerAgentRepresentative} onChange={patch} placeholder="Авто из справочника" />
+                  <Field id="sellerAgentLicense" label="License" tip="Номер лицензии агентства" value={form.sellerAgentLicense} onChange={patch} placeholder="Авто из справочника" />
+                  <Field id="sellerAgentAddress" label="Address" tip="Адрес агентства" value={form.sellerAgentAddress} onChange={patch} placeholder="Авто из справочника" />
+                  <CheckboxField id="sellerAgentFeeEnabled" label="Agency Fee enabled" tip="Есть ли комиссия у агентства продавца? Если снять — строка комиссии уйдет из договора (шаблон v2)" checked={form.sellerAgentFeeEnabled !== "No"} onChange={(_, checked) => patch("sellerAgentFeeEnabled", checked ? "Yes" : "No")} />
+                  {form.sellerAgentFeeEnabled !== "No" ? (
+                    <AutoMoneyField id="agencyFeeSeller" label="Agency Fee Seller" tip={tips.agencyFeeSeller} value={form.agencyFeeSeller} autoValue={preview?.summary?.agencyFeeSeller} onChange={patch} placeholder="Пусто = auto 2.1%, 0 = нет комиссии" />
+                  ) : null}
                 </>
               ) : null}
             </div>
-            
+
             <div style={{ display: "grid", gap: "10px", alignContent: "start" }}>
               <CheckboxField id="buyerAgentEnabled" label="Buyer has an Agent" tip="Есть ли агентство со стороны покупателя?" checked={form.buyerAgentEnabled === "Yes"} onChange={(_, checked) => patch("buyerAgentEnabled", checked ? "Yes" : "No")} />
               {form.buyerAgentEnabled === "Yes" ? (
                 <>
-                  <Field id="buyerAgentName" label="Buyer Agent" tip={tips.buyerAgentName} value={form.buyerAgentName} onChange={patch} list="agentsList" options={lists.agent || []} />
-                  <AutoMoneyField id="agencyFeeBuyer" label="Agency Fee Buyer" tip={tips.agencyFeeBuyer} value={form.agencyFeeBuyer} autoValue={preview?.summary?.agencyFeeBuyer} onChange={patch} placeholder="Пусто = auto 2.1%, можно вручную" />
+                  <Field id="buyerAgentName" label="Buyer Agent" tip={tips.buyerAgentName} value={form.buyerAgentName} onChange={(_, value) => patchAgentName("buyer", value)} list="agentsList" options={(init.agents || []).map((a) => a.name).concat(lists.agent || []).filter((v, i, arr) => arr.indexOf(v) === i)} />
+                  <Field id="buyerAgentRepresentative" label="Representative" tip="Представитель агентства (из вкладки AGENTS, можно поправить)" value={form.buyerAgentRepresentative} onChange={patch} placeholder="Авто из справочника" />
+                  <Field id="buyerAgentLicense" label="License" tip="Номер лицензии агентства" value={form.buyerAgentLicense} onChange={patch} placeholder="Авто из справочника" />
+                  <Field id="buyerAgentAddress" label="Address" tip="Адрес агентства" value={form.buyerAgentAddress} onChange={patch} placeholder="Авто из справочника" />
+                  <CheckboxField id="buyerAgentFeeEnabled" label="Agency Fee enabled" tip="Есть ли комиссия у агентства покупателя? Если снять — строка комиссии уйдет из договора (шаблон v2)" checked={form.buyerAgentFeeEnabled !== "No"} onChange={(_, checked) => patch("buyerAgentFeeEnabled", checked ? "Yes" : "No")} />
+                  {form.buyerAgentFeeEnabled !== "No" ? (
+                    <AutoMoneyField id="agencyFeeBuyer" label="Agency Fee Buyer" tip={tips.agencyFeeBuyer} value={form.agencyFeeBuyer} autoValue={preview?.summary?.agencyFeeBuyer} onChange={patch} placeholder="Пусто = auto 2.1%, можно вручную" />
+                  ) : null}
                 </>
               ) : null}
             </div>
@@ -1416,6 +1458,15 @@ function DepositSection({ side, title, form, patch, lists, status, preview }) {
               <DateField id={`${side}ChequeDate`} label="Cheque Date" tip={tips.chequeDate} value={form[`${side}ChequeDate`]} onChange={patch} />
               <Field id={`${side}ChequeBank`} label="Cheque Bank" tip={tips.chequeBank} value={form[`${side}ChequeBank`]} onChange={patch} list={`${side}Banks`} options={lists.banks || []} />
               <Field id={`${side}ChequeDrawnBy`} label="Drawn by" tip={tips.chequeDrawnBy} value={form[`${side}ChequeDrawnBy`]} onChange={patch} options={drawnByOptions} />
+              {side === "buyer" && (
+                <CheckboxField
+                  id="buyerChequeThirdParty"
+                  label="Cheque issued by a third party"
+                  tip="Чек выписан не самим покупателем (родственник, компания). В договор добавится фраза про undertaking letter (шаблон v2)"
+                  checked={form.buyerChequeThirdParty === "Yes"}
+                  onChange={(_, checked) => patch("buyerChequeThirdParty", checked ? "Yes" : "No")}
+                />
+              )}
               <Field id={`${side}ChequeInFavourOf`} label="In favour of" tip={tips.chequeInFavourOf} value={form[`${side}ChequeInFavourOf`]} onChange={patch} options={inFavourOptions} />
             </>
           )}
