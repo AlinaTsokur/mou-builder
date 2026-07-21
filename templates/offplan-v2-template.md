@@ -41,6 +41,9 @@
 | `{{seller_deposit_80_percent_amount}}` / `{{seller_deposit_20_percent_amount}}` | зеркально |
 | `{{seller_deposit_intro}}` | "Similarly, upon signing this agreement," если депозит Buyer есть, иначе "Upon signing this agreement," |
 | `{{deposit_return_parties}}` | "the Buyer and to the Seller" / "the Buyer" / "the Seller" |
+| `{{buyer_deposit_holder}}` | кто держит чек Buyer'а: оба агента → "The Seller's Agency as stakeholder" (вариант без реквизитов) / "The Buyer's Agency as stakeholder" (с реквизитами); один агент → "The Seller's/Buyer's Agency as stakeholder" (существующий); нет агентов → "the Seller" |
+| `{{seller_deposit_holder}}` | кто держит чек Seller'а: есть агент(ы) → "The Seller's Agency as stakeholder" либо единственное существующее агентство; нет агентов → "the Buyer" |
+| `{{agencies_word}}` | "Agencies" (оба агента) / "the Agency" (один агент) |
 | `{{seller_signature_block}}` / `{{buyer_signature_block}}` | Name/Signature/Date на каждого участника стороны |
 | `{{article_*_number}}` | динамические номера статей (ручное отключение статей сохраняется) |
 
@@ -175,15 +178,15 @@ due to administrative or procedural reasons attributable to third parties, inclu
 **Article {{article_security_deposit_number}}**
 
 {{#if buyer_deposit}}{{#if !buyer_cheque_details}}
-Upon signing this agreement, the Buyer undertakes to pay a sum of **AED {{buyer_deposit_amount}}** as a holding Security Deposit cheque. This cheque is to secure the purchase of the Property and will be held by The Seller's Agency as stakeholder until the Transfer Date in accordance with the terms of this MOU.
+Upon signing this agreement, the Buyer undertakes to pay a sum of **AED {{buyer_deposit_amount}}** as a holding Security Deposit cheque. This cheque is to secure the purchase of the Property and will be held by {{buyer_deposit_holder}} until the Transfer Date in accordance with the terms of this MOU.
 {{/if}}{{#if buyer_cheque_details}}
-Upon signing this agreement, the Buyer undertakes to pay a sum of **AED {{buyer_deposit_amount}}** as a holding Security Deposit cheque by cheque No. **{{buyer_cheque_number}}** dated **{{buyer_cheque_date}}**, issued by **{{buyer_cheque_bank}}**, drawn by **{{buyer_cheque_drawn_by}}** in favour of **{{buyer_cheque_in_favour_of}}**{{#if buyer_cheque_third_party}}, on behalf of the Buyer, provided that such third party executes an undertaking letter acceptable to the Agent and the Parties, confirming that the funds are provided on behalf of the Buyer{{/if}}. This cheque is to secure the purchase of the Property and will be held by The Buyer's Agency as stakeholder until the Transfer Date in accordance with the terms of this MOU.
+Upon signing this agreement, the Buyer undertakes to pay a sum of **AED {{buyer_deposit_amount}}** as a holding Security Deposit cheque by cheque No. **{{buyer_cheque_number}}** dated **{{buyer_cheque_date}}**, issued by **{{buyer_cheque_bank}}**, drawn by **{{buyer_cheque_drawn_by}}** in favour of **{{buyer_cheque_in_favour_of}}**{{#if buyer_cheque_third_party}}, on behalf of the Buyer, provided that such third party executes an undertaking letter acceptable to the Agent and the Parties, confirming that the funds are provided on behalf of the Buyer{{/if}}. This cheque is to secure the purchase of the Property and will be held by {{buyer_deposit_holder}} until the Transfer Date in accordance with the terms of this MOU.
 {{/if}}{{/if}}
 
 {{#if seller_deposit}}{{#if !seller_cheque_details}}
-{{seller_deposit_intro}} the Seller undertakes to pay a sum of **AED {{seller_deposit_amount}}** as a holding Security Deposit cheque. This cheque is to secure the purchase of the Property and will be held by The Seller's Agency as stakeholder until the Transfer Date in accordance with the terms of this MOU.
+{{seller_deposit_intro}} the Seller undertakes to pay a sum of **AED {{seller_deposit_amount}}** as a holding Security Deposit cheque. This cheque is to secure the purchase of the Property and will be held by {{seller_deposit_holder}} until the Transfer Date in accordance with the terms of this MOU.
 {{/if}}{{#if seller_cheque_details}}
-{{seller_deposit_intro}} the Seller undertakes to pay a sum of **AED {{seller_deposit_amount}}** as a holding Security Deposit cheque by cheque No. **{{seller_cheque_number}}** dated **{{seller_cheque_date}}**, issued by **{{seller_cheque_bank}}**, drawn by **{{seller_cheque_drawn_by}}** in favour of **{{seller_cheque_in_favour_of}}**. This cheque is to secure the purchase of the Property and will be held by The Seller's Agency as stakeholder until the Transfer Date in accordance with the terms of this MOU.
+{{seller_deposit_intro}} the Seller undertakes to pay a sum of **AED {{seller_deposit_amount}}** as a holding Security Deposit cheque by cheque No. **{{seller_cheque_number}}** dated **{{seller_cheque_date}}**, issued by **{{seller_cheque_bank}}**, drawn by **{{seller_cheque_drawn_by}}** in favour of **{{seller_cheque_in_favour_of}}**. This cheque is to secure the purchase of the Property and will be held by {{seller_deposit_holder}} until the Transfer Date in accordance with the terms of this MOU.
 {{/if}}{{/if}}
 
 Upon successful completion of the transfer of ownership on the Transfer Date, the Security Deposit cheques shall be returned to {{deposit_return_parties}} or cancelled and shall not be presented for payment.
@@ -228,15 +231,15 @@ The Seller shall have no further claim against the Buyer{{#if buyer_agent}} or t
 
 **Article {{article_deposit_release_number}}**
 
-If Article {{article_buyer_default_number}} or Article {{article_seller_default_number}} applies, the Security Deposit shall be released by the Agent strictly in accordance with the relevant Article.
+If Article {{article_buyer_default_number}} or Article {{article_seller_default_number}} applies, the Security Deposit shall be released by {{#if any_agent}}the Agent{{/if}}{{#if !any_agent}}the Parties{{/if}} strictly in accordance with the relevant Article.
 
-If a dispute arises between the Parties regarding this MOU, the Security Deposit shall remain held by the Agent until either:
+If a dispute arises between the Parties regarding this MOU, the Security Deposit shall remain held by {{#if any_agent}}the Agent{{/if}}{{#if !any_agent}}the respective Parties{{/if}} until either:
 
 both Parties provide joint written instructions (including a signed Termination Agreement); or
 
 a final and binding judgment is issued by the competent courts of the Emirate of Abu Dhabi.
 
-The Agent shall act solely as a neutral stakeholder and shall not be liable for withholding or releasing the Security Deposit in accordance with this Article. No unilateral instruction from either Party shall authorize its release.
+{{#if any_agent}}The Agent shall act solely as a neutral stakeholder and shall not be liable for withholding or releasing the Security Deposit in accordance with this Article. {{/if}}No unilateral instruction from either Party shall authorize its release.
 
 **Article {{article_buyer_own_funds_number}}**
 
@@ -264,7 +267,7 @@ The Parties, including the Buyer and Seller, shall fully cooperate with Seller's
 
 **Article {{article_amicable_dispute_number}}**
 
-Any dispute arising in connection with this Agreement or its interpretation shall be resolved amicably between the Parties within seven (7) calendar days from the date of notification by one Party to the other regarding the dispute. Notification shall be made via agents' email, WhatsApp or by a written and signed letter from one Party to the other{{#if any_agent}}, with a copy of such email or letter delivered to Agencies for their reference{{/if}}.
+Any dispute arising in connection with this Agreement or its interpretation shall be resolved amicably between the Parties within seven (7) calendar days from the date of notification by one Party to the other regarding the dispute. Notification shall be made via agents' email, WhatsApp or by a written and signed letter from one Party to the other{{#if any_agent}}, with a copy of such email or letter delivered to {{agencies_word}} for their reference{{/if}}.
 
 If the Parties fail to resolve the dispute amicably within the specified period, the dispute shall be referred to the competent Courts of the Emirate of Abu Dhabi, which shall have exclusive jurisdiction.
 
@@ -319,6 +322,6 @@ Company Stamp
 
 1. **Исправлен баг исходника**: в блоке SELLER'S AGENCY стояло `Date: {{buyer_signature_date}}` → заменено на `{{seller_signature_date}}`.
 2. `{{seller_signature_block}}` / `{{buyer_signature_block}}` — код генерирует по строке Name/Signature/Date на каждого участника стороны (как в сделке Lilac с двумя продавцами).
-3. Держатель чека в статье 6 — статичный текст внутри каждого варианта (как в исходном шаблоне): Buyer без реквизитов → Seller's Agency; Buyer с реквизитами → Buyer's Agency; Seller → Seller's Agency.
+3. Держатель чека в статье 6 — вычисляемый плейсхолдер `{{..._deposit_holder}}`. При обоих агентах повторяет исходный шаблон (Buyer без реквизитов → Seller's Agency; Buyer с реквизитами → Buyer's Agency; Seller → Seller's Agency). При одном агенте — оба чека у него. Без агентов — чек держит противоположная сторона, и ст. 9 автоматически меняет «the Agent» на «the Parties» (та же логика, что в старом коде, коммит 7916267).
 4. Фраза undertaking letter (третье лицо) реализована только для Buyer — как в исходном шаблоне. Если понадобится для Seller, добавляется тем же маркером.
 5. Жирный шрифт — родное форматирование Google Doc, маркеры `<< >>` для текста шаблона больше не нужны (остаются только для party blocks, генерируемых кодом).
