@@ -1,281 +1,301 @@
-# Аудит шаблонов MOU — 22.08.2026
+# Аудит шаблонов MOU — 22.08.2026 (версия 2)
 
-Сравнение 8 шаблонов из папки [«Автоматизация»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm). Цель — найти расхождения, которые
-появились из-за правок в одном шаблоне без переноса в остальные.
+Сверка 9 шаблонов из папки [«Автоматизация»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm)
+после полной замены документов. Прочитаны напрямую через Google Docs API — вместе
+с форматированием и всеми 57 комментариями с привязкой к тексту.
 
-Все шаблоны конвертированы в Google Docs, поэтому проверены и текст, и форматирование
-(жирный шрифт).
-
-Обозначения: **1** off-plan, **1.2** off-plan no deposit, **2** off-plan mortgage,
-**3** cash→cash ready, **4** cash→mortgage ready, **5** mortgage→cash ready,
-**C3-1** C3 cash, **C3-2** C3 mortgage.
-
-| # | Шаблон | Статей |
-|---|---|---|
-| 1 | [DRAFT Off-plan MOU](https://docs.google.com/document/d/1w2lWKpWFiPw2lj3NeBNi8yaI_LoU2wf96bOzWAJFNfc/edit) | 17 |
-| 1.2 | [DRAFT Off-plan NO DEPOSIT CHEQUES](https://docs.google.com/document/d/1ESf9f9YXX5o7GbKIs63BmGVQDHpluDI4t2ptgyFO5fY/edit) | 15 |
-| 2 | [DRAFT Off-plan–mortgage](https://docs.google.com/document/d/1qt3L83Za8IrrR-D5t13k1uR1ssgiDXAN1Oy4I6jVFlI/edit) | 18 |
-| 3 | [DRAFT Cash to cash READY](https://docs.google.com/document/d/1ywdXmgieTCTVFwnluF3Movw2mSjxLCzwrHKU32ThwbY/edit) | 18 |
-| 4 | [DRAFT Cash to Mortgage READY](https://docs.google.com/document/d/1CeaCRPb9mo6ZpMw1KscxWM0ttg_MhURmyRG4WLaIXUI/edit) | 19 |
-| 5 | [DRAFT Mortgage to cash READY](https://docs.google.com/document/d/15VTWI0BtklRY6NItM-8iv4L7SPWUCK-Hq6eYTX-QZbg/edit) | 18 |
-| C3-1 | [С3 1. DRAFT Cash](https://docs.google.com/document/d/1gQqotIcOQ081GPi3Oxchco-dFA0M1EuNj0UUFLve7bw/edit) | 18 |
-| C3-2 | [С3 2. DRAFT Mortgage](https://docs.google.com/document/d/1FgswpVD6vi3uFpSw98JOq_ACqtDALX-_nAXZvwbHJe0/edit) | 19 |
+| # | Шаблон | Статей | Комм. |
+|---|--------|--------|-------|
+| 1 | [Off-plan](https://docs.google.com/document/d/1vlmCEPFpPFQQfTVUbzeErNQKr1Vf2aApcbQrVt0B1-o/edit) | 17 | 18 |
+| 1.2 | [Off-plan NO DEPOSIT CHEQUES](https://docs.google.com/document/d/1vftXIyFV32PKyFoCg-2J5b_58V94e5TFXJgXSIbIvWM/edit) | 15 | 0 |
+| 2 | [Off-plan–mortgage](https://docs.google.com/document/d/1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g/edit) | 18 | 1 |
+| 3 | [Cash to cash READY](https://docs.google.com/document/d/1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k/edit) | 18 | 5 |
+| 4 | [Cash to Mortgage READY](https://docs.google.com/document/d/1slUJ8aQCw8nKIhlKBHWvhUFkLWnLH3k_N_OtwH5sm3Y/edit) | 19 | 2 |
+| 5 | [Mortgage to cash READY](https://docs.google.com/document/d/1RDNBmgnI3V-1o-Nk--g4XJUpwvHP0sC2IrGY7R_hhw0/edit) | 18 | 7 |
+| 6 | [Mortgage to mortgage READY](https://docs.google.com/document/d/1tRz59MGjnZKQpAZv0q_QMU4W6UPFLDBLr8uKPZYWP3w/edit) | 20 | 5 |
+| C3-1 | [С3 Cash](https://docs.google.com/document/d/1SFLGotwOKOibBCT3iMiflfBWS9vjLkl8r7UuxpA8gW8/edit) | 18 | 10 |
+| C3-2 | [С3 Mortgage](https://docs.google.com/document/d/1NngXRZMAxI1oK41vAsAh2KpXfkqIpSP1gCgKt9HLM14/edit) | 19 | 9 |
 
 ---
 
-## A. Ошибки — надо исправить
+## A. Ошибки
 
-### A1. Оборванное предложение в ст. 8 (шаблон 5)
-> «…and such failure does not arise due to Force Majeure, Buyer's Default, or any
-> third-party reason beyond the Seller's reasonable control, including delays by the
-> Seller's Bank in issuing the liability letter, clearance, or mortgage release, provided
-> the Seller has complied with the Bank's requirements.»
+### A1. Суммы 80/20 не сходятся с депозитом (шаблоны 1 и 3)
 
-Пропущено окончание: **«…, the Seller shall be deemed to be in Default in accordance with
-the definition set out in this MOU.»** Предложение не имеет главной части.
+Депозит **AED 528,013**, а распределение:
 
-### A2. Пропущено предложение о liquidated damages в ст. 7 (шаблон C3-1)
-Статья 7 идёт так: «…shall be deemed to be in Default…» → сразу «The forfeited Security
-Deposit shall be distributed as follows». Отсутствует предложение **«Upon Buyer Default,
-the Buyer shall pay AED X as liquidated damages, being an amount equal to the Security
-Deposit, which the Parties agree is not a penalty.»** — при том что в ст. 8 того же
-шаблона оно есть. Асимметрия между статьями 7 и 8.
+| Шаблон | Статья | 80% | 20% | Сумма | Должно быть |
+|--------|--------|-----|-----|-------|-------------|
+| 1 | ст. 7 | 263,000 | 65,000 | 328,000 | 422,410.40 + 105,602.60 |
+| 1 | ст. 8 | 263,600 | 65,900 | 329,500 | то же |
+| 3 | ст. 7 | 263,000 | 65,000 | 328,000 | то же |
+| 3 | ст. 8 | 263,600 | 65,900 | 329,500 | то же |
 
-### A3. «Buyer's» вместо «Seller's» в ст. 8 (шаблоны 2 и 4)
-В статье про дефолт **Продавца** написано «any third-party reason beyond the **Buyer's**
-reasonable control». Должно быть Seller's. В шаблонах 5 и C3-2 — правильно.
+В шаблонах 2, 4, 6, C3-1, C3-2 цифры верные. В 1 и 3 остались старые.
+В коде суммы всё равно считаются автоматически, но пример в шаблоне вводит в заблуждение.
+
+### A2. «Buyer's» вместо «Seller's» в статье о дефолте Продавца (шаблоны 2 и 4)
+
+«…or any third-party reason beyond the **Buyer's** reasonable control, the **Seller** shall be
+deemed to be in Default». Должно быть Seller's. В 3, 5, 6, C3 — правильно.
+
+### A3. Дублирование фразы (шаблон 4, ст. 7)
+
+«…any third-party reason beyond the Buyer's reasonable control, **or any third-party reason
+beyond the Buyer's reasonable control**, or any circumstances described in Articles 10 and 11…»
 
 ### A4. Разорванное определение The Developer (шаблон 2)
-В нумерованном списке определений пункт 4 (Force Majeure) заканчивается словами
-«…completion of the transaction.**The**», а пункт 5 начинается «**Developer** – ALDAR…».
-Артикль ушёл в предыдущий пункт, определение разорвано на два.
 
-### A5. Дублирующийся абзац в ст. 6 (шаблон 4)
-Фраза «In the event that the Buyer is unable to obtain Final Mortgage Approval… bank
-rejection letter» встречается **дважды**: после первого абзаца и ещё раз после абзаца
-о возврате чеков.
+Пункт Force Majeure заканчивается «…completion of the transaction.**The**», следующий пункт
+начинается «• **Developer** – ALDAR…». Артикль ушёл в предыдущий пункт.
 
-### A6. Дата продавца в блоке SELLER'S AGENCY (все 8 шаблонов)
+### A5. Обрезанное определение NOC (шаблон 4)
+
+«• **NOC** — an official document stating that the issuing authority has no objection…» —
+потеряно начало «NOC fee is a fee charged for issuing a No Objection Certificate». В 3, 5, 6,
+C3-1, C3-2 определение полное.
+
+### A6. Дата продавца в блоке SELLER'S AGENCY (все 9 шаблонов)
+
 Стоит `Date: {{buyer_signature_date}}` — должно быть `{{seller_signature_date}}`.
 
-### A7. Обрезанное определение NOC (шаблон 4)
-«**NOC** — an official document stating that the issuing authority has no objection…» —
-потеряна первая половина «NOC fee is a fee charged for issuing a No Objection Certificate».
-В шаблонах 3, 5, C3-1, C3-2 определение полное.
+### A7. Шаблон 1.2 не размечен
 
-### A8. Шаблон 1.2 не размечен
-В блоке подписей вместо плейсхолдеров — «Name Surname» (два продавца), даты пустые,
-агентства вписаны руками (PRIME BRIDGE / S Q F REALTY).
+В подписях вместо плейсхолдеров — «Name Surname» (два продавца), даты пустые, агентства
+вписаны руками: PRIME BRIDGE и S Q F REALTY. Единственный шаблон без разметки.
 
-### A9. Черновиковые разделители в тексте
-Символы `__`, `—-`, `_____` (пометки альтернативных вариантов) остались в:
-**1** (ст. 7, 8), **2** (ст. 7), **3** (ст. 7, 8), **4** (ст. 7, 8),
-**5** (ст. 7, 8, 10), **C3-2** (ст. 7).
+### A8. Оправдание не по адресу (шаблон 6, ст. 7)
 
-В **C3-2, ст. 8** и **C3-1, ст. 8** разделителя нет вовсе — два взаимоисключающих
-лид-абзаца идут подряд, и без пометки не видно, что это варианты.
+В статье о дефолте **Покупателя** среди уважительных причин указаны «delays by the
+**Seller's Bank** in issuing the liability letter, clearance, or mortgage release». Задержка
+банка Продавца — оправдание Продавца. В шаблоне 5 в ст. 7 этого нет.
+
+### A9. Склеенные абзацы распределения (шаблоны 2, 4, C3-1)
+
+«This amount shall be distributed as follows:a) **80%**…andb) **20%**…» — потеряны переносы
+строк, пункты a) и b) слиплись с текстом.
+
+### A10. Черновиковые разделители в тексте
+
+Символы `__`, `___`, `_____`, `—-` (пометки взаимоисключающих вариантов) остались:
+
+| Шаблон | 1 | 1.2 | 2 | 3 | 4 | 5 | 6 | C3-1 | C3-2 |
+|--------|---|-----|---|---|---|---|---|------|------|
+| Штук | 4 | 0 | 2 | 5 | 3 | 5 | 5 | 0 | 1 |
+
+В C3-1 разделителей нет вовсе — взаимоисключающие абзацы идут подряд, и без пометки
+не видно, что это варианты.
 
 ---
 
 ## B. Расхождения формулировок — выбрать одну версию
 
 ### B1. Кому уходит копия уведомления о споре
+
 | Формулировка | Шаблоны |
-|---|---|
+|--------------|---------|
 | «delivered to **Agencies** for their reference» | 1, 1.2 |
-| «delivered to **Seller's agent and Buyer's agent**» | 2, 3, 4, 5, C3-1, C3-2 |
+| «delivered to **Seller's agent and Buyer's agent**» | 2, 3, 4, 5, 6, C3-1, C3-2 |
 
-Мы договаривались использовать `{{agencies_word}}` (Agencies / the Agency).
+Договаривались на `{{agencies_word}}` — Agencies при двух агентствах, the Agency при одном.
 
-### B2. Держатель депозитного чека — «Agency» или «Agent»
-| Формулировка | Шаблоны |
-|---|---|
-| «held by **The Seller's Agency / The Buyer's Agency** as **stakeholder**» | 1, 3, 5 |
-| «held by **Seller's Agent / Buyer's Agent** as stakeholder» | 2, 4, C3-1, C3-2 |
+### B2. Держатель депозита — Agency или Agent, внутри одного шаблона по-разному
 
-Отличаются и слово (Agency/Agent), и артикль, и жирность слова stakeholder.
+В шаблонах 1, 2, 3, 5, 6 первый абзац ст. 6: «held by **The Seller's Agency** as **stakeholder**»
+(жирный stakeholder), второй абзац: «held by **Buyer's Agent** as stakeholder» (обычный).
+Разные слова и разное форматирование в соседних абзацах.
 
 ### B3. Определение Transfer fee / NOC fee
+
 | Что написано | Шаблоны |
-|---|---|
-| «Transfer fee – … registration. **NOC fee** is a fee charged…» (обе фразы) | 1, 2 |
-| «Transfer fee – … registration.» (без NOC) | 1.2 |
-| «**NOC fee** is a fee charged…» (без Transfer fee) | 3, 5, C3-1, C3-2 |
-| «**NOC** — an official document…» (обрезано, см. A7) | 4 |
+|--------------|---------|
+| Transfer fee + NOC fee (обе фразы) | 1, 2 |
+| только Transfer fee | 1.2 |
+| только NOC fee | 3, 5, 6, C3-1, C3-2 |
+| обрезанный NOC (см. A5) | 4 |
 
-Логика частично осознанная: в Ready/C3 нет Transfer Fee, есть NOC Fee. Но версия
-шаблона 4 сломана, а в 1.2 фраза про NOC потеряна.
+Комментарий Дарьи в шаблоне 1: «NOC остается для Nine Yards», и «выбрать в зависимости
+от проекта (NOC: Sea La vie…)» — то есть выбор зависит от застройщика и должен быть флагом.
 
-### B4. Определение Liquidated Damages при двух депозитах
-Правило: удаляется, когда оба депозита включены. Фактически **определение присутствует
-во всех восьми шаблонах**, включая те, где в Payment Table стоят оба депозита.
-Либо правило изменилось, либо надо обернуть маркером.
+### B4. Liquidated Damages при двух депозитах
 
-### B5. Порядок «in favour of» в ст. 6
-| Порядок | Шаблоны |
-|---|---|
-| «…cheque No. X dated Y, issued by Z, drawn by A **in favour of B**» | 1, 3, 5 |
-| «…Security Deposit cheque **in favour of B** by cheque No. X dated Y, issued by Z, drawn by A» | 2, 4, C3-1, C3-2 |
+Комментарий Дарьи в шаблоне 1 на определении: **«Убирается, если у обоих есть Security
+Deposit»**. Фактически определение присутствует во всех девяти шаблонах, включая те, где
+в Payment Table стоят оба депозита. Нужен маркер.
 
-Плюс в **C3-1**: «drawn by **a third party, namely** Name Surname» — уникальная формулировка,
-в C3-2 и остальных просто «drawn by Name Surname».
+### B5. Способ оплаты Продавцу
 
-### B6. Мелочи в Payment Table
-- «on the **Transfer Date** by Card» (1) vs «on the **transfer date** by **Credit Card**» (1.2)
-- «ADM **Verification** Certificate» (2) vs «ADM **Valuation** Certificate» (3, 4, 5, C3-1, C3-2) —
-  похоже на опечатку в шаблоне 2
-- Project name в примерах: «The Source» (1) / «the Source» (3, 5) / «C3 Garden» (4 — Ready-шаблон)
+| Формулировка | Шаблоны |
+|--------------|---------|
+| «by Manager's Cheque or Cash» | 1 |
+| «by Manager's Cheque» | 1.2, 2, 3, 4, C3-1, C3-2 |
+| «by Manager's Cheque» + оговорка про Liability Letter | 5, 6 |
+
+Комментарий Дарьи: «Если оплата на человека, то by Manager's Cheque/Cash issued in favour
+of (имя)» — то есть вариант зависит от получателя.
+
+### B6. ADM Electronic Fee — четыре разных значения
+
+| Значение | Шаблоны |
+|----------|---------|
+| 2% от Selling Price + AED 575 | 1, 1.2 |
+| AED 919.00 | 3, 5 |
+| AED 925.75 | C3-1 |
+| AED 1,392.00 | 2, 4, 6, C3-2 |
+
+Комментарий Дарьи: **«575 AED проекты Aldar, остальное 475»**. Значит надбавка зависит
+от застройщика, а фиксированные суммы — от типа сделки. Правило надо формализовать.
+
+### B7. Мелочи
+
+- «has designated **Mr.**» (1, 1.2, 3, 5) vs «**Mr(s).**» (2, 4, 6) — второе корректнее.
+- «hereinafter referred to» vs «**here in after** referred to» (2, 4) — опечатка.
+- «“**Parties**/**Party**”**.**» (1, 1.2, 2) vs «“**Parties/Party**”.» (3–6, C3) — точка внутри
+  или снаружи жирного.
 
 ---
 
 ## C. Структурные различия — подтвердить, осознанны ли
 
-### C1. Разный состав ADM-строк внутри off-plan группы
-| Шаблон | Строки |
-|---|---|
-| 1, 1.2 | одна: «ADM Electronic Fee: (2% from Selling Price + AED 575)» |
-| 2 | три: «ADM Fee (2% или по оценке ADM, что выше)» + «ADM Electronic Fee» + «ADM Verification Certificate» |
+### C1. Шаблон 1.2 содержит LPC-пункт
 
-### C2. Шаблон 2 — нет строки threshold top-up
-В шаблоне 1 есть «Remaining balance to complete 30% threshold…», в шаблоне 2 её нет,
+«In the event that any **Late Payment Charges (LPC)** are incurred in relation to the payment
+due on 14 August 2026…» — раньше решили LPC не добавлять, но в этом шаблоне он есть.
+
+### C2. Vacant / Tenancy — два взаимоисключающих абзаца подряд
+
+В шаблонах 3, 4, 5, 6 в статье о состоянии объекта идут подряд «Property shall be vacant on
+the Transfer Date» и «Property is currently leased at a rent of AED 150,000…» без разделителя.
+В C3-1 и C3-2 — только vacant.
+
+### C3. Продавец-юрлицо в группе C3
+
+Seller = «LUCKY HOLDING - F.Z.E, Trade License #46879, Issue Date…, Expiry Date…, Ownership
+rights – 100%, acting through its shareholders… • Mr. Marc Glotser…». Блок стороны и блок
+подписи в другом формате: «Name: LUCKY HOLDING - F.Z.E (shareholder – Marc Glotser)».
+Код сейчас умеет только физлиц — нужен флаг `seller_is_company` и отдельный блок.
+
+### C4. Депозит в C3 — только от Покупателя
+
+В Payment Table одна строка Security deposit (Buyer → Seller), в остальных шаблонах две.
+В ст. 6 тоже только абзац Покупателя, абзаца Продавца нет.
+
+### C5. Шаблон 2 — нет строки threshold top-up
+
+В шаблоне 1 есть «Remaining balance to complete **30%** threshold…», в шаблоне 2 её нет,
 и остаток застройщику платится «on the Transfer Date by a Manager's Cheque», а не
 «in accordance with the Payment Plan».
 
-### C3. Шаблон 1.2 содержит LPC-пункт
-«In the event that any Late Payment Charges (LPC) are incurred in relation to the payment
-due on 14 August 2026…» — мы решили LPC не добавлять, но в этом шаблоне он есть.
+### C6. Разный состав строк Payment Table
 
-### C4. Ст. 3 — разные поля таблицы
-| Группа | Поля |
-|---|---|
-| off-plan (1, 1.2, 2) | Additional Information, Number of Car Parking Spaces |
-| Ready + C3 | Project No., Car Parking Spaces |
+| Строка | 1 | 1.2 | 2 | 3 | 4 | 5 | 6 | C3-1 | C3-2 |
+|--------|---|-----|---|---|---|---|---|------|------|
+| Original Price | ✓ | ✓ | ✓ | — | — | — | — | — | — |
+| Remaining balance 70/75% | ✓ | ✓ | ✓ | — | — | — | — | — | — |
+| Transfer Fee / NOC Fee | ✓ | ✓ | ✓ | — | — | — | — | — | — |
+| Developer NOC Fee | — | — | — | ✓ | ✓ | ✓ | ✓ | — | — |
+| Community NOC Fee | — | — | — | ✓ | ✓ | ✓ | ✓ | — | — |
+| NOC Fee + Admin Fee | — | — | — | — | — | — | — | ✓ | ✓ |
+| ADM Fee (2% / оценка) | — | — | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ADM Valuation Certificate | — | — | — | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ADM Verification Certificate | — | — | ✓ | — | — | — | — | — | — |
+| Unit Verification / Search | — | — | — | — | ✓ | — | — | — | ✓ |
+| Mortgage Release Fee | — | — | — | — | — | ✓ | ✓ | — | — |
+| Security deposit | 2 стр. | — | 2 стр. | 2 стр. | 2 стр. | 2 стр. | 2 стр. | 1 стр. | 1 стр. |
 
-Плюс «Type of Area»: off-plan «Residential», Ready/C3 «Residential - Household Living».
+«ADM **Verification** Certificate» в шаблоне 2 против «ADM **Valuation** Certificate»
+в остальных — похоже на опечатку.
 
-### C5. Ст. 6 — разное число вариантов абзацев
-| Шаблон | Что в статье |
-|---|---|
-| 1, 3, 5 | 3 абзаца: Buyer без реквизитов / Buyer с реквизитами + третье лицо / Seller с реквизитами |
-| 2, 4 | 2 абзаца: Buyer (реквизиты + третье лицо + возврат при отказе банка) / Seller (реквизиты + **третье лицо тоже**) |
-| C3-1, C3-2 | 1 абзац: только Buyer, «in favour of LUCKY HOLDING» (конкретное имя вместо плейсхолдера) |
+### C7. Разные названия документа сделки
 
-В шаблоне 2 у Seller тоже появилась фраза про третье лицо и undertaking letter — раньше
-мы решали, что она только для Buyer.
+- off-plan (1, 1.2, 2): «**Assignment Agreement**», подписывается в офисе застройщика;
+- ready + C3: «**Contract of Property Sale and Purchase**», подписывается в **ADREC**.
 
-### C6. Vacant / Tenancy — два абзаца подряд без выбора
-В шаблонах 3, 4, 5 идут подряд «Property shall be vacant on the Transfer Date» и
-«Property is currently leased at a rent of AED 150,000…». Это взаимоисключающие варианты,
-но разделителя нет. В C3-1 и C3-2 — только vacant.
-
-### C7. Расхождения внутри группы C3
-| Строка | C3-1 (cash) | C3-2 (mortgage) |
-|---|---|---|
-| ADM Electronic Fee | AED 925.75, «by **Card**» | AED 1,392.00, «by **Manager's Cheque** or **Card**» |
-| Unit Verification / Search Certificate | нет строки | AED 103.50 |
-| Ст. 7, предложение о liquidated damages | **отсутствует** (см. A2) | есть |
-| Title Deed Number «2026/0000» | жирным | обычным |
-
-### C8. Юрлицо как сторона (C3-1, C3-2)
-Seller = «LUCKY HOLDING - F.Z.E, Trade License #46879, Issue Date…, Expiry Date…,
-Ownership rights – 100%, acting through its shareholders… • Mr. Marc Glotser… holding 100%
-ownership interest in the Company, has designated Mr. …». Отдельная структура блока
-стороны — компания с маркированным списком акционеров. Код сейчас умеет только физлиц.
-
-Плюс блок подписи: «Name: LUCKY HOLDING - F.Z.E (shareholder – Marc Glotser)» —
-тоже отдельный формат.
-
-### C9. Ст. 4, подпись под таблицей
-- Шаблон 5: «The Selling Price **and the Agency Fee**…» (без «the amount payable to the
-  Seller» — сумма зависит от Liability Letter). Похоже осознанно.
-- Остальные: «The Selling Price, **the amount payable to the Seller**, and the Agency Fee…»
-
-### C10. Ст. 10 в шаблоне 5 — три несогласованных абзаца
-Идут подряд: mortgage release + «Buyer confirms… own funds» + `___` + «Buyer confirms…
-Personal Loan, Equity Release». Второй и третий — взаимоисключающие варианты.
+Похоже осознанно.
 
 ---
 
-## D. Форматирование (жирный шрифт)
+## D. Форматирование
 
-### D1. Payment Table: способы оплаты и получатели
-| Группа | Как оформлено |
-|---|---|
-| off-plan (1, 1.2, 2) | способы оплаты обычным шрифтом: «by Card», «by a Manager's Cheque»; получатель жирным |
-| Ready + C3 (3, 4, 5, C3-1, C3-2) | способы оплаты **жирным**: «by **Manager's Cheque** or **Card**», «by **Bank transfer**» |
+### D1. Payment Table: способы оплаты
 
-Самое заметное различие в оформлении между группами.
+- off-plan (1, 1.2, 2): обычным шрифтом — «by Card», «by a Manager's Cheque»;
+- ready + C3: **жирным** — «by **Manager's Cheque** or **Card**», «by **Bank transfer**».
 
-### D2. «This Agreement is signed and entered on the Date…»
-- 1, 1.2, 2: слово Agreement обычным шрифтом
-- 3, 4, 5, C3-1, C3-2: «This **Agreement** is signed…» — жирным
+### D2. «This Agreement is signed and entered on the Date»
 
-### D3. Определение Mortgage Release (шаблон 5) целиком жирное
-Весь абзац выделен жирным, тогда как во всех остальных определениях жирным выделен
-только термин. Единственный такой случай.
+Слово Agreement обычным в 1, 1.2, 2; жирным в 3–6, C3.
 
-### D4. «Parties/Party» — разная разметка кавычек
-- 1, 1.2, 2: `**“Parties**/**Party”.**` — точка внутри жирного, слеш вне
-- 3, 4, 5, C3: `**“Parties/Party”**.` — точка снаружи
+### D3. Title Deed Number
 
-Визуально почти незаметно, но при разметке даст разный результат.
-
-### D5. Нумерация списка определений сбивается
-В 1, 1.2, 3, 4, 5, C3-1, C3-2 первый пункт («Agreement» / «MOU») — отдельный список,
-затем нумерация начинается заново с 1. То есть в документе два пункта с номером 1.
-Только в шаблоне 2 — единый список 1–11.
-
-### D6. Title Deed Number
-Значение «2026/0000» жирное в 3, 4, 5, C3-1; обычное в C3-2. В off-plan значение «N/A»
-обычное везде.
+«2026/0000» жирное в 3, 4, 5, 6, C3-1; обычное в C3-2. В off-plan значение «N/A» обычное.
 
 ---
 
-## E. Что одинаково во всех шаблонах (эталон)
+## E. Что комментарии говорят про будущие флаги
 
-Совпадают дословно и по форматированию:
+Комментарии Дарьи и Алины — это, по сути, готовое ТЗ на условия. Сведение:
 
-- Шапка: BY AND BETWEEN, юрблоки агентств, «Agencies/Agency»
-- Определения: Agreement/MOU, Default, Force Majeure, POA, Addendum, «The Parties shall
-  bear their own exchange rate differences…»
-- WHEREAS A/B + NOW THEREFORE
-- Ст. 1 (Sale Offer), ст. 2 (Effective Date, 2 business days)
-- Ст. 5 (Reservation Period): FM ≤ 7 рабочих дней, авто-продление 14 календарных дней
-- Ст. Deposit Release (полностью)
-- Ст. AML (оба абзаца)
-- Ст. Dispute: 7 календарных дней, agents' email/WhatsApp, суды Абу-Даби, indemnity
-- Ст. Entire Agreement + Confidentiality, ст. Electronic Signature
-- Блоки подписей сторон и агентств
+| Комментарий | Где | Во что превращается |
+|-------------|-----|---------------------|
+| «Убирается, если у обоих есть Security Deposit» | 1, определение LD | `{{#if !both_deposits}}` |
+| «Удаляется, если нет Security cheques у обеих сторон» | 1, ст. 9 | `{{#if any_deposit}}` |
+| «удаляем, если нет депозитов» | 3, 5, 6, ст. 9 | то же |
+| «если нет депозита» / «если есть депозит» | 1, ст. 7 | выбор лид-абзаца |
+| «если у 1 из сторон нет секьюрити депозита» | 1, ст. 7 | третий вариант лид-абзаца |
+| «Если чек будет позже» | 1, ст. 6 | `{{#if cheque_later}}` |
+| «удаляется, если у Покупателя нет чека» | 2, ст. 6 | `{{#if buyer_cheque}}` |
+| «в случае, если чек выписывается 3 лицом» | C3-1, C3-2 | `{{#if buyer_cheque_third_party}}` |
+| «NOC остается для Nine Yards» | 1, определение | `{{#if developer_nine_yards}}` |
+| «выбрать в зависимости от проекта» | 1, Transfer/NOC | флаг по застройщику |
+| «575 AED проекты Aldar, остальное 475» | 1, ADM | вычисляемое значение |
+| «покупает за собственные средства» / «покупает под залог итд» | 5, ст. 10 | `{{#if buyer_own_funds}}` |
+| «Чек дает тот, кто указан в п.i» | 1, ст. 6 | связь с полем формы |
+| «данные по Продавце остаются полностью» | C3 | `{{#if seller_is_company}}` |
+
+Значения, помеченные «остается неизменной» / «фикс цена» — константы, их не надо
+подставлять из формы: AED 2,750.00 (Developer NOC, Aldar), AED 1,050.00 (Community NOC),
+AED 919.00 / 1,392.00 / 925.75 (ADM Electronic), AED 1,037.00 (ADM Valuation),
+AED 960.00 (Mortgage Release), AED 525.00 (Admin Fee C3), AED 103.50 (Unit Verification).
+
+Помеченные «дата составления» / «дата mou» — подставляются из даты MOU:
+это `14/04/2026` в ready-шаблонах и `28/01/2026` в off-plan.
 
 ---
 
-## F. Предложение: 3 шаблона вместо 8
+## F. Что предлагаю по составу шаблонов
 
-Общая часть — примерно 70% текста. Различия сводятся к набору флагов:
+Общая часть — около 70% текста. Различия сводятся к набору флагов:
 
-| Группа | Что внутри различается |
-|---|---|
-| **Off-plan** (1, 1.2, 2) | депозиты вкл/выкл, ипотека вкл/выкл, threshold top-up, состав ADM-строк |
-| **Ready** (3, 4, 5) | ипотека покупателя, ипотека продавца (Liability Letter), vacant/tenancy |
-| **C3** (C3-1, C3-2) | ипотека покупателя, свои строки NOC/Admin Fee |
+| Группа | Шаблоны | Что различается внутри |
+|--------|---------|------------------------|
+| **Off-plan** | 1, 1.2, 2 | депозиты вкл/выкл, ипотека покупателя, threshold top-up, LPC |
+| **Ready** | 3, 4, 5, 6 | ипотека покупателя, ипотека продавца (Liability Letter), vacant/tenancy |
+| **C3** | C3-1, C3-2 | ипотека покупателя, продавец-юрлицо, свои строки NOC/Admin |
 
-Новые флаги, которых пока нет в движке:
-`buyer_mortgage`, `seller_mortgage`, `property_vacant`, `seller_is_company`,
-`adm_valuation_based`, `has_unit_verification_fee`.
+Флаги, которых пока нет в движке: `buyer_mortgage`, `seller_mortgage`, `property_vacant`,
+`seller_is_company`, `adm_valuation_based`, `has_unit_verification_fee`, `cheque_later`,
+`buyer_cheque_third_party`, `developer_nine_yards`.
 
-Плюсы: правка в одном месте вместо восьми, расхождения структурно невозможны, единое
-форматирование. Минус: документ длиннее и требует аккуратности при редактировании.
+Плюсы объединения: правка в одном месте вместо девяти, расхождения структурно невозможны.
+Минус: документ длиннее и требует аккуратности при ручном редактировании.
 
-Если объединение кажется рискованным — оставляем 8 документов, но тогда общую часть надо
-один раз выровнять по эталону и дальше править всегда во всех восьми.
+Альтернатива — оставить 9 документов, но один раз выровнять общую часть по эталону
+и дальше править всегда во всех девяти.
 
 ---
 
 ## G. Что нужно от Алины
 
-1. Удалить 8 файлов .docx из папки (у меня нет прав — я редактор, а не владелец).
-2. Решить по разделам A и B — какая версия верная.
-3. Ответить по разделу C: осознанны ли структурные различия (особенно C1, C2, C3, C5).
-4. Решить по разделу D: выравниваем форматирование по одному стандарту?
-   Рекомендую вариант Ready/C3 (способы оплаты жирным) — он читается лучше в таблице.
-5. Решить: объединяем в 3 шаблона или оставляем 8 (раздел F).
+1. Пройти вкладку **REVIEW** в таблице «MOU Builder» и отметить галочками, какие правки
+   применять. Я применяю только отмеченное, сразу во всех затронутых шаблонах.
+2. Раздел C — подтвердить, осознанны ли структурные различия (особенно C1, C4, C5).
+3. Раздел D — выравниваем форматирование по одному стандарту? Рекомендую вариант
+   ready/C3: способы оплаты жирным.
+4. Раздел F — объединяем в 3 шаблона или оставляем 9.
+5. Две одинаковые копии таблицы «MOU Builder»: приложение читает
+   [1rI2ePSq…](https://docs.google.com/spreadsheets/d/1rI2ePSqkmHeUByorcEMsGv3anRKT7HuOHYCQ4vR8D8o/edit),
+   а в папке лежит дубль
+   [1cDlPWsD…](https://docs.google.com/spreadsheets/d/1cDlPWsD4gmmbzdaV0spVxLNSAedEXZruizYYtnn7CsQ/edit)
+   с теми же данными. Какую считаем рабочей — вторую удалить, чтобы не разъехались.
+6. Папку «Готовые MOU» надо создать заново — старая удалена, в конфиге остался мёртвый ID.

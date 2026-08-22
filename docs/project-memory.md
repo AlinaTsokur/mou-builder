@@ -79,21 +79,23 @@
 
 | # | Файл (ссылка) | Группа | Статей | Google Doc ID |
 |---|------|--------|--------|-----|
-| 1 | [DRAFT Off-plan MOU](https://docs.google.com/document/d/1w2lWKpWFiPw2lj3NeBNi8yaI_LoU2wf96bOzWAJFNfc/edit) | Off-plan | 17 | `1w2lWKpWFiPw2lj3NeBNi8yaI_LoU2wf96bOzWAJFNfc` |
-| 1.2 | [DRAFT Off-plan NO DEPOSIT CHEQUES](https://docs.google.com/document/d/1ESf9f9YXX5o7GbKIs63BmGVQDHpluDI4t2ptgyFO5fY/edit) | Off-plan | 15 | `1ESf9f9YXX5o7GbKIs63BmGVQDHpluDI4t2ptgyFO5fY` |
-| 2 | [DRAFT Off-plan–mortgage](https://docs.google.com/document/d/1qt3L83Za8IrrR-D5t13k1uR1ssgiDXAN1Oy4I6jVFlI/edit) | Off-plan | 18 | `1qt3L83Za8IrrR-D5t13k1uR1ssgiDXAN1Oy4I6jVFlI` |
-| 3 | [DRAFT Cash to cash READY](https://docs.google.com/document/d/1ywdXmgieTCTVFwnluF3Movw2mSjxLCzwrHKU32ThwbY/edit) | Ready | 18 | `1ywdXmgieTCTVFwnluF3Movw2mSjxLCzwrHKU32ThwbY` |
-| 4 | [DRAFT Cash to Mortgage READY](https://docs.google.com/document/d/1CeaCRPb9mo6ZpMw1KscxWM0ttg_MhURmyRG4WLaIXUI/edit) | Ready | 19 | `1CeaCRPb9mo6ZpMw1KscxWM0ttg_MhURmyRG4WLaIXUI` |
-| 5 | [DRAFT Mortgage to cash READY](https://docs.google.com/document/d/15VTWI0BtklRY6NItM-8iv4L7SPWUCK-Hq6eYTX-QZbg/edit) | Ready | 18 | `15VTWI0BtklRY6NItM-8iv4L7SPWUCK-Hq6eYTX-QZbg` |
-| C3-1 | [С3 1. DRAFT Cash](https://docs.google.com/document/d/1gQqotIcOQ081GPi3Oxchco-dFA0M1EuNj0UUFLve7bw/edit) | C3 | 18 | `1gQqotIcOQ081GPi3Oxchco-dFA0M1EuNj0UUFLve7bw` |
-| C3-2 | [С3 2. DRAFT Mortgage](https://docs.google.com/document/d/1FgswpVD6vi3uFpSw98JOq_ACqtDALX-_nAXZvwbHJe0/edit) | C3 | 19 | `1FgswpVD6vi3uFpSw98JOq_ACqtDALX-_nAXZvwbHJe0` |
+| 1 | [Off-plan](https://docs.google.com/document/d/1vlmCEPFpPFQQfTVUbzeErNQKr1Vf2aApcbQrVt0B1-o/edit) | Off-plan | 17 | `1vlmCEPFpPFQQfTVUbzeErNQKr1Vf2aApcbQrVt0B1-o` |
+| 1.2 | [Off-plan NO DEPOSIT CHEQUES](https://docs.google.com/document/d/1vftXIyFV32PKyFoCg-2J5b_58V94e5TFXJgXSIbIvWM/edit) | Off-plan | 15 | `1vftXIyFV32PKyFoCg-2J5b_58V94e5TFXJgXSIbIvWM` |
+| 2 | [Off-plan–mortgage](https://docs.google.com/document/d/1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g/edit) | Off-plan | 18 | `1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g` |
+| 3 | [Cash to cash READY](https://docs.google.com/document/d/1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k/edit) | Ready | 18 | `1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k` |
+| 4 | [Cash to Mortgage READY](https://docs.google.com/document/d/1slUJ8aQCw8nKIhlKBHWvhUFkLWnLH3k_N_OtwH5sm3Y/edit) | Ready | 19 | `1slUJ8aQCw8nKIhlKBHWvhUFkLWnLH3k_N_OtwH5sm3Y` |
+| 5 | [Mortgage to cash READY](https://docs.google.com/document/d/1RDNBmgnI3V-1o-Nk--g4XJUpwvHP0sC2IrGY7R_hhw0/edit) | Ready | 18 | `1RDNBmgnI3V-1o-Nk--g4XJUpwvHP0sC2IrGY7R_hhw0` |
+| 6 | [Mortgage to mortgage READY](https://docs.google.com/document/d/1tRz59MGjnZKQpAZv0q_QMU4W6UPFLDBLr8uKPZYWP3w/edit) | Ready | 20 | `1tRz59MGjnZKQpAZv0q_QMU4W6UPFLDBLr8uKPZYWP3w` |
+| C3-1 | [С3 Cash](https://docs.google.com/document/d/1SFLGotwOKOibBCT3iMiflfBWS9vjLkl8r7UuxpA8gW8/edit) | C3 | 18 | `1SFLGotwOKOibBCT3iMiflfBWS9vjLkl8r7UuxpA8gW8` |
+| C3-2 | [С3 Mortgage](https://docs.google.com/document/d/1NngXRZMAxI1oK41vAsAh2KpXfkqIpSP1gCgKt9HLM14/edit) | C3 | 19 | `1NngXRZMAxI1oK41vAsAh2KpXfkqIpSP1gCgKt9HLM14` |
 
-Все шаблоны — Google Docs (конвертированы 22.08.2026). Старые .docx Алина удаляет сама:
-у коннектора нет прав удалять чужие файлы.
-
-6, 7 (ипотечные) — ещё не готовы.
-Папка [«Готовые MOU»](https://drive.google.com/drive/folders/1u1rIUlh7AADIgmvdS33JXtYo5NlXfIWX) — `1u1rIUlh7AADIgmvdS33JXtYo5NlXfIWX`.
-Таблица [«MOU Builder»](https://docs.google.com/spreadsheets/d/1zIfMwN9CpyFMVxsfuAdY4G6x10NIPlgC0tVuSQTd1Gg/edit) — `1zIfMwN9CpyFMVxsfuAdY4G6x10NIPlgC0tVuSQTd1Gg`.
+Все шаблоны заново загружены Алиной 22.08.2026 — ID изменились, старые недействительны.
+Актуальный аудит: `docs/templates-audit-2026-08.md` (версия 2).
+Папка «Готовые MOU» удалена 22.08.2026 — создать заново, в конфиге мёртвый ID.
+Таблица [«MOU Builder»](https://docs.google.com/spreadsheets/d/1cDlPWsD4gmmbzdaV0spVxLNSAedEXZruizYYtnn7CsQ/edit) — `1cDlPWsD4gmmbzdaV0spVxLNSAedEXZruizYYtnn7CsQ`,
+копия Алины с правом записи. Та, что прописана в конфиге (`1rI2ePSq…`), принадлежит другому
+аккаунту, у Алины там только просмотр — надо переключить `MOU_SPREADSHEET_ID`.
+Вкладка REVIEW в этой таблице — согласование правок шаблонов галочками.
 
 ## 5. План
 
