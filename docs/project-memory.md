@@ -138,3 +138,16 @@
 
 Проверено 22.08.2026: предложения в грантовом доке Алины оставил живой аккаунт
 (Maxim Fedyukov), а не API-бот — либо руками, либо агентом в браузере.
+
+## 9. Прямой доступ бота к Google (OAuth)
+
+Cloud-проект `mou-bot-506311` (личный аккаунт Алины), OAuth-клиент Desktop `mou-bot-cli`,
+приложение «MOU Bot» в режиме Testing, тестовый пользователь — tsokuraline@gmail.com.
+Scopes: documents, drive, spreadsheets.
+
+- Ключи и refresh token — в `.env.local` (`GOOGLE_BOT_*`), в гит не попадают.
+- Клиенты: `scripts/google-bot.mjs` → `getBotClients()` даёт `docs` / `drive` / `sheets`.
+- Перевыпуск токена: `node scripts/google-auth.mjs`, дальше открыть напечатанный AUTH_URL
+  в браузере Playwright и подтвердить. В режиме Testing токен живёт 7 дней.
+- Опубликовать приложение (чтобы токен не истекал) нельзя: Google требует сайт
+  с политикой конфиденциальности.

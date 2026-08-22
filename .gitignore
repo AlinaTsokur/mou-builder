@@ -7,3 +7,6 @@ coverage
 .DS_Store
 .work/
 .workproject
+
+# дампы страниц Playwright MCP (могут содержать секреты)
+.playwright-mcp/
