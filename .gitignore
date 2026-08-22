@@ -10,3 +10,4 @@ coverage
 
 # дампы страниц Playwright MCP (могут содержать секреты)
 .playwright-mcp/
+.vercel

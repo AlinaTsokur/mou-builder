@@ -153,3 +153,19 @@ Scopes: documents, drive, spreadsheets.
   в браузере Playwright и подтвердить. В режиме Testing токен живёт 7 дней.
 - Опубликовать приложение (чтобы токен не истекал) нельзя: Google требует сайт
   с политикой конфиденциальности.
+
+## 10. Актуальные адреса (22.08.2026)
+
+Папка [«Автоматизация»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm)
+— основная. Всё, что вне её, считаем устаревшим.
+
+- Таблица «MOU Builder»: `1cDlPWsD4gmmbzdaV0spVxLNSAedEXZruizYYtnn7CsQ` (лежит в папке).
+  Старая `1rI2ePSq…` принадлежит другому аккаунту, у Алины там только просмотр — не использовать.
+- Папка [«Готовые MOU»](https://drive.google.com/drive/folders/1hENNhxCor6GO0SX8Psedc3gPmyq_eIaL):
+  `1hENNhxCor6GO0SX8Psedc3gPmyq_eIaL`, создана заново внутри «Автоматизации».
+- Реестр всех 9 шаблонов — в `MOU_TEMPLATES` (Vercel, Production) и в дефолтах `lib/mou/config.js`.
+- Вкладка REVIEW в таблице — согласование правок шаблонов галочками.
+
+Env в Vercel обновлены только для Production: preview-ветками не пользуемся, пушим в `main`.
+
+Позже всё переезжает на рабочую почту — при переезде поменять эти ID ещё раз.
