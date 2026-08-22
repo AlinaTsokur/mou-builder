@@ -10,6 +10,7 @@ def inline(t):
     t = re.sub(r'`([^`]+)`', r'<span style="font-family:Consolas,monospace;background:#f2f2f2">\1</span>', t)
     t = re.sub(r'\*\*([^*]+)\*\*', r'<b>\1</b>', t)
     t = re.sub(r'(?<!\*)\*([^*]+)\*(?!\*)', r'<i>\1</i>', t)
+    t = re.sub(r'\[([^\]]+)\]\(([^)\s]+)\)', r'<a href="\2">\1</a>', t)
     return t
 
 while i < len(lines):
@@ -80,6 +81,7 @@ h2 {{ font-size: 15pt; color:#1a1a1a; border-bottom:1px solid #ccc; padding-bott
 h3 {{ font-size: 12.5pt; color:#333; margin-top:16px; }}
 table {{ font-size: 10pt; }}
 td {{ vertical-align: top; }}
+a {{ color:#1155cc; }}
 </style></head><body>
 {body}
 </body></html>"""

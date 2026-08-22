@@ -12,7 +12,7 @@
 - Данные: Google Таблица «MOU Builder» (вкладки PROJECTS, LISTS, AGENTS, DRAFTS_LOG;
   план — добавить TEMPLATES). Базы данных нет и пока не нужна.
 - Шаблоны: папка «Автоматизация» на Google Диске `tsokuraline@gmail.com`
-  (`1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm`). Коннектор Claude подключён к аккаунту
+  ([«Автоматизация»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm), `1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm`). Коннектор Claude подключён к аккаунту
   `kkorobkova84@gmail.com` — папка расшарена на него как редактору.
 - Переезд на рабочий аккаунт позже = копирование файлов + замена 3-4 ID (spreadsheetId,
   outputFolderId, ID шаблонов). Ничего в коде к аккаунту не привязано.
@@ -77,23 +77,23 @@
 
 ## 4. Шаблоны (папка «Автоматизация»)
 
-| # | Файл | Группа | Статей | Google Doc ID |
+| # | Файл (ссылка) | Группа | Статей | Google Doc ID |
 |---|------|--------|--------|-----|
-| 1 | DRAFT Off-plan MOU | Off-plan | 17 | `1w2lWKpWFiPw2lj3NeBNi8yaI_LoU2wf96bOzWAJFNfc` |
-| 1.2 | DRAFT Off-plan NO DEPOSIT CHEQUES | Off-plan | 15 | `1ESf9f9YXX5o7GbKIs63BmGVQDHpluDI4t2ptgyFO5fY` |
-| 2 | DRAFT Off-plan–mortgage | Off-plan | 18 | `1qt3L83Za8IrrR-D5t13k1uR1ssgiDXAN1Oy4I6jVFlI` |
-| 3 | DRAFT Cash to cash READY | Ready | 18 | `1ywdXmgieTCTVFwnluF3Movw2mSjxLCzwrHKU32ThwbY` |
-| 4 | DRAFT Cash to Mortgage READY | Ready | 19 | `1CeaCRPb9mo6ZpMw1KscxWM0ttg_MhURmyRG4WLaIXUI` |
-| 5 | DRAFT Mortgage to cash READY | Ready | 18 | `15VTWI0BtklRY6NItM-8iv4L7SPWUCK-Hq6eYTX-QZbg` |
-| C3-1 | С3 1. DRAFT Cash | C3 | 18 | `1gQqotIcOQ081GPi3Oxchco-dFA0M1EuNj0UUFLve7bw` |
-| C3-2 | С3 2. DRAFT Mortgage | C3 | 19 | `1FgswpVD6vi3uFpSw98JOq_ACqtDALX-_nAXZvwbHJe0` |
+| 1 | [DRAFT Off-plan MOU](https://docs.google.com/document/d/1w2lWKpWFiPw2lj3NeBNi8yaI_LoU2wf96bOzWAJFNfc/edit) | Off-plan | 17 | `1w2lWKpWFiPw2lj3NeBNi8yaI_LoU2wf96bOzWAJFNfc` |
+| 1.2 | [DRAFT Off-plan NO DEPOSIT CHEQUES](https://docs.google.com/document/d/1ESf9f9YXX5o7GbKIs63BmGVQDHpluDI4t2ptgyFO5fY/edit) | Off-plan | 15 | `1ESf9f9YXX5o7GbKIs63BmGVQDHpluDI4t2ptgyFO5fY` |
+| 2 | [DRAFT Off-plan–mortgage](https://docs.google.com/document/d/1qt3L83Za8IrrR-D5t13k1uR1ssgiDXAN1Oy4I6jVFlI/edit) | Off-plan | 18 | `1qt3L83Za8IrrR-D5t13k1uR1ssgiDXAN1Oy4I6jVFlI` |
+| 3 | [DRAFT Cash to cash READY](https://docs.google.com/document/d/1ywdXmgieTCTVFwnluF3Movw2mSjxLCzwrHKU32ThwbY/edit) | Ready | 18 | `1ywdXmgieTCTVFwnluF3Movw2mSjxLCzwrHKU32ThwbY` |
+| 4 | [DRAFT Cash to Mortgage READY](https://docs.google.com/document/d/1CeaCRPb9mo6ZpMw1KscxWM0ttg_MhURmyRG4WLaIXUI/edit) | Ready | 19 | `1CeaCRPb9mo6ZpMw1KscxWM0ttg_MhURmyRG4WLaIXUI` |
+| 5 | [DRAFT Mortgage to cash READY](https://docs.google.com/document/d/15VTWI0BtklRY6NItM-8iv4L7SPWUCK-Hq6eYTX-QZbg/edit) | Ready | 18 | `15VTWI0BtklRY6NItM-8iv4L7SPWUCK-Hq6eYTX-QZbg` |
+| C3-1 | [С3 1. DRAFT Cash](https://docs.google.com/document/d/1gQqotIcOQ081GPi3Oxchco-dFA0M1EuNj0UUFLve7bw/edit) | C3 | 18 | `1gQqotIcOQ081GPi3Oxchco-dFA0M1EuNj0UUFLve7bw` |
+| C3-2 | [С3 2. DRAFT Mortgage](https://docs.google.com/document/d/1FgswpVD6vi3uFpSw98JOq_ACqtDALX-_nAXZvwbHJe0/edit) | C3 | 19 | `1FgswpVD6vi3uFpSw98JOq_ACqtDALX-_nAXZvwbHJe0` |
 
 Все шаблоны — Google Docs (конвертированы 22.08.2026). Старые .docx Алина удаляет сама:
 у коннектора нет прав удалять чужие файлы.
 
 6, 7 (ипотечные) — ещё не готовы.
-Папка «Готовые MOU»: `1u1rIUlh7AADIgmvdS33JXtYo5NlXfIWX`.
-Таблица «MOU Builder»: `1zIfMwN9CpyFMVxsfuAdY4G6x10NIPlgC0tVuSQTd1Gg`.
+Папка [«Готовые MOU»](https://drive.google.com/drive/folders/1u1rIUlh7AADIgmvdS33JXtYo5NlXfIWX) — `1u1rIUlh7AADIgmvdS33JXtYo5NlXfIWX`.
+Таблица [«MOU Builder»](https://docs.google.com/spreadsheets/d/1zIfMwN9CpyFMVxsfuAdY4G6x10NIPlgC0tVuSQTd1Gg/edit) — `1zIfMwN9CpyFMVxsfuAdY4G6x10NIPlgC0tVuSQTd1Gg`.
 
 ## 5. План
 

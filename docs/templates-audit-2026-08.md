@@ -1,6 +1,6 @@
 # Аудит шаблонов MOU — 22.08.2026
 
-Сравнение 8 шаблонов из папки «Автоматизация». Цель — найти расхождения, которые
+Сравнение 8 шаблонов из папки [«Автоматизация»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm). Цель — найти расхождения, которые
 появились из-за правок в одном шаблоне без переноса в остальные.
 
 Все шаблоны конвертированы в Google Docs, поэтому проверены и текст, и форматирование
@@ -10,16 +10,16 @@
 **3** cash→cash ready, **4** cash→mortgage ready, **5** mortgage→cash ready,
 **C3-1** C3 cash, **C3-2** C3 mortgage.
 
-| # | Google Doc ID | Статей |
+| # | Шаблон | Статей |
 |---|---|---|
-| 1 | `1w2lWKpWFiPw2lj3NeBNi8yaI_LoU2wf96bOzWAJFNfc` | 17 |
-| 1.2 | `1ESf9f9YXX5o7GbKIs63BmGVQDHpluDI4t2ptgyFO5fY` | 15 |
-| 2 | `1qt3L83Za8IrrR-D5t13k1uR1ssgiDXAN1Oy4I6jVFlI` | 18 |
-| 3 | `1ywdXmgieTCTVFwnluF3Movw2mSjxLCzwrHKU32ThwbY` | 18 |
-| 4 | `1CeaCRPb9mo6ZpMw1KscxWM0ttg_MhURmyRG4WLaIXUI` | 19 |
-| 5 | `15VTWI0BtklRY6NItM-8iv4L7SPWUCK-Hq6eYTX-QZbg` | 18 |
-| C3-1 | `1gQqotIcOQ081GPi3Oxchco-dFA0M1EuNj0UUFLve7bw` | 18 |
-| C3-2 | `1FgswpVD6vi3uFpSw98JOq_ACqtDALX-_nAXZvwbHJe0` | 19 |
+| 1 | [DRAFT Off-plan MOU](https://docs.google.com/document/d/1w2lWKpWFiPw2lj3NeBNi8yaI_LoU2wf96bOzWAJFNfc/edit) | 17 |
+| 1.2 | [DRAFT Off-plan NO DEPOSIT CHEQUES](https://docs.google.com/document/d/1ESf9f9YXX5o7GbKIs63BmGVQDHpluDI4t2ptgyFO5fY/edit) | 15 |
+| 2 | [DRAFT Off-plan–mortgage](https://docs.google.com/document/d/1qt3L83Za8IrrR-D5t13k1uR1ssgiDXAN1Oy4I6jVFlI/edit) | 18 |
+| 3 | [DRAFT Cash to cash READY](https://docs.google.com/document/d/1ywdXmgieTCTVFwnluF3Movw2mSjxLCzwrHKU32ThwbY/edit) | 18 |
+| 4 | [DRAFT Cash to Mortgage READY](https://docs.google.com/document/d/1CeaCRPb9mo6ZpMw1KscxWM0ttg_MhURmyRG4WLaIXUI/edit) | 19 |
+| 5 | [DRAFT Mortgage to cash READY](https://docs.google.com/document/d/15VTWI0BtklRY6NItM-8iv4L7SPWUCK-Hq6eYTX-QZbg/edit) | 18 |
+| C3-1 | [С3 1. DRAFT Cash](https://docs.google.com/document/d/1gQqotIcOQ081GPi3Oxchco-dFA0M1EuNj0UUFLve7bw/edit) | 18 |
+| C3-2 | [С3 2. DRAFT Mortgage](https://docs.google.com/document/d/1FgswpVD6vi3uFpSw98JOq_ACqtDALX-_nAXZvwbHJe0/edit) | 19 |
 
 ---
 
