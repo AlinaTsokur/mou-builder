@@ -77,16 +77,19 @@
 
 ## 4. Шаблоны (папка «Автоматизация»)
 
-| # | Файл | Группа | Статей | ID |
+| # | Файл | Группа | Статей | Google Doc ID |
 |---|------|--------|--------|-----|
-| 1 | DRAFT Off-plan MOU | Off-plan | 17 | `19rEWo87HcCk0OzWSDu9PlJIgKH2_5HIb` |
-| 1.2 | DRAFT Off-plan NO DEPOSIT CHEQUES | Off-plan | 15 | `1JmRoZ7dTGJ-kpfTFspOTM55CzGu_XPSt` |
-| 2 | DRAFT Off-plan–mortgage | Off-plan | 18 | `1LzfI7cly1Nn0brPVXzCQMk2w8ZIW2_PR` |
-| 3 | DRAFT Cash to cash READY | Ready | 18 | `1dPF992jt_q9XdkImpW0UEjqTUQkFi3tD` |
-| 4 | DRAFT Cash to Mortgage READY | Ready | 19 | `15YTWkLM-xg_w97oYc5koQr7bfUnQ2v1k` |
-| 5 | DRAFT Mortgage to cash READY | Ready | 18 | `1ul8l5A2ePa5Q035ZObKoMhwSOmEy7IR3` |
-| C3-1 | С3 1. DRAFT Cash | C3 | 18 | `10hFVHMAjlWMfgN_q-mjyHRY1KDFckGAd` |
-| C3-2 | С3 2. DRAFT Mortgage | C3 | 19 | `1gjM8rUByNfQEFDdvJOZMYBTwpaTNh3z8` |
+| 1 | DRAFT Off-plan MOU | Off-plan | 17 | `1w2lWKpWFiPw2lj3NeBNi8yaI_LoU2wf96bOzWAJFNfc` |
+| 1.2 | DRAFT Off-plan NO DEPOSIT CHEQUES | Off-plan | 15 | `1ESf9f9YXX5o7GbKIs63BmGVQDHpluDI4t2ptgyFO5fY` |
+| 2 | DRAFT Off-plan–mortgage | Off-plan | 18 | `1qt3L83Za8IrrR-D5t13k1uR1ssgiDXAN1Oy4I6jVFlI` |
+| 3 | DRAFT Cash to cash READY | Ready | 18 | `1ywdXmgieTCTVFwnluF3Movw2mSjxLCzwrHKU32ThwbY` |
+| 4 | DRAFT Cash to Mortgage READY | Ready | 19 | `1CeaCRPb9mo6ZpMw1KscxWM0ttg_MhURmyRG4WLaIXUI` |
+| 5 | DRAFT Mortgage to cash READY | Ready | 18 | `15VTWI0BtklRY6NItM-8iv4L7SPWUCK-Hq6eYTX-QZbg` |
+| C3-1 | С3 1. DRAFT Cash | C3 | 18 | `1gQqotIcOQ081GPi3Oxchco-dFA0M1EuNj0UUFLve7bw` |
+| C3-2 | С3 2. DRAFT Mortgage | C3 | 19 | `1FgswpVD6vi3uFpSw98JOq_ACqtDALX-_nAXZvwbHJe0` |
+
+Все шаблоны — Google Docs (конвертированы 22.08.2026). Старые .docx Алина удаляет сама:
+у коннектора нет прав удалять чужие файлы.
 
 6, 7 (ипотечные) — ещё не готовы.
 Папка «Готовые MOU»: `1u1rIUlh7AADIgmvdS33JXtYo5NlXfIWX`.
@@ -95,8 +98,8 @@
 ## 5. План
 
 1. ✅ Движок v2 (`lib/google/template-engine.js`) — готов, 20 тестов.
-2. ✅ Аудит всех шаблонов — `docs/templates-audit-2026-08.md`.
-3. Алина решает по расхождениям из аудита → правит шаблоны, конвертирует .docx → Google Docs.
+2. ✅ Аудит всех 8 шаблонов (текст + форматирование) — `docs/templates-audit-2026-08.md`.
+3. Алина решает по расхождениям из аудита (разделы A–F) и удаляет старые .docx.
 4. Реестр шаблонов → вкладка TEMPLATES в таблице (ID, название, группа, движок).
 5. Вырезать из кода старый путь (поиск фраз, генерация таблицы подписей, старые
    тексты/статьи/правила). Остаётся только v2.
