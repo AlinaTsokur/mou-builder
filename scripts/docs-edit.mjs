@@ -73,12 +73,13 @@ export async function applyEdit(docs, documentId, edit) {
     requests.push({ deleteContentRange: { range: { startIndex: hit.start, endIndex: hit.end } } });
     if (edit.replace) {
       requests.push({ insertText: { location: { index: hit.start }, text: edit.replace } });
-      if (edit.bold !== undefined) {
-        requests.push({ updateTextStyle: {
-          range: { startIndex: hit.start, endIndex: hit.start + edit.replace.length },
-          textStyle: { bold: edit.bold }, fields: "bold",
-        } });
-      }
+      // по умолчанию сохраняем начертание заменяемого фрагмента,
+      // иначе вставка унаследует стиль соседнего символа
+      const keepBold = edit.bold !== undefined ? edit.bold : idx.chars[hit.pos].bold;
+      requests.push({ updateTextStyle: {
+        range: { startIndex: hit.start, endIndex: hit.start + edit.replace.length },
+        textStyle: { bold: keepBold }, fields: "bold",
+      } });
       // runs: [[отступ от начала, отступ до, жирный?], ...] — разное начертание внутри вставки
       for (const [a, b, bold] of edit.runs || []) {
         requests.push({ updateTextStyle: {
@@ -104,16 +105,32 @@ export async function applyEdit(docs, documentId, edit) {
     return { ok: false, reason: "правка ничего не делает" };
   }
 
-  await docs.documents.batchUpdate({ documentId, requestBody: { requests } });
+  await withRetry(() => docs.documents.batchUpdate({ documentId, requestBody: { requests } }));
   return { ok: true };
 }
 
-export async function applyEdits(docs, documentId, edits, label = "") {
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// У Google Docs API лимит 60 записей в минуту на проект — ждём и повторяем.
+async function withRetry(fn, attempts = 6) {
+  for (let i = 0; ; i += 1) {
+    try {
+      return await fn();
+    } catch (e) {
+      const code = e?.code || e?.response?.status;
+      if ((code !== 429 && code !== 503) || i >= attempts - 1) throw e;
+      await sleep(15000 * (i + 1));
+    }
+  }
+}
+
+export async function applyEdits(docs, documentId, edits, { label = "", pauseMs = 1100 } = {}) {
   const done = [];
   const failed = [];
   for (const edit of edits) {
     const r = await applyEdit(docs, documentId, edit);
     (r.ok ? done : failed).push(r.ok ? (edit.note || edit.find.slice(0, 50)) : `${edit.note || edit.find.slice(0, 40)} — ${r.reason}`);
+    if (pauseMs) await sleep(pauseMs);
   }
   return { label, done, failed };
 }
