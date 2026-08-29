@@ -11,8 +11,8 @@
   подстановка значений → готовый MOU в папку «Готовые MOU».
 - Данные: Google Таблица «MOU Builder» (вкладки PROJECTS, LISTS, AGENTS, DRAFTS_LOG;
   план — добавить TEMPLATES). Базы данных нет и пока не нужна.
-- Шаблоны: папка «Автоматизация» на Google Диске `tsokuraline@gmail.com`
-  ([«Автоматизация»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm), `1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm`). Коннектор Claude подключён к аккаунту
+- Шаблоны: папка «MOU» на Google Диске `tsokuraline@gmail.com`
+  ([«MOU»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm), `1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm`). Коннектор Claude подключён к аккаунту
   `kkorobkova84@gmail.com` — папка расшарена на него как редактору.
 - Переезд на рабочий аккаунт позже = копирование файлов + замена 3-4 ID (spreadsheetId,
   outputFolderId, ID шаблонов). Ничего в коде к аккаунту не привязано.
@@ -75,7 +75,7 @@
 - Блоки подписей: `{{seller_signature_block}}` / `{{buyer_signature_block}}` — строка
   Name/Signature/Date на каждого участника. Подписи агентств и финальная таблица — по флагам.
 
-## 4. Шаблоны (папка «Автоматизация»)
+## 4. Шаблоны (папка «MOU»)
 
 | # | Файл (ссылка) | Группа | Статей | Google Doc ID |
 |---|------|--------|--------|-----|
@@ -156,7 +156,7 @@ Scopes: documents, drive, spreadsheets.
 
 ## 10. Актуальные адреса (22.08.2026)
 
-Папка [«Автоматизация»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm)
+Папка [«MOU»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm)
 — основная. Всё, что вне её, считаем устаревшим.
 
 - Таблица «MOU Builder»: `1cDlPWsD4gmmbzdaV0spVxLNSAedEXZruizYYtnn7CsQ` (лежит в папке).

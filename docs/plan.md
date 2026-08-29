@@ -4,7 +4,7 @@
 
 ## Где что лежит
 
-- Все шаблоны и таблица — папка [«Автоматизация»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm). Она основная, всё вне её устарело.
+- Все шаблоны и таблица — папка [«MOU»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm). Она основная, всё вне её устарело.
 - Готовые договоры — папка [«Готовые MOU»](https://drive.google.com/drive/folders/1hENNhxCor6GO0SX8Psedc3gPmyq_eIaL).
 - Таблица [«MOU Builder»](https://docs.google.com/spreadsheets/d/1cDlPWsD4gmmbzdaV0spVxLNSAedEXZruizYYtnn7CsQ/edit) — данные проектов, агентств и согласование правок.
 - Отчёт по шаблонам — [templates-audit-2026-08.md](templates-audit-2026-08.md).
@@ -23,7 +23,7 @@
 
 Прочитаны все 9 документов и 57 комментариев. Результат — [аудит](templates-audit-2026-08.md).
 
-### 3. ✅ Переключение на папку «Автоматизация»
+### 3. ✅ Переключение на папку «MOU»
 
 Новая таблица, новые ID шаблонов, новая папка для готовых договоров.
 

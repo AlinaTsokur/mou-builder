@@ -1,6 +1,6 @@
 # Аудит шаблонов MOU — 22.08.2026 (версия 2)
 
-Сверка 9 шаблонов из папки [«Автоматизация»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm)
+Сверка 9 шаблонов из папки [«MOU»](https://drive.google.com/drive/folders/1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm)
 после полной замены документов. Прочитаны напрямую через Google Docs API — вместе
 с форматированием и всеми 57 комментариями с привязкой к тексту.
 
