@@ -33,7 +33,20 @@ function paragraphBounds(text, pos) {
 }
 
 // Ищем find; если задан within — только в абзаце, где встречается within.
-function locate({ chars, text }, { find, within, nth = 0 }) {
+// Если задан cellAfter — берём целиком следующий абзац после якоря
+// (в таблицах подпись и значение лежат в соседних ячейках, find там не нужен).
+function locate({ chars, text }, { find, within, cellAfter, nth = 0 }) {
+  if (cellAfter) {
+    const anchor = text.indexOf(cellAfter);
+    if (anchor === -1) return null;
+    const [, labelEnd] = paragraphBounds(text, anchor);
+    const from = labelEnd + 1;
+    if (from >= text.length) return null;
+    const to = text.indexOf("\n", from);
+    const end = to === -1 ? text.length : to;
+    if (end <= from) return null;
+    return { start: chars[from].i, end: chars[end - 1].i + 1, pos: from };
+  }
   let searchFrom = 0;
   let searchTo = text.length;
   if (within) {
@@ -59,12 +72,13 @@ function locate({ chars, text }, { find, within, nth = 0 }) {
 //   { find, replace }            — заменить текст
 //   { find, bold: true|false }   — сменить начертание
 //   { find, insertBefore }       — вставить текст перед найденным
+// Вместо find можно задать cellAfter — тогда правится соседняя ячейка таблицы.
 // Плюс необязательные within (ограничить абзацем) и nth (какое по счёту вхождение).
 export async function applyEdit(docs, documentId, edit) {
   const doc = (await docs.documents.get({ documentId })).data;
   const idx = buildIndex(doc);
   const hit = locate(idx, edit);
-  if (!hit) return { ok: false, reason: `не найдено: «${edit.find.slice(0, 60)}»` };
+  if (!hit) return { ok: false, reason: `не найдено: «${(edit.find || edit.cellAfter).slice(0, 60)}»` };
 
   if (edit.dryRun) return { ok: true, dry: true };
 
@@ -129,7 +143,8 @@ export async function applyEdits(docs, documentId, edits, { label = "", pauseMs 
   const failed = [];
   for (const edit of edits) {
     const r = await applyEdit(docs, documentId, edit);
-    (r.ok ? done : failed).push(r.ok ? (edit.note || edit.find.slice(0, 50)) : `${edit.note || edit.find.slice(0, 40)} — ${r.reason}`);
+    const name = edit.note || (edit.find || edit.cellAfter);
+    (r.ok ? done : failed).push(r.ok ? name.slice(0, 50) : `${name.slice(0, 40)} — ${r.reason}`);
     if (pauseMs) await sleep(pauseMs);
   }
   return { label, done, failed };

@@ -72,6 +72,8 @@ const EDITS = [
   { find: "Apartment", replace: "{{property_type}}" },
   { find: "The Source-R18-212", replace: "{{unit_number}}" },
   { find: "The Source", replace: "{{project_name}}", within: "Project name" },
+  { find: "Additional Information:", replace: "Additional Information: {{additional_information}}" },
+  { cellAfter: "Number of Car Parking Spaces:", replace: "{{parking_spaces}}", note: "parking_spaces" },
 
   // ═══ ст. 4 — платёжная таблица
   { find: "AED 0,000,000.00", replace: "{{original_price}}", within: "as per the SPA issued by the" },
