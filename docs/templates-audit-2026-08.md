@@ -6,7 +6,7 @@
 
 | # | Шаблон | Статей | Комм. |
 |---|--------|--------|-------|
-| 1 | [Off-plan](https://docs.google.com/document/d/1vlmCEPFpPFQQfTVUbzeErNQKr1Vf2aApcbQrVt0B1-o/edit) | 17 | 18 |
+| 1 | [Off-plan](https://docs.google.com/document/d/1LLMqzZ1xeSPzVOhVahG4B8l9bQx0KggFBvZUynOY8bU/edit) | 17 | 18 |
 | 1.2 | [Off-plan NO DEPOSIT CHEQUES](https://docs.google.com/document/d/1vftXIyFV32PKyFoCg-2J5b_58V94e5TFXJgXSIbIvWM/edit) | 15 | 0 |
 | 2 | [Off-plan–mortgage](https://docs.google.com/document/d/1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g/edit) | 18 | 1 |
 | 3 | [Cash to cash READY](https://docs.google.com/document/d/1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k/edit) | 18 | 5 |

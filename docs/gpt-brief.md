@@ -123,7 +123,7 @@
 
 | № | Ссылка |
 |---|--------|
-| 1 | https://docs.google.com/document/d/1vlmCEPFpPFQQfTVUbzeErNQKr1Vf2aApcbQrVt0B1-o/edit |
+| 1 | https://docs.google.com/document/d/1LLMqzZ1xeSPzVOhVahG4B8l9bQx0KggFBvZUynOY8bU/edit |
 | 1.2 | https://docs.google.com/document/d/1vftXIyFV32PKyFoCg-2J5b_58V94e5TFXJgXSIbIvWM/edit |
 | 2 | https://docs.google.com/document/d/1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g/edit |
 | 3 | https://docs.google.com/document/d/1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k/edit |

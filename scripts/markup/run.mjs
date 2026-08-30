@@ -54,6 +54,26 @@ export async function runMarkup({ sourceId, draftName, edits, toOriginal }) {
   const { drive, docs } = getBotClients();
   let id = sourceId;
 
+  if (toOriginal) {
+    // Разметка не идемпотентна: повторный прогон по размеченному документу
+    // дублирует маркеры и ломает вложенность условий. Проверяем до записи.
+    const doc = (await docs.documents.get({ documentId: sourceId })).data;
+    if (JSON.stringify(doc.body).includes("{{#if")) {
+      throw new Error(
+        "шаблон уже размечен — повторный прогон продублирует маркеры.\n"
+        + "Сначала верни документ к состоянию до разметки (бэкап), потом запускай."
+      );
+    }
+    // Бэкап до первой же записи: если что-то пойдёт не так, откатываться будет к чему
+    const stamp = new Date().toISOString().slice(0, 10);
+    const backup = await drive.files.copy({
+      fileId: sourceId,
+      requestBody: { name: `БЭКАП ${stamp} — ${doc.title} (до разметки)`, parents: [FOLDER] },
+      fields: "id,webViewLink",
+    });
+    console.log("бэкап до разметки:", backup.data.webViewLink);
+  }
+
   if (!toOriginal) {
     // прошлый черновик удаляем: разметка не идемпотентна, каждый прогон — свежая копия
     const stale = await drive.files.list({

@@ -14,7 +14,7 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
-import { ARTICLE_DEFS, getArticleDefsForTemplate } from "@/lib/mou/articles";
+import { getArticleDefsForTemplate } from "@/lib/mou/articles";
 import Holidays from "date-holidays";
 import { IMaskInput } from "react-imask";
 

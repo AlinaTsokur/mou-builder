@@ -7,7 +7,7 @@ import { applyEdits } from "./docs-edit.mjs";
 const APPLY = process.argv.includes("--apply");
 
 const T = {
-  "1":    "1vlmCEPFpPFQQfTVUbzeErNQKr1Vf2aApcbQrVt0B1-o",
+  "1":    "1LLMqzZ1xeSPzVOhVahG4B8l9bQx0KggFBvZUynOY8bU",
   "1.2":  "1vftXIyFV32PKyFoCg-2J5b_58V94e5TFXJgXSIbIvWM",
   "2":    "1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g",
   "3":    "1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k",

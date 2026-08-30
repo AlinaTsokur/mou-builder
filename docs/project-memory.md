@@ -79,7 +79,7 @@
 
 | # | Файл (ссылка) | Группа | Статей | Google Doc ID |
 |---|------|--------|--------|-----|
-| 1 | [Off-plan](https://docs.google.com/document/d/1vlmCEPFpPFQQfTVUbzeErNQKr1Vf2aApcbQrVt0B1-o/edit) | Off-plan | 17 | `1vlmCEPFpPFQQfTVUbzeErNQKr1Vf2aApcbQrVt0B1-o` |
+| 1 | [Off-plan](https://docs.google.com/document/d/1LLMqzZ1xeSPzVOhVahG4B8l9bQx0KggFBvZUynOY8bU/edit) | Off-plan | 17 | `1LLMqzZ1xeSPzVOhVahG4B8l9bQx0KggFBvZUynOY8bU` |
 | 1.2 | [Off-plan NO DEPOSIT CHEQUES](https://docs.google.com/document/d/1vftXIyFV32PKyFoCg-2J5b_58V94e5TFXJgXSIbIvWM/edit) | Off-plan | 15 | `1vftXIyFV32PKyFoCg-2J5b_58V94e5TFXJgXSIbIvWM` |
 | 2 | [Off-plan–mortgage](https://docs.google.com/document/d/1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g/edit) | Off-plan | 18 | `1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g` |
 | 3 | [Cash to cash READY](https://docs.google.com/document/d/1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k/edit) | Ready | 18 | `1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k` |

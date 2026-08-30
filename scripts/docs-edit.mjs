@@ -43,7 +43,7 @@ function paragraphBounds(text, pos) {
 // Ищем find; если задан within — только в абзаце, где встречается within.
 // Если задан cellAfter — берём целиком следующий абзац после якоря
 // (в таблицах подпись и значение лежат в соседних ячейках, find там не нужен).
-function locate({ chars, text }, { find, within, cellAfter, nth = 0 }) {
+function locate({ chars, text }, { find, within, withinNth = 0, cellAfter, nth = 0 }) {
   if (cellAfter) {
     const anchor = text.indexOf(cellAfter);
     if (anchor === -1) return null;
@@ -59,8 +59,13 @@ function locate({ chars, text }, { find, within, cellAfter, nth = 0 }) {
   let searchFrom = 0;
   let searchTo = text.length;
   if (within) {
-    const anchor = text.indexOf(within);
-    if (anchor === -1) return null;
+    // withinNth — какой по счёту абзац с таким якорем брать: в договоре есть
+    // дословно одинаковые абзацы (например распределение депозита у обеих сторон)
+    let anchor = -1;
+    for (let i = 0; i <= withinNth; i += 1) {
+      anchor = text.indexOf(within, anchor + 1);
+      if (anchor === -1) return null;
+    }
     [searchFrom, searchTo] = paragraphBounds(text, anchor);
   }
   let pos = -1;
@@ -84,7 +89,8 @@ function locate({ chars, text }, { find, within, cellAfter, nth = 0 }) {
 //   { find, bold: true|false }   — сменить начертание
 //   { find, insertBefore }       — вставить текст перед найденным
 // Вместо find можно задать cellAfter — тогда правится соседняя ячейка таблицы.
-// Плюс необязательные within (ограничить абзацем) и nth (какое по счёту вхождение).
+// Плюс необязательные within (ограничить абзацем), withinNth (какой по счёту
+// абзац с таким якорем) и nth (какое по счёту вхождение внутри него).
 export async function applyEdit(docs, documentId, edit) {
   const doc = (await docs.documents.get({ documentId })).data;
   const idx = buildIndex(doc);
