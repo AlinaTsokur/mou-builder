@@ -567,3 +567,15 @@ test("превью берёт статьи у шаблона, а не по unitS
   assert.equal(mortgage.articles.length, 18);
   assert.equal(legacy.articles.length, 27);
 });
+
+test("значения порога из формы прижимаются к нулю", () => {
+  const base = {
+    unitStatus: "Off-plan", originalPrice: "1,000,000", sellingPrice: "1,200,000",
+    paidAmountToDeveloper: "400,000", transferThresholdPercent: "30",
+  };
+  const manual = calculate(normalizeForm({
+    ...base, thresholdTopUpAmount: "-50,000", remainingDeveloperBalance: "-10,000",
+  }));
+  assert.equal(manual.thresholdTopUpAmount, 0);
+  assert.equal(manual.remainingDeveloperBalance, 0);
+});

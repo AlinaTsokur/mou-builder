@@ -300,3 +300,32 @@ test("normalizeForm: новые поля v2 с дефолтами", () => {
   assert.equal(data.buyerChequeThirdParty, false);
   assert.equal(data.sellerAgentRepresentative, "");
 });
+
+test("диапазоны разных сегментов не склеиваются", () => {
+  // Индексы тела и подвала пересекаются: без учёта сегмента диапазон подвала
+  // склеился бы с диапазоном тела и удалил чужой текст.
+  const mk = (raw) => {
+    let i = 1;
+    const text = raw.endsWith("\n") ? raw : `${raw}\n`;
+    const start = i;
+    i += text.length;
+    return [{ startIndex: start, endIndex: i,
+      paragraph: { elements: [{ startIndex: start, endIndex: i, textRun: { content: text } }] } }];
+  };
+  const doc = {
+    body: { content: mk("{{#if a}}тело{{/if}} длинный хвост тела для перекрытия индексов") },
+    footers: { f1: { content: mk("{{#if b}}подвал{{/if}}") } },
+  };
+  const plan = buildConditionalPlan(doc, { a: true, b: false });
+  const bySeg = {};
+  for (const r of plan.requests) {
+    const range = r.deleteContentRange.range;
+    const seg = range.segmentId || "body";
+    (bySeg[seg] ||= []).push([range.startIndex, range.endIndex]);
+  }
+  assert.ok(bySeg.f1, "диапазон подвала должен остаться отдельным");
+  assert.ok(bySeg.body, "диапазоны тела должны остаться");
+  // подвал удаляется целиком одним диапазоном, тело — только маркеры
+  assert.equal(bySeg.f1.length, 1);
+  assert.equal(plan.errors.length, 0);
+});
