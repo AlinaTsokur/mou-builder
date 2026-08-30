@@ -55,6 +55,7 @@ const DEFECTS = [
   [/\{\{[a-z0-9_#/]/, "неподставленный маркер"],
   [/[^;]\band\s*\n\s*\n/, "висящее «and»"],
   [/\(\s*\)/, "пустые скобки"],
+  [/(?<!\{\{[a-z0-9_]{0,40})\}\}/, "обрывок маркера «}}»"],
   [/\bby\s*\.\s/, "оборванная фраза «by .»"],
 ];
 
@@ -90,10 +91,13 @@ for (const { name, over, forbidden } of SCENARIOS) {
   const cond = buildConditionalPlan(doc, flags);
   const rows = buildRowPlan(doc, flags);
 
+  // у тела и каждого колонтитула своя нумерация индексов — ключ обязан
+  // включать сегмент, иначе удаления из колонтитула рвут текст тела
   const deleted = new Set();
+  const key = (seg, i) => `${seg || ""}:${i}`;
   for (const r of cond.requests) {
     const g = r.deleteContentRange?.range;
-    if (g) for (let i = g.startIndex; i < g.endIndex; i += 1) deleted.add(i);
+    if (g) for (let i = g.startIndex; i < g.endIndex; i += 1) deleted.add(key(g.segmentId, i));
   }
   // строки таблиц движок удаляет отдельным запросом — повторяем это на тексте
   for (const r of rows.requests) {
@@ -102,17 +106,17 @@ for (const { name, over, forbidden } of SCENARIOS) {
     const table = findTable(doc.body?.content || [], loc.tableStartLocation.index);
     const row = table?.tableRows?.[loc.rowIndex];
     for (const cell of row?.tableCells || []) {
-      for (let i = cell.startIndex; i < cell.endIndex; i += 1) deleted.add(i);
+      for (let i = cell.startIndex; i < cell.endIndex; i += 1) deleted.add(key("", i));
     }
   }
-  const text = idx.chars.filter((c) => !deleted.has(c.i)).map((c) => c.c).join("")
+  const text = idx.chars.filter((c) => !deleted.has(key(c.seg, c.i))).map((c) => c.c).join("")
     .replace(/\{\{#row\s+!?[a-z0-9_]+\}\}/g, "")
     .replace(/\{\{([a-z0-9_]+)\}\}/g, (m, k) => (k in repl ? String(repl[k] ?? "") : m))
     .replace(/<<|>>/g, "");
 
   // пустые строки ищем только в теле и вне таблиц: в плоском тексте каждая ячейка
   // заканчивается переводом строки, и пустая ячейка шапки даёт ложное срабатывание
-  const outsideTables = idx.chars.filter((c) => c.seg === "" && !c.inTable && !deleted.has(c.i)).map((c) => c.c).join("");
+  const outsideTables = idx.chars.filter((c) => c.seg === "" && !c.inTable && !deleted.has(key(c.seg, c.i))).map((c) => c.c).join("");
   let found = [];
   if (/\n[ \t]*\n[ \t]*\n/.test(outsideTables)) {
     const m = outsideTables.match(/.{0,60}\n[ \t]*\n[ \t]*\n.{0,60}/);
