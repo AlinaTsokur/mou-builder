@@ -55,7 +55,6 @@ const DEFECTS = [
   [/\{\{[a-z0-9_#/]/, "неподставленный маркер"],
   [/[^;]\band\s*\n\s*\n/, "висящее «and»"],
   [/\(\s*\)/, "пустые скобки"],
-  [/\n[ \t]*\n[ \t]*\n/, "две пустые строки подряд"],
   [/\bby\s*\.\s/, "оборванная фраза «by .»"],
 ];
 
@@ -111,7 +110,14 @@ for (const { name, over, forbidden } of SCENARIOS) {
     .replace(/\{\{([a-z0-9_]+)\}\}/g, (m, k) => (k in repl ? String(repl[k] ?? "") : m))
     .replace(/<<|>>/g, "");
 
+  // пустые строки ищем только в теле и вне таблиц: в плоском тексте каждая ячейка
+  // заканчивается переводом строки, и пустая ячейка шапки даёт ложное срабатывание
+  const outsideTables = idx.chars.filter((c) => c.seg === "" && !c.inTable && !deleted.has(c.i)).map((c) => c.c).join("");
   let found = [];
+  if (/\n[ \t]*\n[ \t]*\n/.test(outsideTables)) {
+    const m = outsideTables.match(/.{0,60}\n[ \t]*\n[ \t]*\n.{0,60}/);
+    found.push("две пустые строки подряд → …" + m[0].replace(/\n/g, " ⏎ ") + "…");
+  }
   if (cond.errors.length) found.push("ошибки движка: " + cond.errors.join("; "));
   if (cond.unknownFlags.length) found.push("неизвестные флаги: " + cond.unknownFlags.join(", "));
   if (rows.unknownFlags?.length) found.push("неизвестные флаги строк: " + rows.unknownFlags.join(", "));

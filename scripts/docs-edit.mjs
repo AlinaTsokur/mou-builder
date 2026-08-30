@@ -5,29 +5,29 @@
 // Плоская карта символов документа: позиция в тексте → абсолютный индекс в Google Docs.
 export function buildIndex(doc) {
   const chars = [];
-  const walk = (content, seg) => {
+  const walk = (content, seg, inTable = false) => {
     for (const el of content || []) {
       if (el.paragraph) {
         for (const pe of el.paragraph.elements || []) {
           const run = pe.textRun;
           if (!run) continue;
           const bold = Boolean(run.textStyle?.bold);
-          [...run.content].forEach((c, k) => chars.push({ c, i: pe.startIndex + k, bold, seg }));
+          [...run.content].forEach((c, k) => chars.push({ c, i: pe.startIndex + k, bold, seg, inTable }));
         }
       } else if (el.table) {
         for (const row of el.table.tableRows || []) {
-          for (const cell of row.tableCells || []) walk(cell.content, seg);
+          for (const cell of row.tableCells || []) walk(cell.content, seg, true);
         }
       }
     }
   };
-  walk(doc.body.content, "");
+  walk(doc.body.content, "", false);
   // колонтитулы — отдельные сегменты: там своя нумерация индексов,
   // поэтому в запросе к ним нужно указывать segmentId
   for (const part of ["headers", "footers"]) {
     for (const [id, obj] of Object.entries(doc[part] || {})) {
       chars.push({ c: "\n", i: -1, bold: false, seg: id });
-      walk(obj.content, id);
+      walk(obj.content, id, false);
     }
   }
   return { chars, text: chars.map((x) => x.c).join("") };
