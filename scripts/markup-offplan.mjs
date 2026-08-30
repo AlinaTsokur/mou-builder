@@ -137,7 +137,7 @@ const EDITS = [
   { find: "Name Surname", replace: "{{buyer_cheque_drawer}}", within: "cheque No." },
   { find: ", on behalf of the Buyer, provided that such third party",
     replace: "{{#if buyer_cheque_third_party}}, on behalf of the Buyer, provided that such third party" },
-  { find: "the funds are provided on behalf of the Buyer.", replace: "the funds are provided on behalf of the Buyer.{{/if}}" },
+  { find: "the funds are provided on behalf of the Buyer.", replace: "the funds are provided on behalf of the Buyer{{/if}}." },
   { find: "Buyer’s Agent as stakeholder", replace: "{{buyer_deposit_holder}}", within: "cheque No." },
   { find: "in accordance with the terms of this MOU.", replace: "in accordance with the terms of this MOU.{{/if}}{{/if}}",
     within: "cheque No." },
@@ -161,10 +161,10 @@ const EDITS = [
   { find: "Ivan Ivanov", replace: "{{seller_cheque_drawer}}" },
   { find: ", on behalf of the Seller, provided that such third party",
     replace: "{{#if seller_cheque_third_party}}, on behalf of the Seller, provided that such third party" },
-  { find: "the funds are provided on behalf of the Seller.", replace: "the funds are provided on behalf of the Seller.{{/if}}" },
+  { find: "the funds are provided on behalf of the Seller.", replace: "the funds are provided on behalf of the Seller{{/if}}." },
   { find: "Seller’s Agent as stakeholder", replace: "{{seller_deposit_holder}}", within: "{{seller_cheque_drawer}}" },
   { find: "in accordance with the terms of this MOU.", replace: "in accordance with the terms of this MOU.{{/if}}{{/if}}",
-    within: "{{seller_deposit_holder}} until" },
+    within: "{{seller_cheque_drawer}}" },
 
   { find: "Upon successful completion of the transfer", replace: "{{#if any_deposit}}Upon successful completion of the transfer" },
   { find: "shall not be presented for payment.", replace: "shall not be presented for payment.{{/if}}" },
@@ -195,6 +195,7 @@ const EDITS = [
     replace: "No unilateral instruction from either Party shall authorize its release.{{/if}}" },
 
   // ═══ ст. 15 — уведомление о споре
+  { find: "via agents\u2019 email", replace: "via {{#if any_agent}}agents\u2019 {{/if}}email" },
   { find: ", with a copy of such email or letter delivered to Agencies for their reference",
     replace: "{{#if any_agent}}, with a copy of such email or letter delivered to {{agencies_word}} for their reference{{/if}}" },
 
