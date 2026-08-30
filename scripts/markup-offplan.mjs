@@ -75,7 +75,7 @@ const EDITS = [
   { find: "AED 0,000,000.00", replace: "AED {{original_price}}", within: "as per the SPA issued by the" },
   { find: "AED 0,000,000.00", replace: "AED {{selling_price}}", within: "as agreed by the" },
   { find: "AED 0,000,000.00", replace: "AED {{amount_to_seller}}", within: "to be paid by the" },
-  { find: "Manager's Cheque or Cash", replace: "{{amount_to_seller_payment_text}}" },
+  { find: "Manager's Cheque or Cash.", replace: "{{amount_to_seller_payment_text}}", note: "способ оплаты (точка внутри значения)" },
 
   { find: "Remaining balance to complete ", replace: "{{#row has_top_up}}Remaining balance to complete " },
   // порог и остаток застройщику — проценты у сделок разные (30/70 против 25/75)
@@ -250,6 +250,16 @@ const EDITS = [
   { find: "Article 3", replace: "Article {{article_property_details_number}}", nth: 0, note: "заголовок ст. 3" },
   { find: "Article 2", replace: "Article {{article_effective_date_number}}", nth: 0, note: "заголовок ст. 2" },
   { find: "Article 1", replace: "Article {{article_sale_offer_number}}", nth: 0, note: "заголовок ст. 1" },
+  // строки подписей агентов внизу — только если агентство есть
+  { find: "Seller\u2019s Agent signature__________", replace: "{{#if seller_agent}}Seller\u2019s Agent signature__________{{/if}}" },
+  { find: "Buyer\u2019s Agent signature__________", replace: "{{#if buyer_agent}}Buyer\u2019s Agent signature__________{{/if}}" },
+
+  // заголовки депозитных статей: без депозитов остались бы голые «Article» без номера
+  { find: "Article {{article_security_deposit_number}}", insertBefore: "{{#if any_deposit}}", note: "открыть ст.6 целиком" },
+  { find: "shall not be presented for payment.{{/if}}", replace: "shall not be presented for payment.{{/if}}{{/if}}", note: "закрыть ст.6 целиком" },
+  { find: "Article {{article_deposit_release_number}}", insertBefore: "{{#if any_deposit}}", note: "открыть ст.9 целиком" },
+  { find: "No unilateral instruction from either Party shall authorize its release.{{/if}}",
+    replace: "No unilateral instruction from either Party shall authorize its release.{{/if}}{{/if}}", note: "закрыть ст.9 целиком" },
 ];
 
 let id = SRC;
