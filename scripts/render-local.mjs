@@ -21,6 +21,20 @@ function findTable(content, startIndex) {
   return null;
 }
 
+// Таблица подписей живёт в подвале, и индексы там свои. Ищем в том сегменте,
+// который назвал сам запрос: иначе проверка не увидит удаление строк колонтитула.
+function findTableInSegment(doc, segmentId, startIndex) {
+  if (!segmentId) return findTable(doc.body?.content || [], startIndex);
+  for (const part of ["headers", "footers"]) {
+    const obj = doc[part]?.[segmentId];
+    if (obj) {
+      const found = findTable(obj.content || [], startIndex);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
 export function renderLocal(doc, idx, form, articleDefs) {
   const data = normalizeForm(form);
   const calc = calculate(data);
@@ -40,10 +54,11 @@ export function renderLocal(doc, idx, form, articleDefs) {
   for (const r of rows.requests) {
     const loc = r.deleteTableRow?.tableCellLocation;
     if (!loc) continue;
-    const table = findTable(doc.body?.content || [], loc.tableStartLocation.index);
+    const seg = loc.tableStartLocation.segmentId || "";
+    const table = findTableInSegment(doc, seg, loc.tableStartLocation.index);
     const row = table?.tableRows?.[loc.rowIndex];
     for (const cell of row?.tableCells || []) {
-      for (let i = cell.startIndex; i < cell.endIndex; i += 1) deleted.add(key("", i));
+      for (let i = cell.startIndex; i < cell.endIndex; i += 1) deleted.add(key(seg, i));
     }
   }
 

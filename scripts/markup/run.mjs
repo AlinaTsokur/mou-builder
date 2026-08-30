@@ -50,20 +50,36 @@ async function addStampRow(docs, documentId) {
   return "строка печатей добавлена";
 }
 
+// Маркеры ищем во всём документе: тело, колонтитулы и вкладки. Документ,
+// где разметка осталась только в подвале, тоже размечен.
+function alreadyMarked(doc) {
+  const holders = doc.tabs?.length ? doc.tabs.map((t) => t.documentTab || {}) : [doc];
+  const parts = [];
+  for (const h of holders) {
+    parts.push(h.body || {});
+    for (const kind of ["headers", "footers"]) parts.push(h[kind] || {});
+  }
+  const text = JSON.stringify(parts);
+  return text.includes("{{#if") || text.includes("{{#row");
+}
+
 export async function runMarkup({ sourceId, draftName, edits, toOriginal }) {
   const { drive, docs } = getBotClients();
   let id = sourceId;
 
+  // Разметка не идемпотентна: повторный прогон по размеченному документу дублирует
+  // маркеры и ломает вложенность условий. Проверяем источник до любой записи —
+  // и для черновика тоже: копия размеченного исходника даст ту же поломку.
+  const source = (await docs.documents.get({ documentId: sourceId })).data;
+  if (alreadyMarked(source)) {
+    throw new Error(
+      "шаблон уже размечен — повторный прогон продублирует маркеры.\n"
+      + "Сначала верни документ к состоянию до разметки (бэкап), потом запускай."
+    );
+  }
+
   if (toOriginal) {
-    // Разметка не идемпотентна: повторный прогон по размеченному документу
-    // дублирует маркеры и ломает вложенность условий. Проверяем до записи.
-    const doc = (await docs.documents.get({ documentId: sourceId })).data;
-    if (JSON.stringify(doc.body).includes("{{#if")) {
-      throw new Error(
-        "шаблон уже размечен — повторный прогон продублирует маркеры.\n"
-        + "Сначала верни документ к состоянию до разметки (бэкап), потом запускай."
-      );
-    }
+    const doc = source;
     // Бэкап до первой же записи: если что-то пойдёт не так, откатываться будет к чему
     const stamp = new Date().toISOString().slice(0, 10);
     const backup = await drive.files.copy({

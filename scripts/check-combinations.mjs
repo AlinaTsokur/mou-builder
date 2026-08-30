@@ -26,8 +26,9 @@ const DEPOSIT_FIXED_BUYER = 150000;
 const DEPOSIT_FIXED_SELLER = 120000;
 // «порог не добран» — застройщику заплачено меньше 30% от Original Price,
 // «порог закрыт» — больше; во втором случае строка добора из таблицы уходит
-const PAID_UNDER = 300000;
-const PAID_MET = 500000;
+const PAID_UNDER = 300000;               // меньше порога — нужен добор
+const PAID_EXACT = (1494050 * 30) / 100; // ровно порог — добор ноль
+const PAID_OVER = 700000;                // больше порога — добор тоже ноль
 
 const BASE = {
   agreementDate: "28/01/2026", reservationDeadline: "28/02/2026",
@@ -57,9 +58,16 @@ const AXES = {
   sellerDeposit: [true, false],
   sellerAgent: [true, false],
   buyerAgent: [true, false],
-  paidThreshold: ["не добран", "закрыт"],
-  depositCalc: ["процент", "сумма"],
+  // «ровно» — застройщику заплачено ровно столько, сколько требует порог:
+  // добор равен нулю, строка из таблицы должна уйти. «сверх» — переплата.
+  paidThreshold: ["не добран", "ровно", "сверх"],
+  // способ расчёта у сторон независимый: у одного процент, у другого сумма
+  buyerDepositCalc: ["процент", "сумма"],
+  sellerDepositCalc: ["процент", "сумма"],
   buyerChequeKnown: [true, false],
+  sellerChequeKnown: [true, false],
+  thirdPartyCheque: [false, true],
+  agentFees: ["есть", "выключены"],
 };
 
 function combinations(axes) {
@@ -73,25 +81,34 @@ function combinations(axes) {
   return out;
 }
 
+const PAID_FOR = { "не добран": PAID_UNDER, "ровно": PAID_EXACT, "сверх": PAID_OVER };
+const DELAYED = { ChequeTiming: "Delayed (within X days)", ChequeDays: "5" };
+
 function formFor(c) {
+  const feesOn = c.agentFees === "есть";
   return {
     ...BASE,
-    paidAmountToDeveloper: String(c.paidThreshold === "не добран" ? PAID_UNDER : PAID_MET),
+    paidAmountToDeveloper: String(PAID_FOR[c.paidThreshold]),
     sellerAgentEnabled: c.sellerAgent ? "Yes" : "No",
     buyerAgentEnabled: c.buyerAgent ? "Yes" : "No",
+    sellerAgentFeeEnabled: feesOn ? "Yes" : "No",
+    buyerAgentFeeEnabled: feesOn ? "Yes" : "No",
     buyerDepositEnabled: c.buyerDeposit ? "Yes" : "No",
     sellerDepositEnabled: c.sellerDeposit ? "Yes" : "No",
-    buyerDepositCalcType: c.depositCalc === "процент" ? "% of Selling Price" : "Fixed amount",
+    buyerDepositCalcType: c.buyerDepositCalc === "процент" ? "% of Selling Price" : "Fixed amount",
     buyerDepositPercent: String(DEPOSIT_PCT), buyerDepositFixedAmount: String(DEPOSIT_FIXED_BUYER),
-    sellerDepositCalcType: c.depositCalc === "процент" ? "% of Selling Price" : "Fixed amount",
+    sellerDepositCalcType: c.sellerDepositCalc === "процент" ? "% of Selling Price" : "Fixed amount",
     sellerDepositPercent: String(DEPOSIT_PCT), sellerDepositFixedAmount: String(DEPOSIT_FIXED_SELLER),
-    ...(c.buyerChequeKnown ? {} : { buyerChequeTiming: "Delayed (within X days)", buyerChequeDays: "5" }),
+    buyerChequeThirdParty: c.thirdPartyCheque ? "Yes" : "No",
+    sellerChequeThirdParty: c.thirdPartyCheque ? "Yes" : "No",
+    ...(c.buyerChequeKnown ? {} : { buyerChequeTiming: DELAYED.ChequeTiming, buyerChequeDays: DELAYED.ChequeDays }),
+    ...(c.sellerChequeKnown ? {} : { sellerChequeTiming: DELAYED.ChequeTiming, sellerChequeDays: DELAYED.ChequeDays }),
   };
 }
 
 // ───────── независимый пересчёт: как должно быть по условиям договора
 function expected(c) {
-  const paid = c.paidThreshold === "не добран" ? PAID_UNDER : PAID_MET;
+  const paid = PAID_FOR[c.paidThreshold];
   const required = (ORIGINAL * THRESHOLD_PCT) / 100;
   const topUp = Math.max(required - paid, 0);
   const remaining = Math.max(ORIGINAL - paid - topUp, 0);
@@ -99,9 +116,9 @@ function expected(c) {
   // добор порога и остаток по SPA идут не ему. Поле формы здесь перекрывается расчётом.
   const toSeller = SELLING - topUp - remaining;
 
-  const dep = (on, fixed) => (on ? (c.depositCalc === "процент" ? (SELLING * DEPOSIT_PCT) / 100 : fixed) : "");
-  const buyerDep = dep(c.buyerDeposit, DEPOSIT_FIXED_BUYER);
-  const sellerDep = dep(c.sellerDeposit, DEPOSIT_FIXED_SELLER);
+  const dep = (on, calc, fixed) => (on ? (calc === "процент" ? (SELLING * DEPOSIT_PCT) / 100 : fixed) : "");
+  const buyerDep = dep(c.buyerDeposit, c.buyerDepositCalc, DEPOSIT_FIXED_BUYER);
+  const sellerDep = dep(c.sellerDeposit, c.sellerDepositCalc, DEPOSIT_FIXED_SELLER);
 
   // liquidated damages: свой депозит, иначе депозит другой стороны, иначе штраф из формы
   const buyerLd = buyerDep !== "" ? buyerDep : sellerDep !== "" ? sellerDep : PENALTY_BUYER;
@@ -122,12 +139,16 @@ function expected(c) {
   if (sellerDep !== "") amounts.push(sellerDep);
   if (buyerLd20 !== null) amounts.push(buyerLd20);
   if (sellerLd20 !== null) amounts.push(sellerLd20);
-  if (c.sellerAgent) amounts.push(AGENCY_FEE_SELLER);
-  if (c.buyerAgent) amounts.push(AGENCY_FEE_BUYER);
+  const feesOn = c.agentFees === "есть";
+  if (c.sellerAgent && feesOn) amounts.push(AGENCY_FEE_SELLER);
+  if (c.buyerAgent && feesOn) amounts.push(AGENCY_FEE_BUYER);
+
+  const remainingPct = ORIGINAL > 0 ? (remaining / ORIGINAL) * 100 : "";
 
   return {
-    topUp, remaining, toSeller, buyerDep, sellerDep,
+    topUp, remaining, toSeller, remainingPct, buyerDep, sellerDep,
     buyerLd, sellerLd, buyerLd80, buyerLd20, sellerLd80, sellerLd20,
+    feesOn,
     money: new Set(amounts.map(fmt)),
     articleCount: ARTICLE_DEFS_OFFPLAN_V2.length - (buyerDep === "" && sellerDep === "" ? 2 : 0),
   };
@@ -153,7 +174,6 @@ const doc = (await docs.documents.get({ documentId })).data;
 const idx = buildIndex(doc);
 
 const combos = combinations(AXES);
-let baseline = null;
 const failures = [];
 
 for (const c of combos) {
@@ -197,9 +217,59 @@ for (const c of combos) {
   // все суммы в тексте — только ожидаемые
   const seen = new Set(Array.from(text.matchAll(/AED\s([\d,]+\.\d{2})/g), (m) => m[1]));
   for (const v of seen) if (!e.money.has(v)) found.push(`сумма AED ${v} не из этой сделки`);
-  // и наоборот: ключевые суммы обязаны быть
-  const must = [["liquidated damages Покупателя", e.buyerLd], ["liquidated damages Продавца", e.sellerLd]];
-  for (const [label, v] of must) if (!seen.has(fmt(v))) found.push(`нет суммы: ${label} = AED ${fmt(v)}`);
+
+  // каждая обязательная сумма — на своём месте, а не просто «где-то в тексте»
+  const lines = text.split("\n");
+  const lineWith = (anchor) => lines.find((l) => l.includes(anchor));
+  // В плоском тексте подпись строки таблицы и её значение — разные строки:
+  // «Selling Price:» и следом «AED 1,670,000.00 / as agreed…». Ищем сумму
+  // в самой строке с якорем, а если её там нет — в следующей непустой.
+  // anchor — подстрока или список подстрок, которые должны быть в одной строке
+  const inRow = (label, anchor, value) => {
+    const parts = Array.isArray(anchor) ? anchor : [anchor];
+    const i = lines.findIndex((l) => parts.every((x) => l.includes(x)));
+    if (i === -1) { found.push(`нет строки: ${label} (искал «${anchor}»)`); return; }
+    let next = i + 1;
+    while (next < lines.length && !lines[next].trim()) next += 1;
+    const where = [lines[i], lines[next] || ""].join(" ");
+    if (!where.includes(`AED ${fmt(value)}`)) {
+      found.push(`${label}: ожидал AED ${fmt(value)}, а в строке «${where.trim().slice(0, 90)}»`);
+    }
+  };
+  inRow("Original Price", "as per the SPA issued by", ORIGINAL);
+  inRow("Selling Price", "as agreed by the Parties", SELLING);
+  inRow("Amount to Seller", "to be paid by the Buyer to the Seller on the Transfer Date", e.toSeller);
+  inRow("остаток застройщику", "of the Original Price to be paid to the Developer", e.remaining);
+  inRow("ADM Fee", "2% from the Selling Price", SELLING * 0.02 + ADM_ADMIN);
+  inRow("Transfer Fee", "Transfer Fee", TRANSFER_FEE);
+  if (e.topUp > 0) inRow("добор порога", "Remaining balance to complete", e.topUp);
+  if (e.buyerDep !== "") inRow("депозит Покупателя", "provided by the Buyer to the Seller", e.buyerDep);
+  if (e.sellerDep !== "") inRow("депозит Продавца", "provided by the Seller to the Buyer", e.sellerDep);
+  if (c.sellerAgent && e.feesOn) inRow("агентские Продавца", "to The Seller’s Agent on the Transfer Date", AGENCY_FEE_SELLER);
+  if (c.buyerAgent && e.feesOn) inRow("агентские Покупателя", "to The Buyer’s Agent on the Transfer Date", AGENCY_FEE_BUYER);
+  // Фраза «Upon Buyer Default … shall pay AED … as liquidated damages» стоит в шаблоне
+  // под {{#if !buyer_deposit}}: когда депозит есть, вместо неё идёт распределение
+  // удержанного депозита. Поэтому сумму LD проверяем только у стороны без депозита.
+  if (e.buyerDep === "") inRow("liquidated damages Покупателя", "Upon Buyer Default", e.buyerLd);
+  if (e.sellerDep === "") inRow("liquidated damages Продавца", "Upon Seller Default", e.sellerLd);
+  if (e.buyerDep !== "" && e.sellerDep !== "") {
+    // с агентством — «a) 80% (…) to the Seller; and», без него — «a) 100% (…) to the Seller»
+    inRow("доля Продавцу при дефолте Покупателя",
+      c.sellerAgent ? "to the Seller; and" : ["a) 100%", "to the Seller"], e.buyerLd80);
+    inRow("доля Покупателю при дефолте Продавца",
+      c.buyerAgent ? "to the Buyer; and" : ["a) 100%", "to the Buyer"], e.sellerLd80);
+    if (c.sellerAgent) inRow("доля агенту Продавца", "to the Seller’s Agent", e.buyerLd20);
+    if (c.buyerAgent) inRow("доля агенту Покупателя", "to the Buyer’s agent", e.sellerLd20);
+  }
+
+  // процент остатка застройщику — в подписи строки таблицы
+  const pctLine = lineWith("of the Original Price to be paid to the Developer");
+  if (pctLine && e.remainingPct !== "") {
+    const pct = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2, useGrouping: false }).format(e.remainingPct);
+    if (!pctLine.includes(`${pct}%`)) {
+      found.push(`процент остатка: ожидал ${pct}%, в строке «${pctLine.trim().slice(0, 70)}»`);
+    }
+  }
 
   // нумерация статей: подряд, без дыр и повторов
   const nums = Array.from(text.matchAll(/^Article (\d+)$/gm), (m) => Number(m[1]));
@@ -208,17 +278,27 @@ for (const c of combos) {
     found.push(`нумерация статей: ${nums.join(",")} вместо ${expectSeq.join(",")}`);
   }
 
-  // дефекты исходной вёрстки есть во всех вариантах — вычитаем их
-  if (baseline === null) baseline = new Set(found.map((f) => f.split(" → ")[0]));
-  else found = found.filter((f) => !baseline.has(f.split(" → ")[0]));
+  // Раньше дефекты первой комбинации вычитались из остальных как «исходная вёрстка».
+  // Так пряталась та же ошибка, возникшая в другой комбинации по другой причине,
+  // поэтому теперь показываем всё и группируем по виду.
   if (found.length) failures.push({ name, found });
 }
 
 console.log(`комбинаций: ${combos.length}, с замечаниями: ${failures.length}`);
-for (const f of failures.slice(0, 12)) {
-  console.log(`\n✘ ${f.name}`);
-  f.found.forEach((x) => console.log("   " + x));
+
+// группируем по виду замечания: 3000 комбинаций дают одни и те же несколько дефектов
+const kinds = new Map();
+for (const f of failures) {
+  for (const x of f.found) {
+    const kind = x.split(" → ")[0];
+    if (!kinds.has(kind)) kinds.set(kind, { count: 0, example: x, combo: f.name });
+    kinds.get(kind).count += 1;
+  }
 }
-if (failures.length > 12) console.log(`\n…и ещё ${failures.length - 12}`);
+for (const [kind, info] of kinds) {
+  console.log(`\n✘ ${kind} — в ${info.count} комбинациях`);
+  if (info.example !== kind) console.log("   " + info.example.split(" → ")[1]);
+  console.log("   пример: " + info.combo);
+}
 if (!failures.length) console.log("замечаний нет");
 process.exitCode = failures.length ? 1 : 0;
