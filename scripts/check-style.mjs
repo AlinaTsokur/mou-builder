@@ -1,4 +1,7 @@
-// Сверка начертания: node scripts/check-bold.mjs <размеченный> <эталон до разметки>
+// Сверка оформления: node scripts/check-bold.mjs <размеченный> <эталон до разметки>
+//
+// Кроме жирного сверяются курсив, подчёркивание, зачёркивание, кегль, гарнитура,
+// цвет и параметры абзаца — выравнивание и отступы.
 //
 // Замена куска текста в Google Docs берёт стиль первого символа диапазона.
 // Если правка накрыла несколько кусков с разным начертанием, жирный пропадает
@@ -9,15 +12,58 @@ import { getBotClients } from "./google-bot.mjs";
 const { docs } = getBotClients();
 
 // Абзацы берём из всех сегментов: подписи и печати живут в подвале.
+// Подпись оформления куска: всё, кроме жирного — он сверяется отдельно по словам
+const sigOf = (t) => [
+  t.italic ? "курсив" : "", t.underline ? "подчёркнут" : "", t.strikethrough ? "зачёркнут" : "",
+  t.fontSize?.magnitude || "", t.weightedFontFamily?.fontFamily || "",
+  JSON.stringify(t.foregroundColor || null),
+].join("|");
+
+// Слово → подпись оформления, с учётом порядкового номера слова в абзаце
+function styleWords(p) {
+  if (p._styleWords) return p._styleWords;
+  const cs = [];
+  for (const r of p.all || []) for (const ch of r.text) cs.push({ ch, sig: r.sig });
+  const text = cs.map((c) => c.ch).join("");
+  const mark = new Array(text.length).fill(false);
+  for (const m of text.matchAll(/\{\{[^}]*\}\}/g)) {
+    for (let i = m.index; i < m.index + m[0].length; i += 1) mark[i] = true;
+  }
+  const out = new Map();
+  const seen = new Map();
+  for (const m of text.matchAll(/[\p{L}\p{N}%]+/gu)) {
+    if (mark[m.index]) continue;
+    const n = seen.get(m[0]) || 0;
+    seen.set(m[0], n + 1);
+    out.set(`${m[0]}#${n}`, cs[m.index].sig);
+  }
+  p._styleWords = out;
+  return out;
+}
+
 function paragraphs(doc) {
   const out = [];
   const walk = (content, segmentId) => {
     for (const el of content || []) {
       if (el.paragraph) {
-        const runs = (el.paragraph.elements || [])
-          .map((e) => ({ text: e.textRun?.content || "", bold: !!e.textRun?.textStyle?.bold }))
+        const st = el.paragraph.paragraphStyle || {};
+        const all = (el.paragraph.elements || []).filter((e) => e.textRun?.content);
+        const runs = all
+          .map((e) => ({
+            text: e.textRun.content,
+            bold: !!e.textRun.textStyle?.bold,
+            sig: sigOf(e.textRun.textStyle || {}),
+          }))
           .filter((r) => r.text.trim());
-        if (runs.length) out.push({ runs, segmentId });
+        if (runs.length) {
+          out.push({
+            runs, segmentId,
+            all: all.map((e) => ({ text: e.textRun.content, sig: sigOf(e.textRun.textStyle || {}) })),
+            align: st.alignment || "",
+            indent: JSON.stringify(st.indentFirstLine || null) + JSON.stringify(st.indentStart || null),
+            spaceAbove: JSON.stringify(st.spaceAbove || null),
+          });
+        }
       }
       if (el.table) for (const r of el.table.tableRows || []) for (const c of r.tableCells || []) walk(c.content, segmentId);
     }
@@ -73,6 +119,19 @@ for (const p of marked) {
   const ref = refByKey.get(p.key);
   if (!ref || p.base.length < 12) continue;
   compared += 1;
+  // остальное оформление: сравниваем посимвольно по словам, а не по кускам —
+  // разметка режет текст на другое число кусков при том же оформлении
+  for (const [k, sig] of styleWords(ref)) {
+    if (!styleWords(p).has(k)) continue;
+    const now = styleWords(p).get(k);
+    if (now !== sig) problems.push({ text: p.runs.map((r) => r.text).join("").trim().slice(0, 70),
+      segmentId: p.segmentId, lost: [], extra: [], style: `«${k.split("#")[0]}»: было ${sig}, стало ${now}` });
+  }
+  for (const f of ["align", "indent", "spaceAbove"]) {
+    if (p[f] !== ref[f]) problems.push({ text: p.runs.map((r) => r.text).join("").trim().slice(0, 70),
+      segmentId: p.segmentId, lost: [], extra: [], style: `${f}: было ${ref[f]}, стало ${p[f]}` });
+  }
+
   const was = boldWords(ref.runs);
   const now = boldWords(p.runs);
   // Слова, которых в размеченном абзаце вообще нет, заменены плейсхолдером
@@ -96,5 +155,6 @@ for (const p of problems) {
   console.log(`\n  ${p.segmentId ? `[${p.segmentId}] ` : ""}${p.text}`);
   if (p.lost.length) console.log(`    пропал жирный: ${p.lost.join(", ")}`);
   if (p.extra.length) console.log(`    лишний жирный: ${p.extra.join(", ")}`);
+  if (p.style) console.log(`    ${p.style.slice(0, 180)}`);
 }
 process.exitCode = problems.length ? 1 : 0;

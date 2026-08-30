@@ -1,12 +1,12 @@
 // Возврат жирного после разметки. Применяется отдельно от разметки и сколько
 // угодно раз: выставить bold — операция идемпотентная, в отличие от вставки маркеров.
 // Запуск: node scripts/fix-bold.mjs <documentId>
-// Проверка: node scripts/check-bold.mjs <documentId> <эталон до разметки>
+// Проверка: node scripts/check-style.mjs <documentId> <эталон до разметки>
 
 // Замена текста в Google Docs берёт начертание первого символа диапазона.
 // Там, где правка накрыла несколько кусков с разным начертанием, жирный слетел —
 // на экране это заметно только при сравнении с исходным шаблоном.
-// Проверка: node scripts/check-bold.mjs <шаблон> <эталон до разметки>
+// Проверка: node scripts/check-style.mjs <шаблон> <эталон до разметки>
 export const BOLD_REPAIR = [
   { find: "The Buyer’s Agent", bold: true, within: "{{agency_fee_buyer}}", note: "жирный: агентские Покупателя" },
   { find: "Transfer Date", bold: true, within: "{{agency_fee_buyer}}", note: "жирный: Transfer Date" },
