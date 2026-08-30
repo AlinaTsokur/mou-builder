@@ -7,6 +7,7 @@ import { applyEdits } from "./docs-edit.mjs";
 const SRC = "1vlmCEPFpPFQQfTVUbzeErNQKr1Vf2aApcbQrVt0B1-o";
 const FOLDER = "1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm";
 const TO_ORIGINAL = process.argv.includes("--original");
+const DRAFT_NAME = "РАЗМЕТКА — off-plan (черновик)";
 const { drive, docs } = getBotClients();
 
 const SELLER = "referred to as the «Seller»";
@@ -206,9 +207,16 @@ const EDITS = [
 
 let id = SRC;
 if (!TO_ORIGINAL) {
+  // прошлый черновик удаляем: разметка не идемпотентна, каждый прогон — свежая копия
+  const stale = await drive.files.list({
+    q: `'${FOLDER}' in parents and name = '${DRAFT_NAME}' and trashed = false`,
+    fields: "files(id)",
+  });
+  for (const f of stale.data.files || []) await drive.files.update({ fileId: f.id, requestBody: { trashed: true } });
+
   const copy = await drive.files.copy({
     fileId: SRC,
-    requestBody: { name: "РАЗМЕТКА — off-plan (черновик)", parents: [FOLDER] },
+    requestBody: { name: DRAFT_NAME, parents: [FOLDER] },
     fields: "id,webViewLink",
   });
   id = copy.data.id;
