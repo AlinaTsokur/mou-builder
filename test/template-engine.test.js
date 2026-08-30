@@ -256,19 +256,23 @@ test("liquidated damages: без агента другой стороны 80% с
 });
 
 test("depositHolder: матрица держателей", () => {
-  // при двух агентствах оба чека держит агентство Продавца
+  // каждая сторона отдаёт чек своему агентству
   const both = v2Form();
-  assert.equal(depositHolder("Buyer", both), "The Seller’s Agency as stakeholder");
+  assert.equal(depositHolder("Buyer", both), "The Buyer’s Agency as stakeholder");
   assert.equal(depositHolder("Seller", both), "The Seller’s Agency as stakeholder");
 
   // держатель не зависит от того, вписаны ли реквизиты чека
   const delayed = v2Form({ buyerChequeTiming: "Delayed (within X days)" });
-  assert.equal(depositHolder("Buyer", delayed), "The Seller’s Agency as stakeholder");
   assert.equal(depositHolder("Buyer", delayed), depositHolder("Buyer", both));
 
+  // своего агентства нет — чек берёт второе
   const buyerAgentOnly = v2Form({ sellerAgentEnabled: "No" });
   assert.equal(depositHolder("Buyer", buyerAgentOnly), "The Buyer’s Agency as stakeholder");
   assert.equal(depositHolder("Seller", buyerAgentOnly), "The Buyer’s Agency as stakeholder");
+
+  const sellerAgentOnly = v2Form({ buyerAgentEnabled: "No" });
+  assert.equal(depositHolder("Buyer", sellerAgentOnly), "The Seller’s Agency as stakeholder");
+  assert.equal(depositHolder("Seller", sellerAgentOnly), "The Seller’s Agency as stakeholder");
 
   const noAgents = v2Form({ sellerAgentEnabled: "No", buyerAgentEnabled: "No" });
   assert.equal(depositHolder("Buyer", noAgents), "the Seller");
