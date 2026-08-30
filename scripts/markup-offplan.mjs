@@ -289,6 +289,39 @@ const EDITS = [
   { find: "Addendum - any addendum", replace: "{{#if any_agent}}Addendum - any addendum" },
   { find: "an integral part of the Agreement between the Parties and the Agency.",
     replace: "an integral part of the Agreement between the Parties and {{agencies_word}}.{{/if}}" },
+
+  // ответы заказчика: без агентств убрать агентские и Commission Agreement,
+  // а в AML написать, что стороны сами предоставляют информацию
+  { find: "The Selling Price, the amount payable to the Seller, and the Agency Fee set out",
+    replace: "The Selling Price{{#if any_agent}}, the amount payable to the Seller, and the Agency Fee{{/if}}"
+      + "{{#if !any_agent}} and the amount payable to the Seller{{/if}} set out", note: "ст.4 итоговая строка" },
+  { find: "unless otherwise agreed in writing by the Parties or in a separate Commission Agreement.",
+    replace: "unless otherwise agreed in writing by the Parties{{#if any_agent}} or in a separate Commission Agreement{{/if}}.",
+    note: "ст.4 Commission Agreement" },
+  { find: "The Buyer and Seller shall fully cooperate with their respective Agents by providing all required information",
+    replace: "The Buyer and Seller shall {{#if any_agent}}fully cooperate with their respective Agents by providing{{/if}}"
+      + "{{#if !any_agent}}provide{{/if}} all required information", note: "ст.14 AML" },
+
+  // Шаблон 1.2 (депозитов нет ни у кого) — главный для этого случая:
+  // там нет ни фразы про Security Deposit, ни распределения 80/20.
+  { find: "{{buyer_liquidated_damages_amount}} as liquidated damages, being an amount equal to the Security Deposit, "
+      + "which the Parties agree is not a penalty. \nThis amount shall be distributed as follows:",
+    replace: "{{buyer_liquidated_damages_amount}} as liquidated damages{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}, "
+      + "which the Parties agree is not a penalty. \n{{#if any_deposit}}This amount shall be distributed as follows:{{/if}}",
+    note: "ст.7 без депозитов" },
+  { find: "{{seller_liquidated_damages_amount}} as liquidated damages, being an amount equal to the Security Deposit, "
+      + "which the Parties agree is not a penalty. \u000b\nThis amount shall be distributed as follows:",
+    replace: "{{seller_liquidated_damages_amount}} as liquidated damages{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}, "
+      + "which the Parties agree is not a penalty. \u000b\n{{#if any_deposit}}This amount shall be distributed as follows:{{/if}}",
+    note: "ст.8 без депозитов" },
+  { find: "{{#if seller_agent}}a) 80% (AED {{buyer_deposit_80_percent_amount}}) to the Seller; and",
+    insertBefore: "{{#if any_deposit}}", note: "ст.7 открыть распределение" },
+  { find: "a) 100% (AED {{buyer_deposit_80_percent_amount}}) to the Seller{{/if}}",
+    replace: "a) 100% (AED {{buyer_deposit_80_percent_amount}}) to the Seller{{/if}}{{/if}}", note: "ст.7 закрыть распределение" },
+  { find: "{{#if buyer_agent}}a) 80% (AED {{seller_deposit_80_percent_amount}}) to the Buyer; and",
+    insertBefore: "{{#if any_deposit}}", note: "ст.8 открыть распределение" },
+  { find: "a) 100% (AED {{seller_deposit_80_percent_amount}}) to the Buyer{{/if}}",
+    replace: "a) 100% (AED {{seller_deposit_80_percent_amount}}) to the Buyer{{/if}}{{/if}}", note: "ст.8 закрыть распределение" },
 ];
 
 let id = SRC;

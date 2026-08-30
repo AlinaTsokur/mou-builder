@@ -41,6 +41,10 @@ const SCENARIOS = [
     forbidden: [/Seller’s Agent/i, /Seller’s Agency/i] },
   { name: "чек Покупателя без реквизитов", over: { buyerChequeTiming: "Delayed (within X days)", buyerChequeDays: "5" },
     forbidden: [] },
+  { name: "депозит только у Покупателя", over: { sellerDepositEnabled: "No" }, forbidden: [] },
+  { name: "депозит только у Продавца", over: { buyerDepositEnabled: "No" }, forbidden: [] },
+  { name: "депозитов нет и агентств нет", over: { buyerDepositEnabled: "No", sellerDepositEnabled: "No", sellerAgentEnabled: "No", buyerAgentEnabled: "No" },
+    forbidden: [/Security Deposit/i, /\bAgents?\b/, /\bAgenc(y|ies)\b/] },
 ];
 
 // общие дефекты текста, которые ищем всегда
