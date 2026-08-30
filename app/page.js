@@ -453,7 +453,7 @@ export default function HomePage() {
     if (status !== "authenticated") return;
     const handle = setTimeout(() => updatePreview(), 350);
     return () => clearTimeout(handle);
-  }, [form, status]);
+  }, [form, status, templateId]);
 
   useEffect(() => {
     if (reservationMode !== "days") return;
@@ -558,7 +558,7 @@ export default function HomePage() {
 
   async function updatePreview() {
     try {
-      const data = await api("/api/preview", { method: "POST", body: JSON.stringify(form) });
+      const data = await api("/api/preview", { method: "POST", body: JSON.stringify({ ...form, templateId }) });
       setPreview(data.preview);
     } catch (error) {
       setPreview({ validation: { errors: [error.message], warnings: [] } });

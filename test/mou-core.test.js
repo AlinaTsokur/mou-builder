@@ -7,7 +7,7 @@ import {
   buildSignatureTableStyleRequests,
 } from "../lib/google/docs.js";
 import { buildArticleNumbers, DEFAULT_RULES } from "../lib/mou/articles.js";
-import { buildReplacements, calculate, formatLongDate, normalizeForm, validateMou } from "../lib/mou/core.js";
+import { buildPreview, buildReplacements, calculate, formatLongDate, normalizeForm, validateMou } from "../lib/mou/core.js";
 
 function base(overrides = {}) {
   return normalizeForm({
@@ -556,4 +556,14 @@ test("article 6 deposit block supports delayed cheque timing and drops agency la
   if (block !== expected) {
     throw new Error(`Deposit block does not match expected output.\nEXPECTED: ${expected}\nACTUAL:   ${block}`);
   }
+});
+
+test("превью берёт статьи у шаблона, а не по unitStatus", () => {
+  const form = { unitStatus: "Off-plan", sellingPrice: "1,000,000" };
+  const v2 = buildPreview(form, [], { engine: "v2", articles: "offplan-v2" });
+  const mortgage = buildPreview(form, [], { engine: "v2", articles: "offplan-mortgage-v2" });
+  const legacy = buildPreview(form, []);
+  assert.equal(v2.articles.length, 17);
+  assert.equal(mortgage.articles.length, 18);
+  assert.equal(legacy.articles.length, 27);
 });
