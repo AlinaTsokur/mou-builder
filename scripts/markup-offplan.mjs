@@ -90,12 +90,18 @@ const EDITS = [
   { find: "Manager's Cheque or Cash", replace: "{{seller_payment_method}}" },
 
   { find: "Remaining balance to complete ", replace: "{{#row has_top_up}}Remaining balance to complete " },
+  // порог и остаток застройщику — проценты у сделок разные (30/70 против 25/75)
+  { find: "complete 30% threshold", replace: "complete {{transfer_threshold_percent}}% threshold" },
+  { find: "Remaining balance of 70% of the Original Price",
+    replace: "Remaining balance of {{remaining_balance_percent}}% of the Original Price" },
   { find: "AED 00,000.00", replace: "AED {{threshold_amount}}", within: "ESCROW ACCOUNT on the Transfer Date" },
   { find: "THE SOURCE – ESCROW ACCOUNT", replace: "{{escrow_account}}", within: "ESCROW ACCOUNT on the Transfer Date" },
 
   { find: "AED 2,672,972.51", replace: "AED {{developer_balance}}" },
   { find: "THE SOURCE – ESCROW ACCOUNT", replace: "{{escrow_account}}", within: "in accordance with the Payment Plan" },
 
+  // подпись строки: «Transfer Fee / NOC Fee» либо просто «Transfer Fee» — решает движок
+  { find: "Transfer Fee / NOC Fee:", replace: "{{transfer_fee_label}}:" },
   { find: "AED 4,000.00", replace: "AED {{transfer_fee}}" },
   { find: "ALDAR PROPERTIES PJSC", replace: "{{transfer_fee_payee}}" },
   { find: "AED 00,000.00", replace: "AED {{adm_electronic_fee}}", within: "2% from the" },
@@ -103,10 +109,12 @@ const EDITS = [
   { find: "Aldar Development LLC - OPC", replace: "{{adm_payee}}" },
 
   { find: "Security deposit:", replace: "{{#row any_deposit}}Security deposit:" },
-  { find: "AED 000,000.00", replace: "{{#if buyer_deposit}}AED {{buyer_deposit_amount}}", within: "provided by the Buyer to the Seller" },
-  { find: "provided by the Buyer to the Seller)", replace: "provided by the Buyer to the Seller){{/if}}" },
-  { find: "AED 000,000.00", replace: "{{#if seller_deposit}}AED {{seller_deposit_amount}}", within: "provided by the Seller to the Buyer" },
-  { find: "provided by the Seller to the Buyer)", replace: "provided by the Seller to the Buyer){{/if}}" },
+  // строку целиком собирает движок: при проценте — «10% of the Selling Price…»,
+  // при фиксированной сумме — «Security Deposit…». Разметка по кускам это не умела.
+  { find: "AED 000,000.00 / (10% of the Selling Price provided by the Buyer to the Seller)",
+    replace: "{{#if buyer_deposit}}{{buyer_security_deposit_table_line}}{{/if}}", note: "строка депозита Покупателя" },
+  { find: "AED 000,000.00 / (10% of the Selling Price provided by the Seller to the Buyer)",
+    replace: "{{#if seller_deposit}}{{seller_security_deposit_table_line}}{{/if}}", note: "строка депозита Продавца" },
 
   { find: "AED 00,000.00", replace: "{{#if buyer_agent_fee}}AED {{buyer_agency_fee}}", within: "to The Buyer’s Agent" },
   { find: "to The Buyer’s Agent on the Transfer Date", replace: "to The Buyer’s Agent on the Transfer Date{{/if}}" },
