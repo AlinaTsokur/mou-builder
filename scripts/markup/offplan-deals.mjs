@@ -1,0 +1,46 @@
+// Значения демо-сделки в каждом шаблоне: по ним ищем текст, который надо заменить
+// на плейсхолдер. У разных документов они разные, сама разметка — одна.
+
+export const ARTICLES_OFFPLAN = [
+  [1, "article_sale_offer_number"],
+  [2, "article_effective_date_number"],
+  [3, "article_property_details_number"],
+  [4, "article_payment_table_number"],
+  [5, "article_reservation_period_number"],
+  [6, "article_security_deposit_number"],
+  [7, "article_buyer_default_number"],
+  [8, "article_seller_default_number"],
+  [9, "article_deposit_release_number"],
+  [10, "article_buyer_own_funds_number"],
+  [11, "article_seller_outstanding_charges_number"],
+  [12, "article_property_hold_number"],
+  [13, "article_developer_approval_number"],
+  [14, "article_aml_number"],
+  [15, "article_amicable_dispute_number"],
+  [16, "article_entire_agreement_number"],
+  [17, "article_electronic_signature_number"],
+];
+
+export const OFFPLAN = {
+  agreementDate: "28/01/2026",
+  agreementDateLong: "January 25, 2026",
+  location: "Saadiyat Island, Abu Dhabi, UAE",
+  bedrooms: "3BHK + M",
+  area: "153.50",
+  unitNumber: "The Source-R18-212",
+  projectName: "The Source",
+  escrowName: "THE SOURCE – ESCROW ACCOUNT",
+  remainingDeveloperBalance: "AED 2,672,972.51",
+  admAdminFee: "AED 575",
+  admFeePayee: "Aldar Development LLC - OPC",
+  amountToSellerText: "Manager's Cheque or Cash.",
+  buyerLd80: "AED 263,000",
+  buyerLd20: "AED 65,000",
+  sellerLd80: "AED 263,600",
+  sellerLd20: "AED 65,900",
+  disputeCopyTail: ", with a copy of such email or letter delivered to Agencies for their reference",
+  hasThresholdRow: true,
+  developerPaymentWithin: "in accordance with the Payment Plan",
+  article5RefCount: 2,
+  articles: ARTICLES_OFFPLAN,
+};
