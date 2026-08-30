@@ -37,10 +37,12 @@ const EDITS = [
   { find: "Mikhail Slobodchikov", replace: "{{seller_agent_representative}}", nth: 0 },
   { find: "#CN-6410679", replace: "{{seller_agent_license}}", nth: 0 },
   { find: "Office 6, Ar Raha 8 St, MUSAFFAH, Abu Dhabi, 20335", replace: "{{seller_agent_address}}", nth: 0 },
+  { find: "represented by the Manager", replace: "represented by the {{seller_agent_position}}", nth: 0 },
   { find: "PRIME BRIDGE REAL ESTATE BROKERAGE - L.L.C - S.P.C", replace: "{{buyer_agent_name}}", nth: 0 },
   { find: "Mikhail Slobodchikov", replace: "{{buyer_agent_representative}}", nth: 0 },
   { find: "#CN-6410679", replace: "{{buyer_agent_license}}", nth: 0 },
   { find: "Office 6, Ar Raha 8 St, MUSAFFAH, Abu Dhabi, 20335", replace: "{{buyer_agent_address}}", nth: 0 },
+  { find: "represented by the Manager", replace: "represented by the {{buyer_agent_position}}", nth: 0 },
   // блок каждого агентства — под своим флагом, совместное определение — только при двух
   { find: "{{seller_agent_name}}", insertBefore: "{{#if seller_agent}}" },
   { find: "{{buyer_agent_name}}", insertBefore: "{{/if}}{{#if buyer_agent}}" },
@@ -49,7 +51,7 @@ const EDITS = [
   { find: "Terms and conditions", insertBefore: "{{/if}}", note: "закрыть both_agents" },
 
   // ═══ определения
-  { find: "ALDAR DEVELOPMENT L.L.C – O.P.C", replace: "{{developer_name}}", within: "being the developer authorized" },
+  { find: "ALDAR DEVELOPMENT L.L.C – O.P.C", replace: "{{developer_legal_name}}", within: "being the developer authorized" },
   { find: "Security Deposit ", replace: "{{#if any_deposit}}Security Deposit ", within: "the security deposit, if any" },
   { find: "performance of their obligations.", replace: "performance of their obligations.{{/if}}" },
   { find: "Liquidated Damages", replace: "{{#if !both_deposits}}Liquidated Damages", within: "an agreed amount payable by the defaulting Party" },
@@ -60,9 +62,9 @@ const EDITS = [
   // ═══ ст. 3 — объект
   { find: "Residential", replace: "{{type_of_area}}", within: "Type of Area" },
   { find: "N/A", replace: "{{title_deed_number}}" },
-  { find: "Saadiyat Island, Abu Dhabi, UAE", replace: "{{location}}" },
+  { find: "Saadiyat Island, Abu Dhabi, UAE", replace: "{{property_location}}" },
   { find: "3BHK + M", replace: "{{bedrooms}}" },
-  { find: "153.50", replace: "{{area_sqm}}" },
+  { find: "153.50", replace: "{{area_m2}}" },
   { find: "Apartment", replace: "{{property_type}}" },
   { find: "The Source-R18-212", replace: "{{unit_number}}" },
   { find: "The Source", replace: "{{project_name}}", within: "Project name" },
@@ -73,26 +75,26 @@ const EDITS = [
   { find: "AED 0,000,000.00", replace: "AED {{original_price}}", within: "as per the SPA issued by the" },
   { find: "AED 0,000,000.00", replace: "AED {{selling_price}}", within: "as agreed by the" },
   { find: "AED 0,000,000.00", replace: "AED {{amount_to_seller}}", within: "to be paid by the" },
-  { find: "Manager's Cheque or Cash", replace: "{{seller_payment_method}}" },
+  { find: "Manager's Cheque or Cash", replace: "{{amount_to_seller_payment_text}}" },
 
   { find: "Remaining balance to complete ", replace: "{{#row has_top_up}}Remaining balance to complete " },
   // порог и остаток застройщику — проценты у сделок разные (30/70 против 25/75)
   { find: "complete 30% threshold", replace: "complete {{transfer_threshold_percent}}% threshold" },
   { find: "Remaining balance of 70% of the Original Price",
     replace: "Remaining balance of {{remaining_balance_percent}}% of the Original Price" },
-  { find: "AED 00,000.00", replace: "AED {{threshold_amount}}", within: "ESCROW ACCOUNT on the Transfer Date" },
-  { find: "THE SOURCE – ESCROW ACCOUNT", replace: "{{escrow_account}}", within: "ESCROW ACCOUNT on the Transfer Date" },
+  { find: "AED 00,000.00", replace: "AED {{threshold_top_up_amount}}", within: "ESCROW ACCOUNT on the Transfer Date" },
+  { find: "THE SOURCE – ESCROW ACCOUNT", replace: "{{escrow_account_name}}", within: "ESCROW ACCOUNT on the Transfer Date" },
 
-  { find: "AED 2,672,972.51", replace: "AED {{developer_balance}}" },
-  { find: "THE SOURCE – ESCROW ACCOUNT", replace: "{{escrow_account}}", within: "in accordance with the Payment Plan" },
+  { find: "AED 2,672,972.51", replace: "AED {{remaining_developer_balance}}" },
+  { find: "THE SOURCE – ESCROW ACCOUNT", replace: "{{escrow_account_name}}", within: "in accordance with the Payment Plan" },
 
   // подпись строки: «Transfer Fee / NOC Fee» либо просто «Transfer Fee» — решает движок
   { find: "Transfer Fee / NOC Fee:", replace: "{{transfer_fee_label}}:" },
   { find: "AED 4,000.00", replace: "AED {{transfer_fee}}" },
-  { find: "ALDAR PROPERTIES PJSC", replace: "{{transfer_fee_payee}}" },
-  { find: "AED 00,000.00", replace: "AED {{adm_electronic_fee}}", within: "2% from the" },
-  { find: "AED 575", replace: "AED {{adm_surcharge}}" },
-  { find: "Aldar Development LLC - OPC", replace: "{{adm_payee}}" },
+  { find: "ALDAR PROPERTIES PJSC", replace: "{{developer_legal_name}}" },
+  { find: "AED 00,000.00", replace: "AED {{adm_fee}}", within: "2% from the" },
+  { find: "AED 575", replace: "AED {{adm_admin_fee}}" },
+  { find: "Aldar Development LLC - OPC", replace: "{{adm_fee_payee}}" },
 
   { find: "Security deposit:", replace: "{{#row any_deposit}}Security deposit:" },
   // строку целиком собирает движок: при проценте — «10% of the Selling Price…»,
@@ -102,9 +104,10 @@ const EDITS = [
   { find: "AED 000,000.00 / (10% of the Selling Price provided by the Seller to the Buyer)",
     replace: "{{#if seller_deposit}}{{seller_security_deposit_table_line}}{{/if}}", note: "строка депозита Продавца" },
 
-  { find: "AED 00,000.00", replace: "{{#if buyer_agent_fee}}AED {{buyer_agency_fee}}", within: "to The Buyer’s Agent" },
+  { find: "Agency Fee:", replace: "{{#row any_agent_fee}}Agency Fee:" },
+  { find: "AED 00,000.00", replace: "{{#if buyer_agent_fee}}AED {{agency_fee_buyer}}", within: "to The Buyer’s Agent" },
   { find: "to The Buyer’s Agent on the Transfer Date", replace: "to The Buyer’s Agent on the Transfer Date{{/if}}" },
-  { find: "AED 00,000.00", replace: "{{#if seller_agent_fee}}AED {{seller_agency_fee}}", within: "to The Seller’s Agent" },
+  { find: "AED 00,000.00", replace: "{{#if seller_agent_fee}}AED {{agency_fee_seller}}", within: "to The Seller’s Agent" },
   { find: "to The Seller’s Agent on the Transfer Date", replace: "to The Seller’s Agent on the Transfer Date{{/if}}" },
 
   // ═══ ст. 5 — срок
@@ -124,11 +127,11 @@ const EDITS = [
   // Покупатель, абзац с реквизитами чека
   { find: "Upon signing this agreement", replace: "{{#if buyer_cheque_details}}Upon signing this agreement", within: "cheque No." },
   { find: "AED 528,013", replace: "AED {{buyer_deposit_amount}}", within: "cheque No." },
-  { find: "Name Surname", replace: "{{buyer_cheque_favour}}", within: "cheque No." },
-  { find: "174369", replace: "{{buyer_cheque_no}}" },
+  { find: "Name Surname", replace: "{{buyer_cheque_in_favour_of}}", within: "cheque No." },
+  { find: "174369", replace: "{{buyer_cheque_number}}" },
   { find: "14.04.2026", replace: "{{buyer_cheque_date}}" },
   { find: "First Abu Dhabi Bank", replace: "{{buyer_cheque_bank}}" },
-  { find: "Name Surname", replace: "{{buyer_cheque_drawer}}", within: "cheque No." },
+  { find: "Name Surname", replace: "{{buyer_cheque_drawn_by}}", within: "cheque No." },
   { find: ", on behalf of the Buyer, provided that such third party",
     replace: "{{#if buyer_cheque_third_party}}, on behalf of the Buyer, provided that such third party" },
   { find: "the funds are provided on behalf of the Buyer.", replace: "the funds are provided on behalf of the Buyer{{/if}}." },
@@ -148,17 +151,17 @@ const EDITS = [
   // Продавец, абзац с реквизитами чека
   { find: "Similarly, upon signing this agreement,", replace: "{{#if seller_cheque_details}}{{seller_deposit_intro}}" },
   { find: "AED 000,000 ", replace: "AED {{seller_deposit_amount}} ", within: "Petr Petrov" },
-  { find: "Petr Petrov", replace: "{{seller_cheque_favour}}" },
-  { find: "000020", replace: "{{seller_cheque_no}}" },
+  { find: "Petr Petrov", replace: "{{seller_cheque_in_favour_of}}" },
+  { find: "000020", replace: "{{seller_cheque_number}}" },
   { find: "00.00.2026", replace: "{{seller_cheque_date}}" },
   { find: "Emirates NBD", replace: "{{seller_cheque_bank}}" },
-  { find: "Ivan Ivanov", replace: "{{seller_cheque_drawer}}" },
+  { find: "Ivan Ivanov", replace: "{{seller_cheque_drawn_by}}" },
   { find: ", on behalf of the Seller, provided that such third party",
     replace: "{{#if seller_cheque_third_party}}, on behalf of the Seller, provided that such third party" },
   { find: "the funds are provided on behalf of the Seller.", replace: "the funds are provided on behalf of the Seller{{/if}}." },
-  { find: "Seller’s Agent as stakeholder", replace: "{{seller_deposit_holder}}", within: "{{seller_cheque_drawer}}" },
+  { find: "Seller’s Agent as stakeholder", replace: "{{seller_deposit_holder}}", within: "{{seller_cheque_drawn_by}}" },
   { find: "in accordance with the terms of this MOU.", replace: "in accordance with the terms of this MOU.{{/if}}{{/if}}",
-    within: "{{seller_cheque_drawer}}" },
+    within: "{{seller_cheque_drawn_by}}" },
 
   { find: "Upon successful completion of the transfer", replace: "{{#if any_deposit}}Upon successful completion of the transfer" },
   // кому возвращают чеки — зависит от того, чьи депозиты есть
@@ -168,23 +171,23 @@ const EDITS = [
 
   // ═══ ст. 7 — дефолт Покупателя
   { find: "__", replace: "{{#if !buyer_deposit}}", nth: 0 },
-  { find: "AED 528,013", replace: "AED {{buyer_liquidated_damages}}", within: "Upon Buyer Default" },
+  { find: "AED 528,013", replace: "AED {{buyer_liquidated_damages_amount}}", within: "Upon Buyer Default" },
   { find: "This amount shall be distributed as follows:", replace: "This amount shall be distributed as follows:{{/if}}", nth: 0 },
   { find: "__", replace: "{{#if buyer_deposit}}", nth: 0 },
   { find: "The forfeited Security Deposit shall be distributed as follows:",
     replace: "The forfeited Security Deposit shall be distributed as follows:{{/if}}", nth: 0 },
-  { find: "AED 263,000", replace: "AED {{buyer_ld_80}}" },
-  { find: "AED 65,000", replace: "AED {{buyer_ld_20}}" },
+  { find: "AED 263,000", replace: "AED {{buyer_deposit_80_percent_amount}}" },
+  { find: "AED 65,000", replace: "AED {{buyer_deposit_20_percent_amount}}" },
 
   // ═══ ст. 8 — дефолт Продавца
   { find: "—-", replace: "{{#if !seller_deposit}}", note: "ст.8, открыть !seller_deposit" },
-  { find: "AED 528,013", replace: "AED {{seller_liquidated_damages}}", within: "Upon Seller Default" },
+  { find: "AED 528,013", replace: "AED {{seller_liquidated_damages_amount}}", within: "Upon Seller Default" },
   { find: "This amount shall be distributed as follows:", replace: "This amount shall be distributed as follows:{{/if}}", nth: 1 },
   { find: "_____", replace: "{{#if seller_deposit}}" },
   { find: "The forfeited Security Deposit shall be distributed as follows:",
     replace: "The forfeited Security Deposit shall be distributed as follows:{{/if}}", nth: 1 },
-  { find: "AED 263,600", replace: "AED {{seller_ld_80}}" },
-  { find: "AED 65,900", replace: "AED {{seller_ld_20}}" },
+  { find: "AED 263,600", replace: "AED {{seller_deposit_80_percent_amount}}" },
+  { find: "AED 65,900", replace: "AED {{seller_deposit_20_percent_amount}}" },
 
   // ═══ ст. 9 — освобождение депозита
   { find: "If Article 7 or Article 8 applies", replace: "{{#if any_deposit}}If Article 7 or Article 8 applies" },
@@ -209,6 +212,12 @@ const EDITS = [
   { find: "Company Stamp", replace: "Company Stamp{{/if}}", nth: 0 },
   { find: "BUYER’S AGENCY", replace: "{{#if buyer_agent}}BUYER’S AGENCY" },
   { find: "Company Stamp", replace: "Company Stamp{{/if}}", nth: 1 },
+
+  // подписи: на каждого продавца и покупателя своя строка — собирает движок
+  { find: "Name: {{seller_signature_name}}    Signature: ________________\u000bDate: {{seller_signature_date}}",
+    replace: "{{seller_signature_block}}", note: "блок подписей Продавца" },
+  { find: "Name: {{buyer_signature_name}}    Signature: ________________\u000bDate: {{buyer_signature_date}}",
+    replace: "{{buyer_signature_block}}", note: "блок подписей Покупателя" },
 
   // ═══ номера статей: движок нумерует сам (ARTICLE_DEFS_OFFPLAN_V2),
   // поэтому при отключении статьи остальные не «поплывут».

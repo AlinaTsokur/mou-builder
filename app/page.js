@@ -120,6 +120,7 @@ const initialForm = {
   buyerAgentLicense: "",
   buyerAgentAddress: "",
   buyerChequeThirdParty: "No",
+  sellerChequeThirdParty: "No",
   agencyFeeSeller: "",
   agencyFeeBuyer: "",
   buyerDepositEnabled: "Yes",
@@ -1458,15 +1459,15 @@ function DepositSection({ side, title, form, patch, lists, status, preview }) {
               <DateField id={`${side}ChequeDate`} label="Cheque Date" tip={tips.chequeDate} value={form[`${side}ChequeDate`]} onChange={patch} />
               <Field id={`${side}ChequeBank`} label="Cheque Bank" tip={tips.chequeBank} value={form[`${side}ChequeBank`]} onChange={patch} list={`${side}Banks`} options={lists.banks || []} />
               <Field id={`${side}ChequeDrawnBy`} label="Drawn by" tip={tips.chequeDrawnBy} value={form[`${side}ChequeDrawnBy`]} onChange={patch} options={drawnByOptions} />
-              {side === "buyer" && (
-                <CheckboxField
-                  id="buyerChequeThirdParty"
-                  label="Cheque issued by a third party"
-                  tip="Чек выписан не самим покупателем (родственник, компания). В договор добавится фраза про undertaking letter (шаблон v2)"
-                  checked={form.buyerChequeThirdParty === "Yes"}
-                  onChange={(_, checked) => patch("buyerChequeThirdParty", checked ? "Yes" : "No")}
-                />
-              )}
+              <CheckboxField
+                id={`${side}ChequeThirdParty`}
+                label="Cheque issued by a third party"
+                tip={side === "buyer"
+                  ? "Чек выписан не самим покупателем (родственник, компания). В договор добавится фраза про undertaking letter (шаблон v2)"
+                  : "Чек выписан не самим продавцом (родственник, компания). В договор добавится фраза про undertaking letter (шаблон v2)"}
+                checked={form[`${side}ChequeThirdParty`] === "Yes"}
+                onChange={(_, checked) => patch(`${side}ChequeThirdParty`, checked ? "Yes" : "No")}
+              />
               <Field id={`${side}ChequeInFavourOf`} label="In favour of" tip={tips.chequeInFavourOf} value={form[`${side}ChequeInFavourOf`]} onChange={patch} options={inFavourOptions} />
             </>
           )}
