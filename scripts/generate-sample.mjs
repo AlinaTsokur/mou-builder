@@ -1,4 +1,4 @@
-// Боевая генерация локально, ботовыми ключами: node scripts/generate-test.mjs <templateId> [сценарий]
+// Боевая генерация локально, ботовыми ключами: node scripts/generate-sample.mjs <templateId> [сценарий]
 // Гоняет ровно тот же код, что и сайт (createMouDocument, engine v2).
 import { getBotClients } from "./google-bot.mjs";
 import { createMouDocument } from "../lib/google/docs.js";
