@@ -256,12 +256,15 @@ test("liquidated damages: без агента другой стороны 80% с
 });
 
 test("depositHolder: матрица держателей", () => {
+  // при двух агентствах оба чека держит агентство Продавца
   const both = v2Form();
-  assert.equal(depositHolder("Buyer", both), "The Buyer’s Agency as stakeholder");
+  assert.equal(depositHolder("Buyer", both), "The Seller’s Agency as stakeholder");
   assert.equal(depositHolder("Seller", both), "The Seller’s Agency as stakeholder");
 
+  // держатель не зависит от того, вписаны ли реквизиты чека
   const delayed = v2Form({ buyerChequeTiming: "Delayed (within X days)" });
   assert.equal(depositHolder("Buyer", delayed), "The Seller’s Agency as stakeholder");
+  assert.equal(depositHolder("Buyer", delayed), depositHolder("Buyer", both));
 
   const buyerAgentOnly = v2Form({ sellerAgentEnabled: "No" });
   assert.equal(depositHolder("Buyer", buyerAgentOnly), "The Buyer’s Agency as stakeholder");
