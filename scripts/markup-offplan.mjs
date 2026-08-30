@@ -289,13 +289,6 @@ const EDITS = [
   { find: "Addendum - any addendum", replace: "{{#if any_agent}}Addendum - any addendum" },
   { find: "an integral part of the Agreement between the Parties and the Agency.",
     replace: "an integral part of the Agreement between the Parties and {{agencies_word}}.{{/if}}" },
-  // без депозитов фраза «равно сумме Security Deposit» теряет смысл
-  { find: "as liquidated damages, being an amount equal to the Security Deposit, which the Parties agree is not a penalty.",
-    replace: "as liquidated damages{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}, "
-      + "which the Parties agree is not a penalty.", nth: 0, note: "ст.7 сумма штрафа" },
-  { find: "as liquidated damages, being an amount equal to the Security Deposit, which the Parties agree is not a penalty.",
-    replace: "as liquidated damages{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}, "
-      + "which the Parties agree is not a penalty.", nth: 0, note: "ст.8 сумма штрафа" },
 ];
 
 let id = SRC;
