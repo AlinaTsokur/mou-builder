@@ -12,7 +12,7 @@ import {
   normalizeForm,
   validateMou,
 } from "@/lib/mou/core";
-import { ARTICLE_DEFS_OFFPLAN_V2, buildArticleNumbers, getArticleDefs } from "@/lib/mou/articles";
+import { buildArticleNumbers, getArticleDefs, getArticleDefsForTemplate } from "@/lib/mou/articles";
 import { MOU_TEMPLATES } from "@/lib/mou/config";
 
 const REQUIRE_VALIDATION_BEFORE_CREATE = process.env.MOU_REQUIRE_VALIDATION === "true";
@@ -40,7 +40,7 @@ export async function POST(request) {
       // v2: условия живут в шаблоне ({{#if}}/{{#row}}), правил-таблиц нет.
       // Ручное отключение статей работает через excludedArticleKeys.
       rules = [];
-      const articleNumbers = buildArticleNumbers(data, rules, ARTICLE_DEFS_OFFPLAN_V2);
+      const articleNumbers = buildArticleNumbers(data, rules, getArticleDefsForTemplate(templateEntry, data.unitStatus));
       const replacements = buildReplacementsV2(data, calc, articleNumbers);
       const flags = buildFlags(data, calc);
       document = await createMouDocument({

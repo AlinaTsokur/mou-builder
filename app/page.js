@@ -14,7 +14,7 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
-import { ARTICLE_DEFS, ARTICLE_DEFS_OFFPLAN_V2, getArticleDefs } from "@/lib/mou/articles";
+import { ARTICLE_DEFS, getArticleDefsForTemplate } from "@/lib/mou/articles";
 import Holidays from "date-holidays";
 import { IMaskInput } from "react-imask";
 
@@ -519,9 +519,7 @@ export default function HomePage() {
   // Список статей берём у выбранного шаблона: у v2 своя нумерация (17 статей),
   // условия живут в самом шаблоне, поэтому старый список сюда не подходит.
   const selectedTemplate = (init.config?.templates || []).find((t) => t.id === templateId);
-  const currentArticleDefs = selectedTemplate?.engine === "v2"
-    ? ARTICLE_DEFS_OFFPLAN_V2
-    : getArticleDefs(form.unitStatus);
+  const currentArticleDefs = getArticleDefsForTemplate(selectedTemplate, form.unitStatus);
   const holidaysInRange = useMemo(
     () => getHolidaysInRange(form.agreementDate, form.reservationDeadline),
     [form.agreementDate, form.reservationDeadline]
