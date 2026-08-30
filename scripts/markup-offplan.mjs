@@ -15,6 +15,7 @@ const BUYER = "referred to as the «Buyer»";
 const EDITS = [
   // ═══ шапка
   { find: "28/01/2026", replace: "{{agreement_date}}" },
+  { find: "January 25, 2026", replace: "{{agreement_date_long}}", note: "дата над логотипом" },
 
   // Продавец
   { find: "Mr(s). ", replace: "{{#if !seller_is_company}}Mr(s). ", within: SELLER },
@@ -53,6 +54,12 @@ const EDITS = [
   { find: "Mikhail Slobodchikov", replace: "{{buyer_agent_representative}}", nth: 0 },
   { find: "#CN-6410679", replace: "{{buyer_agent_license}}", nth: 0 },
   { find: "Office 6, Ar Raha 8 St, MUSAFFAH, Abu Dhabi, 20335", replace: "{{buyer_agent_address}}", nth: 0 },
+  // блок каждого агентства — под своим флагом, совместное определение — только при двух
+  { find: "{{seller_agent_name}}", insertBefore: "{{#if seller_agent}}" },
+  { find: "{{buyer_agent_name}}", insertBefore: "{{/if}}{{#if buyer_agent}}" },
+  { find: "The Seller’s Agent and the Buyer’s Agent are hereafter collectively referred to as",
+    insertBefore: "{{/if}}{{#if both_agents}}", note: "открыть both_agents" },
+  { find: "Terms and conditions", insertBefore: "{{/if}}", note: "закрыть both_agents" },
 
   // ═══ определения
   { find: "ALDAR DEVELOPMENT L.L.C – O.P.C", replace: "{{developer_name}}", within: "being the developer authorized" },
@@ -81,7 +88,7 @@ const EDITS = [
   { find: "AED 0,000,000.00", replace: "{{amount_to_seller}}", within: "to be paid by the" },
   { find: "Manager's Cheque or Cash", replace: "{{seller_payment_method}}" },
 
-  { find: "Remaining balance to complete ", replace: "{{#row threshold_topup}}Remaining balance to complete " },
+  { find: "Remaining balance to complete ", replace: "{{#row has_top_up}}Remaining balance to complete " },
   { find: "AED 00,000.00", replace: "{{threshold_amount}}", within: "ESCROW ACCOUNT on the Transfer Date" },
   { find: "THE SOURCE – ESCROW ACCOUNT", replace: "{{escrow_account}}", within: "ESCROW ACCOUNT on the Transfer Date" },
 
@@ -173,12 +180,13 @@ const EDITS = [
     replace: "No unilateral instruction from either Party shall authorize its release.{{/if}}" },
 
   // ═══ ст. 15 — уведомление о споре
-  { find: "delivered to Agencies for their reference", replace: "delivered to {{agencies_word}} for their reference" },
+  { find: ", with a copy of such email or letter delivered to Agencies for their reference",
+    replace: "{{#if any_agent}}, with a copy of such email or letter delivered to {{agencies_word}} for their reference{{/if}}" },
 
   // ═══ подписи агентств
-  { find: "SELLER’S AGENCY", replace: "{{#if seller_agent_enabled}}SELLER’S AGENCY" },
+  { find: "SELLER’S AGENCY", replace: "{{#if seller_agent}}SELLER’S AGENCY" },
   { find: "Company Stamp", replace: "Company Stamp{{/if}}", nth: 0 },
-  { find: "BUYER’S AGENCY", replace: "{{#if buyer_agent_enabled}}BUYER’S AGENCY" },
+  { find: "BUYER’S AGENCY", replace: "{{#if buyer_agent}}BUYER’S AGENCY" },
   { find: "Company Stamp", replace: "Company Stamp{{/if}}", nth: 1 },
 ];
 

@@ -5,23 +5,31 @@
 // Плоская карта символов документа: позиция в тексте → абсолютный индекс в Google Docs.
 export function buildIndex(doc) {
   const chars = [];
-  const walk = (content) => {
+  const walk = (content, seg) => {
     for (const el of content || []) {
       if (el.paragraph) {
         for (const pe of el.paragraph.elements || []) {
           const run = pe.textRun;
           if (!run) continue;
           const bold = Boolean(run.textStyle?.bold);
-          [...run.content].forEach((c, k) => chars.push({ c, i: pe.startIndex + k, bold }));
+          [...run.content].forEach((c, k) => chars.push({ c, i: pe.startIndex + k, bold, seg }));
         }
       } else if (el.table) {
         for (const row of el.table.tableRows || []) {
-          for (const cell of row.tableCells || []) walk(cell.content);
+          for (const cell of row.tableCells || []) walk(cell.content, seg);
         }
       }
     }
   };
-  walk(doc.body.content);
+  walk(doc.body.content, "");
+  // колонтитулы — отдельные сегменты: там своя нумерация индексов,
+  // поэтому в запросе к ним нужно указывать segmentId
+  for (const part of ["headers", "footers"]) {
+    for (const [id, obj] of Object.entries(doc[part] || {})) {
+      chars.push({ c: "\n", i: -1, bold: false, seg: id });
+      walk(obj.content, id);
+    }
+  }
   return { chars, text: chars.map((x) => x.c).join("") };
 }
 
@@ -45,7 +53,8 @@ function locate({ chars, text }, { find, within, cellAfter, nth = 0 }) {
     const to = text.indexOf("\n", from);
     const end = to === -1 ? text.length : to;
     if (end <= from) return null;
-    return { start: chars[from].i, end: chars[end - 1].i + 1, pos: from };
+    if (chars[from].seg !== chars[end - 1].seg) return null;
+    return { start: chars[from].i, end: chars[end - 1].i + 1, pos: from, seg: chars[from].seg };
   }
   let searchFrom = 0;
   let searchTo = text.length;
@@ -65,7 +74,9 @@ function locate({ chars, text }, { find, within, cellAfter, nth = 0 }) {
     cursor = hit + 1;
   }
   if (pos === -1) return null;
-  return { start: chars[pos].i, end: chars[pos + find.length - 1].i + 1, pos };
+  const last = pos + find.length - 1;
+  if (chars[pos].seg !== chars[last].seg) return null;
+  return { start: chars[pos].i, end: chars[last].i + 1, pos, seg: chars[pos].seg };
 }
 
 // Одна правка. Виды:
@@ -82,37 +93,38 @@ export async function applyEdit(docs, documentId, edit) {
 
   if (edit.dryRun) return { ok: true, dry: true };
 
+  const seg = hit.seg ? { segmentId: hit.seg } : {};
   const requests = [];
   if (typeof edit.replace === "string") {
-    requests.push({ deleteContentRange: { range: { startIndex: hit.start, endIndex: hit.end } } });
+    requests.push({ deleteContentRange: { range: { ...seg, startIndex: hit.start, endIndex: hit.end } } });
     if (edit.replace) {
-      requests.push({ insertText: { location: { index: hit.start }, text: edit.replace } });
+      requests.push({ insertText: { location: { ...seg, index: hit.start }, text: edit.replace } });
       // по умолчанию сохраняем начертание заменяемого фрагмента,
       // иначе вставка унаследует стиль соседнего символа
       const keepBold = edit.bold !== undefined ? edit.bold : idx.chars[hit.pos].bold;
       requests.push({ updateTextStyle: {
-        range: { startIndex: hit.start, endIndex: hit.start + edit.replace.length },
+        range: { ...seg, startIndex: hit.start, endIndex: hit.start + edit.replace.length },
         textStyle: { bold: keepBold }, fields: "bold",
       } });
       // runs: [[отступ от начала, отступ до, жирный?], ...] — разное начертание внутри вставки
       for (const [a, b, bold] of edit.runs || []) {
         requests.push({ updateTextStyle: {
-          range: { startIndex: hit.start + a, endIndex: hit.start + b },
+          range: { ...seg, startIndex: hit.start + a, endIndex: hit.start + b },
           textStyle: { bold }, fields: "bold",
         } });
       }
     }
   } else if (typeof edit.insertBefore === "string") {
-    requests.push({ insertText: { location: { index: hit.start }, text: edit.insertBefore } });
+    requests.push({ insertText: { location: { ...seg, index: hit.start }, text: edit.insertBefore } });
     if (edit.bold !== undefined) {
       requests.push({ updateTextStyle: {
-        range: { startIndex: hit.start, endIndex: hit.start + edit.insertBefore.length },
+        range: { ...seg, startIndex: hit.start, endIndex: hit.start + edit.insertBefore.length },
         textStyle: { bold: edit.bold }, fields: "bold",
       } });
     }
   } else if (edit.bold !== undefined) {
     requests.push({ updateTextStyle: {
-      range: { startIndex: hit.start, endIndex: hit.end },
+      range: { ...seg, startIndex: hit.start, endIndex: hit.end },
       textStyle: { bold: edit.bold }, fields: "bold",
     } });
   } else {
