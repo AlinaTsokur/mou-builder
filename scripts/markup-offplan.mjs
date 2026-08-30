@@ -83,49 +83,52 @@ const EDITS = [
   { cellAfter: "Number of Car Parking Spaces:", replace: "{{parking_spaces}}", note: "parking_spaces" },
 
   // ═══ ст. 4 — платёжная таблица
-  { find: "AED 0,000,000.00", replace: "{{original_price}}", within: "as per the SPA issued by the" },
-  { find: "AED 0,000,000.00", replace: "{{selling_price}}", within: "as agreed by the" },
-  { find: "AED 0,000,000.00", replace: "{{amount_to_seller}}", within: "to be paid by the" },
+  { find: "AED 0,000,000.00", replace: "AED {{original_price}}", within: "as per the SPA issued by the" },
+  { find: "AED 0,000,000.00", replace: "AED {{selling_price}}", within: "as agreed by the" },
+  { find: "AED 0,000,000.00", replace: "AED {{amount_to_seller}}", within: "to be paid by the" },
   { find: "Manager's Cheque or Cash", replace: "{{seller_payment_method}}" },
 
   { find: "Remaining balance to complete ", replace: "{{#row has_top_up}}Remaining balance to complete " },
-  { find: "AED 00,000.00", replace: "{{threshold_amount}}", within: "ESCROW ACCOUNT on the Transfer Date" },
+  { find: "AED 00,000.00", replace: "AED {{threshold_amount}}", within: "ESCROW ACCOUNT on the Transfer Date" },
   { find: "THE SOURCE – ESCROW ACCOUNT", replace: "{{escrow_account}}", within: "ESCROW ACCOUNT on the Transfer Date" },
 
-  { find: "AED 2,672,972.51", replace: "{{developer_balance}}" },
+  { find: "AED 2,672,972.51", replace: "AED {{developer_balance}}" },
   { find: "THE SOURCE – ESCROW ACCOUNT", replace: "{{escrow_account}}", within: "in accordance with the Payment Plan" },
 
-  { find: "AED 4,000.00", replace: "{{transfer_fee}}" },
+  { find: "AED 4,000.00", replace: "AED {{transfer_fee}}" },
   { find: "ALDAR PROPERTIES PJSC", replace: "{{transfer_fee_payee}}" },
-  { find: "AED 00,000.00", replace: "{{adm_electronic_fee}}", within: "2% from the" },
+  { find: "AED 00,000.00", replace: "AED {{adm_electronic_fee}}", within: "2% from the" },
   { find: "AED 575", replace: "AED {{adm_surcharge}}" },
   { find: "Aldar Development LLC - OPC", replace: "{{adm_payee}}" },
 
   { find: "Security deposit:", replace: "{{#row any_deposit}}Security deposit:" },
-  { find: "AED 000,000.00", replace: "{{#if buyer_deposit}}{{buyer_deposit_amount}}", within: "provided by the Buyer to the Seller" },
+  { find: "AED 000,000.00", replace: "{{#if buyer_deposit}}AED {{buyer_deposit_amount}}", within: "provided by the Buyer to the Seller" },
   { find: "provided by the Buyer to the Seller)", replace: "provided by the Buyer to the Seller){{/if}}" },
-  { find: "AED 000,000.00", replace: "{{#if seller_deposit}}{{seller_deposit_amount}}", within: "provided by the Seller to the Buyer" },
+  { find: "AED 000,000.00", replace: "{{#if seller_deposit}}AED {{seller_deposit_amount}}", within: "provided by the Seller to the Buyer" },
   { find: "provided by the Seller to the Buyer)", replace: "provided by the Seller to the Buyer){{/if}}" },
 
-  { find: "AED 00,000.00", replace: "{{#if buyer_agent_fee}}{{buyer_agency_fee}}", within: "to The Buyer’s Agent" },
+  { find: "AED 00,000.00", replace: "{{#if buyer_agent_fee}}AED {{buyer_agency_fee}}", within: "to The Buyer’s Agent" },
   { find: "to The Buyer’s Agent on the Transfer Date", replace: "to The Buyer’s Agent on the Transfer Date{{/if}}" },
-  { find: "AED 00,000.00", replace: "{{#if seller_agent_fee}}{{seller_agency_fee}}", within: "to The Seller’s Agent" },
+  { find: "AED 00,000.00", replace: "{{#if seller_agent_fee}}AED {{seller_agency_fee}}", within: "to The Seller’s Agent" },
   { find: "to The Seller’s Agent on the Transfer Date", replace: "to The Seller’s Agent on the Transfer Date{{/if}}" },
 
   // ═══ ст. 5 — срок
   { find: "15 January 2026", replace: "{{reservation_deadline}}" },
 
   // ═══ ст. 6 — депозитные чеки
-  // абзац без реквизитов чека
+  // Покупатель, абзац без реквизитов чека
   { find: "Upon signing this agreement", replace: "{{#if buyer_deposit}}{{#if !buyer_cheque_details}}Upon signing this agreement",
     within: "will be held by The Seller’s Agency" },
-  { find: "AED 000,000 ", replace: "{{buyer_deposit_amount}} ", within: "will be held by The Seller’s Agency" },
-  { find: "The Seller’s Agency", replace: "{{deposit_holder}}", within: "will be held by The Seller’s Agency" },
-  { find: "in accordance with the terms of this MOU.", replace: "in accordance with the terms of this MOU.{{/if}}", within: "{{deposit_holder}} as stakeholder" },
+  { find: "AED 000,000 ", replace: "AED {{buyer_deposit_amount}} ", within: "will be held by The Seller’s Agency" },
+  // держатель уже содержит «as stakeholder» — забираем эти слова в плейсхолдер
+  { find: "The Seller’s Agency as stakeholder", replace: "{{buyer_deposit_holder}}",
+    within: "will be held by The Seller’s Agency" },
+  { find: "in accordance with the terms of this MOU.", replace: "in accordance with the terms of this MOU.{{/if}}",
+    within: "{{buyer_deposit_holder}} until" },
 
-  // абзац с реквизитами чека
+  // Покупатель, абзац с реквизитами чека
   { find: "Upon signing this agreement", replace: "{{#if buyer_cheque_details}}Upon signing this agreement", within: "cheque No." },
-  { find: "AED 528,013", replace: "{{buyer_deposit_amount}}", within: "cheque No." },
+  { find: "AED 528,013", replace: "AED {{buyer_deposit_amount}}", within: "cheque No." },
   { find: "Name Surname", replace: "{{buyer_cheque_favour}}", within: "cheque No." },
   { find: "174369", replace: "{{buyer_cheque_no}}" },
   { find: "14.04.2026", replace: "{{buyer_cheque_date}}" },
@@ -134,12 +137,22 @@ const EDITS = [
   { find: ", on behalf of the Buyer, provided that such third party",
     replace: "{{#if buyer_cheque_third_party}}, on behalf of the Buyer, provided that such third party" },
   { find: "the funds are provided on behalf of the Buyer.", replace: "the funds are provided on behalf of the Buyer.{{/if}}" },
-  { find: "Buyer’s Agent as stakeholder", replace: "{{deposit_holder}} as stakeholder", within: "cheque No." },
-  { find: "in accordance with the terms of this MOU.", replace: "in accordance with the terms of this MOU.{{/if}}{{/if}}", within: "cheque No." },
+  { find: "Buyer’s Agent as stakeholder", replace: "{{buyer_deposit_holder}}", within: "cheque No." },
+  { find: "in accordance with the terms of this MOU.", replace: "in accordance with the terms of this MOU.{{/if}}{{/if}}",
+    within: "cheque No." },
 
-  // абзац Продавца
-  { find: "Similarly, upon signing", replace: "{{#if seller_deposit}}Similarly, upon signing" },
-  { find: "AED 000,000 ", replace: "{{seller_deposit_amount}} ", within: "Similarly, upon signing" },
+  // Продавец: в документе есть только абзац с реквизитами.
+  // Вставляем перед ним зеркальный абзац без реквизитов — как у Покупателя
+  // (текст согласован в эталоне templates/offplan-v2-template.md).
+  { find: "Similarly, upon signing",
+    insertBefore: "{{#if seller_deposit}}{{#if !seller_cheque_details}}{{seller_deposit_intro}} the Seller undertakes to pay a sum of AED "
+      + "{{seller_deposit_amount}} as a holding Security Deposit cheque. This cheque is to secure the purchase of the Property "
+      + "and will be held by {{seller_deposit_holder}} until the Transfer Date in accordance with the terms of this MOU.{{/if}}\n",
+    note: "абзац Продавца без реквизитов чека" },
+
+  // Продавец, абзац с реквизитами чека
+  { find: "Similarly, upon signing this agreement,", replace: "{{#if seller_cheque_details}}{{seller_deposit_intro}}" },
+  { find: "AED 000,000 ", replace: "AED {{seller_deposit_amount}} ", within: "Petr Petrov" },
   { find: "Petr Petrov", replace: "{{seller_cheque_favour}}" },
   { find: "000020", replace: "{{seller_cheque_no}}" },
   { find: "00.00.2026", replace: "{{seller_cheque_date}}" },
@@ -148,31 +161,32 @@ const EDITS = [
   { find: ", on behalf of the Seller, provided that such third party",
     replace: "{{#if seller_cheque_third_party}}, on behalf of the Seller, provided that such third party" },
   { find: "the funds are provided on behalf of the Seller.", replace: "the funds are provided on behalf of the Seller.{{/if}}" },
-  { find: "Seller’s Agent as stakeholder", replace: "{{deposit_holder}} as stakeholder", within: "Similarly, upon signing" },
-  { find: "in accordance with the terms of this MOU.", replace: "in accordance with the terms of this MOU.{{/if}}", within: "Similarly, upon signing" },
+  { find: "Seller’s Agent as stakeholder", replace: "{{seller_deposit_holder}}", within: "{{seller_cheque_drawer}}" },
+  { find: "in accordance with the terms of this MOU.", replace: "in accordance with the terms of this MOU.{{/if}}{{/if}}",
+    within: "{{seller_deposit_holder}} until" },
 
   { find: "Upon successful completion of the transfer", replace: "{{#if any_deposit}}Upon successful completion of the transfer" },
   { find: "shall not be presented for payment.", replace: "shall not be presented for payment.{{/if}}" },
 
   // ═══ ст. 7 — дефолт Покупателя
   { find: "__", replace: "{{#if !buyer_deposit}}", nth: 0 },
-  { find: "AED 528,013", replace: "{{buyer_liquidated_damages}}", within: "Upon Buyer Default" },
+  { find: "AED 528,013", replace: "AED {{buyer_liquidated_damages}}", within: "Upon Buyer Default" },
   { find: "This amount shall be distributed as follows:", replace: "This amount shall be distributed as follows:{{/if}}", nth: 0 },
   { find: "__", replace: "{{#if buyer_deposit}}", nth: 0 },
   { find: "The forfeited Security Deposit shall be distributed as follows:",
     replace: "The forfeited Security Deposit shall be distributed as follows:{{/if}}", nth: 0 },
-  { find: "AED 263,000", replace: "{{buyer_ld_80}}" },
-  { find: "AED 65,000", replace: "{{buyer_ld_20}}" },
+  { find: "AED 263,000", replace: "AED {{buyer_ld_80}}" },
+  { find: "AED 65,000", replace: "AED {{buyer_ld_20}}" },
 
   // ═══ ст. 8 — дефолт Продавца
-  { find: "—-Upon", replace: "{{#if !seller_deposit}}Upon" },
-  { find: "AED 528,013", replace: "{{seller_liquidated_damages}}", within: "Upon Seller Default" },
+  { find: "—-", replace: "{{#if !seller_deposit}}", note: "ст.8, открыть !seller_deposit" },
+  { find: "AED 528,013", replace: "AED {{seller_liquidated_damages}}", within: "Upon Seller Default" },
   { find: "This amount shall be distributed as follows:", replace: "This amount shall be distributed as follows:{{/if}}", nth: 1 },
   { find: "_____", replace: "{{#if seller_deposit}}" },
   { find: "The forfeited Security Deposit shall be distributed as follows:",
     replace: "The forfeited Security Deposit shall be distributed as follows:{{/if}}", nth: 1 },
-  { find: "AED 263,600", replace: "{{seller_ld_80}}" },
-  { find: "AED 65,900", replace: "{{seller_ld_20}}" },
+  { find: "AED 263,600", replace: "AED {{seller_ld_80}}" },
+  { find: "AED 65,900", replace: "AED {{seller_ld_20}}" },
 
   // ═══ ст. 9 — освобождение депозита
   { find: "If Article 7 or Article 8 applies", replace: "{{#if any_deposit}}If Article 7 or Article 8 applies" },
