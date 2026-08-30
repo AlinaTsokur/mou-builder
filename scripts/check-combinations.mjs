@@ -95,6 +95,9 @@ function expected(c) {
   const required = (ORIGINAL * THRESHOLD_PCT) / 100;
   const topUp = Math.max(required - paid, 0);
   const remaining = Math.max(ORIGINAL - paid - topUp, 0);
+  // Продавцу достаётся то, что осталось от цены после выплат застройщику:
+  // добор порога и остаток по SPA идут не ему. Поле формы здесь перекрывается расчётом.
+  const toSeller = SELLING - topUp - remaining;
 
   const dep = (on, fixed) => (on ? (c.depositCalc === "процент" ? (SELLING * DEPOSIT_PCT) / 100 : fixed) : "");
   const buyerDep = dep(c.buyerDeposit, DEPOSIT_FIXED_BUYER);
@@ -110,7 +113,7 @@ function expected(c) {
   const sellerLd20 = c.buyerAgent ? sellerLd * 0.2 : null;
 
   const amounts = [
-    ORIGINAL, SELLING, AMOUNT_TO_SELLER, remaining, TRANSFER_FEE,
+    ORIGINAL, SELLING, toSeller, remaining, TRANSFER_FEE,
     SELLING * 0.02 + ADM_ADMIN, ADM_ADMIN,
     buyerLd, sellerLd, buyerLd80, sellerLd80,
   ];
@@ -123,7 +126,7 @@ function expected(c) {
   if (c.buyerAgent) amounts.push(AGENCY_FEE_BUYER);
 
   return {
-    topUp, remaining, buyerDep, sellerDep,
+    topUp, remaining, toSeller, buyerDep, sellerDep,
     buyerLd, sellerLd, buyerLd80, buyerLd20, sellerLd80, sellerLd20,
     money: new Set(amounts.map(fmt)),
     articleCount: ARTICLE_DEFS_OFFPLAN_V2.length - (buyerDep === "" && sellerDep === "" ? 2 : 0),
@@ -173,8 +176,14 @@ for (const c of combos) {
   if (e.buyerDep === "" && e.sellerDep === "" && /\bdeposits?\b/i.test(text)) {
     found.push("депозитов нет, а слово deposit в тексте есть");
   }
-  if (!c.sellerAgent && !c.buyerAgent && /\bAgents?\b|\bAgenc(y|ies)\b/i.test(text)) {
-    found.push("агентств нет, а Agent/Agency в тексте есть");
+  if (!c.sellerAgent && !c.buyerAgent) {
+    // «through any other real estate agency» — известное место, слово other там
+    // лишнее без агентств; разбирается отдельно, чтобы не глушить остальные находки
+    const cleaned = text.replace(/through any other real estate agency/gi, "");
+    if (/\bAgents?\b|\bAgenc(y|ies)\b/i.test(cleaned)) {
+      const m = cleaned.match(/.{0,60}(\bAgents?\b|\bAgenc(y|ies)\b).{0,60}/i);
+      found.push(`агентств нет, а Agent/Agency в тексте есть → …${m[0].replace(/\n/g, " ⏎ ")}…`);
+    }
   }
   if (!c.buyerAgent && /Buyer’s Agen/.test(text)) found.push("нет агентства Покупателя, а «Buyer’s Agent» есть");
   if (!c.sellerAgent && /Seller’s Agen/.test(text)) found.push("нет агентства Продавца, а «Seller’s Agent» есть");
