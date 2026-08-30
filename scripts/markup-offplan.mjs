@@ -111,7 +111,7 @@ const EDITS = [
   { find: "to The Seller’s Agent on the Transfer Date", replace: "to The Seller’s Agent on the Transfer Date{{/if}}" },
 
   // ═══ ст. 5 — срок
-  { find: "15 January 2026", replace: "{{reservation_deadline}}" },
+  { find: "15 January 2026", replace: "{{reservation_deadline_long}}" },
 
   // ═══ ст. 6 — депозитные чеки
   // Покупатель, абзац без реквизитов чека
@@ -212,6 +212,11 @@ const EDITS = [
   { find: "BUYER’S AGENCY", replace: "{{#if buyer_agent}}BUYER’S AGENCY" },
   { find: "Company Stamp", replace: "Company Stamp{{/if}}", nth: 1 },
 
+  // представитель подтягивается из вкладки AGENTS, вручную вписывать не надо
+  // (у Продавца два пробела перед Signature, у Покупателя четыре — этим и различаем)
+  { find: "Represented by: __________  Signature", replace: "Represented by: {{seller_agent_representative}}  Signature" },
+  { find: "Represented by: __________    Signature", replace: "Represented by: {{buyer_agent_representative}}    Signature" },
+
   // подписи: на каждого продавца и покупателя своя строка — собирает движок
   { find: "Name: {{seller_signature_name}}    Signature: ________________\u000bDate: {{seller_signature_date}}",
     replace: "{{seller_signature_block}}", note: "блок подписей Продавца" },
@@ -250,10 +255,9 @@ const EDITS = [
   { find: "Article 2", replace: "Article {{article_effective_date_number}}", nth: 0, note: "заголовок ст. 2" },
   { find: "Article 1", replace: "Article {{article_sale_offer_number}}", nth: 0, note: "заголовок ст. 1" },
   // строки подписей агентов внизу — только если агентство есть
-  { find: "Seller\u2019s Agent signature__________",
-    replace: "{{#if seller_agent}}Seller\u2019s Agent signature__________\nCompany Stamp{{/if}}", note: "подпись + печать агентства Продавца" },
-  { find: "Buyer\u2019s Agent signature__________",
-    replace: "{{#if buyer_agent}}Buyer\u2019s Agent signature__________\nCompany Stamp{{/if}}", note: "подпись + печать агентства Покупателя" },
+  // {{#row any_agent}} убирает обе строки подвала целиком, когда агентств нет вовсе
+  { find: "Seller\u2019s Agent signature__________", replace: "{{#row any_agent}}{{#if seller_agent}}Seller\u2019s Agent signature__________{{/if}}" },
+  { find: "Buyer\u2019s Agent signature__________", replace: "{{#if buyer_agent}}Buyer\u2019s Agent signature__________{{/if}}" },
 
   // заголовки депозитных статей: без депозитов остались бы голые «Article» без номера
   { find: "Article {{article_security_deposit_number}}", insertBefore: "{{#if any_deposit}}", note: "открыть ст.6 целиком" },
@@ -328,6 +332,49 @@ const EDITS = [
     replace: "disbursement of the {{#if any_deposit}}deposit and {{/if}}balance.", note: "расходы без депозита" },
 ];
 
+
+// В подвале таблица подписей: в шаблоне 1.2 под строкой подписей агентств
+// идёт отдельная строка с печатями. Добавляем её так же, а не абзацем в ячейке.
+async function addStampRow(documentId) {
+  const findFooterTable = (doc) => {
+    for (const [segmentId, footer] of Object.entries(doc.footers || {})) {
+      for (const el of footer.content || []) {
+        if (el.table && JSON.stringify(el.table).includes("Agent signature")) {
+          return { segmentId, table: el.table, startIndex: el.startIndex };
+        }
+      }
+    }
+    return null;
+  };
+
+  let doc = (await docs.documents.get({ documentId })).data;
+  let found = findFooterTable(doc);
+  if (!found) return "таблица подписей в подвале не найдена";
+  if (found.table.tableRows.length > 2) return "строка печатей уже есть";
+
+  await docs.documents.batchUpdate({ documentId, requestBody: { requests: [{
+    insertTableRow: {
+      tableCellLocation: {
+        tableStartLocation: { segmentId: found.segmentId, index: found.startIndex },
+        rowIndex: found.table.tableRows.length - 1,
+      },
+      insertBelow: true,
+    },
+  }] } });
+
+  doc = (await docs.documents.get({ documentId })).data;
+  found = findFooterTable(doc);
+  const row = found.table.tableRows[found.table.tableRows.length - 1];
+  const cells = row.tableCells.map((cell) => cell.content[0].startIndex);
+  const texts = ["{{#row any_agent}}{{#if seller_agent}}Company Stamp{{/if}}", "{{#if buyer_agent}}Company Stamp{{/if}}"];
+  // пишем справа налево, чтобы индексы левой ячейки не сдвинулись
+  const requests = cells.map((index, i) => ({
+    insertText: { location: { segmentId: found.segmentId, index }, text: texts[i] },
+  })).reverse();
+  await docs.documents.batchUpdate({ documentId, requestBody: { requests } });
+  return "строка печатей добавлена";
+}
+
 let id = SRC;
 if (!TO_ORIGINAL) {
   // прошлый черновик удаляем: разметка не идемпотентна, каждый прогон — свежая копия
@@ -347,6 +394,7 @@ if (!TO_ORIGINAL) {
 }
 
 const res = await applyEdits(docs, id, EDITS);
+console.log(await addStampRow(id));
 console.log(`\nприменено: ${res.done.length} из ${EDITS.length}`);
 if (res.failed.length) {
   console.log("не найдено:");
