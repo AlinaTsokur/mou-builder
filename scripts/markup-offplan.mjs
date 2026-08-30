@@ -260,6 +260,42 @@ const EDITS = [
   { find: "Article {{article_deposit_release_number}}", insertBefore: "{{#if any_deposit}}", note: "открыть ст.9 целиком" },
   { find: "No unilateral instruction from either Party shall authorize its release.{{/if}}",
     replace: "No unilateral instruction from either Party shall authorize its release.{{/if}}{{/if}}", note: "закрыть ст.9 целиком" },
+  // ═══ варианты «без агентства» — как в эталоне templates/offplan-v2-template.md
+  // ст. 7: без агентства продавца всё достаётся Продавцу, строка b) исчезает
+  { find: "a) 80% (AED {{buyer_deposit_80_percent_amount}}) to the Seller; and", insertBefore: "{{#if seller_agent}}" },
+  { find: "b) 20% (AED {{buyer_deposit_20_percent_amount}}) to the Seller’s Agent",
+    replace: "b) 20% (AED {{buyer_deposit_20_percent_amount}}) to the Seller’s Agent{{/if}}"
+      + "{{#if !seller_agent}}\na) 100% (AED {{buyer_deposit_80_percent_amount}}) to the Seller{{/if}}" },
+  { find: "against the Seller or the Seller’s Agent arising",
+    replace: "against the Seller{{#if seller_agent}} or the Seller’s Agent{{/if}} arising" },
+
+  // ст. 8: зеркально, без агентства покупателя
+  { find: "a) 80% (AED {{seller_deposit_80_percent_amount}}) to the Buyer; and", insertBefore: "{{#if buyer_agent}}" },
+  { find: "b) 20% (AED {{seller_deposit_20_percent_amount}}) to the Buyer’s agent",
+    replace: "b) 20% (AED {{seller_deposit_20_percent_amount}}) to the Buyer’s agent{{/if}}"
+      + "{{#if !buyer_agent}}\na) 100% (AED {{seller_deposit_80_percent_amount}}) to the Buyer{{/if}}" },
+  { find: "against the Buyer or the Buyer’s Agent arising",
+    replace: "against the Buyer{{#if buyer_agent}} or the Buyer’s Agent{{/if}} arising" },
+
+  // ст. 9: без агентства депозит держат и освобождают сами стороны
+  { find: "shall be released by the Agent strictly",
+    replace: "shall be released by {{#if any_agent}}the Agent{{/if}}{{#if !any_agent}}the Parties{{/if}} strictly" },
+  { find: "shall remain held by the Agent until either",
+    replace: "shall remain held by {{#if any_agent}}the Agent{{/if}}{{#if !any_agent}}the respective Parties{{/if}} until either" },
+  { find: "The Agent shall act solely", replace: "{{#if any_agent}}The Agent shall act solely" },
+  { find: "in accordance with this Article. ", replace: "in accordance with this Article. {{/if}}" },
+
+  // определения: пункт Addendum ссылается на агентство (правило из info.md)
+  { find: "Addendum - any addendum", replace: "{{#if any_agent}}Addendum - any addendum" },
+  { find: "an integral part of the Agreement between the Parties and the Agency.",
+    replace: "an integral part of the Agreement between the Parties and {{agencies_word}}.{{/if}}" },
+  // без депозитов фраза «равно сумме Security Deposit» теряет смысл
+  { find: "as liquidated damages, being an amount equal to the Security Deposit, which the Parties agree is not a penalty.",
+    replace: "as liquidated damages{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}, "
+      + "which the Parties agree is not a penalty.", nth: 0, note: "ст.7 сумма штрафа" },
+  { find: "as liquidated damages, being an amount equal to the Security Deposit, which the Parties agree is not a penalty.",
+    replace: "as liquidated damages{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}, "
+      + "which the Parties agree is not a penalty.", nth: 0, note: "ст.8 сумма штрафа" },
 ];
 
 let id = SRC;
