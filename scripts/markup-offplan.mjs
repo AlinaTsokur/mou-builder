@@ -18,33 +18,19 @@ const EDITS = [
   { find: "28/01/2026", replace: "{{agreement_date}}" },
   { find: "January 25, 2026", replace: "{{agreement_date_long}}", note: "дата над логотипом" },
 
-  // Продавец
-  { find: "Mr(s). ", replace: "{{#if !seller_is_company}}Mr(s). ", within: SELLER },
-  { find: "Name Surname", replace: "{{seller_name}}", within: SELLER },
-  { find: "Russian Federation", replace: "{{seller_nationality}}", within: SELLER },
-  { find: "222222222", replace: "{{seller_passport}}", within: SELLER },
-  { find: "784-1990-2222222-2", replace: "{{seller_eid}}", within: SELLER },
-  { find: "100", replace: "{{seller_ownership}}", within: SELLER },
-  { find: " has designated", replace: "{{#if seller_poa}} has designated", within: SELLER },
-  { find: "Name Surname", replace: "{{seller_poa_name}}", within: SELLER },
-  { find: "Russian Federation", replace: "{{seller_poa_nationality}}", within: SELLER },
-  { find: "11 1111111", replace: "{{seller_poa_passport}}", within: SELLER },
-  { find: "784-1990-1111111-1", replace: "{{seller_poa_eid}}", within: SELLER },
-  { find: ", hereafter referred to as the «Seller»",
-    replace: "{{/if}}{{/if}}{{#if seller_is_company}}{{seller_company_block}}{{/if}}, hereafter referred to as the «Seller»" },
-
-  // Покупатель
-  { find: "Name Surname", replace: "{{buyer_name}}", within: BUYER },
-  { find: "Russian Federation", replace: "{{buyer_nationality}}", within: BUYER },
-  { find: "222222222", replace: "{{buyer_passport}}", within: BUYER },
-  { find: "784-1990-2222222-2", replace: "{{buyer_eid}}", within: BUYER },
-  { find: "100", replace: "{{buyer_ownership}}", within: BUYER },
-  { find: " has designated", replace: "{{#if buyer_poa}} has designated", within: BUYER },
-  { find: "Name Surname", replace: "{{buyer_poa_name}}", within: BUYER },
-  { find: "Russian Federation", replace: "{{buyer_poa_nationality}}", within: BUYER },
-  { find: "11 1111111", replace: "{{buyer_poa_passport}}", within: BUYER },
-  { find: "784-1990-1111111-1", replace: "{{buyer_poa_eid}}", within: BUYER },
-  { find: ", hereinafter referred to as the «Buyer»", replace: "{{/if}}, hereinafter referred to as the «Buyer»" },
+  // Стороны: движок собирает блок целиком (buildPartyBlock) — обращение Mr./Mrs./Ms.,
+  // гражданство, паспорт, EID, доли, доверенность и любое число продавцов/покупателей.
+  // Поэтому здесь один плейсхолдер, а не отдельные поля.
+  { find: "Mr(s). Name Surname, nationality: Russian Federation, holder of Passport number: 222222222, "
+      + "holder of EID Number 784-1990-2222222-2, Ownership rights \u2013 100%, has designated Mr(s). Name Surname "
+      + "(pursuant to a valid Power of Attorney), nationality: Russian Federation, holder of Passport number: 11 1111111, "
+      + "holder of EID Number 784-1990-1111111-1",
+    replace: "{{seller_party_block}}", note: "блок Продавца" },
+  { find: "Mr(s). Name Surname, nationality: Russian Federation, holder of Passport number: 222222222, "
+      + "holder of EID Number 784-1990-2222222-2, Ownership rights \u2013 100%, has designated Mr(s). Name Surname "
+      + "(pursuant to a valid Power of Attorney), nationality: Russian Federation, holder of Passport number: 11 1111111, "
+      + "holder of EID Number 784-1990-1111111-1",
+    replace: "{{buyer_party_block}}", note: "блок Покупателя" },
 
   // Агентства
   { find: "PRIME BRIDGE REAL ESTATE BROKERAGE - L.L.C - S.P.C", replace: "{{seller_agent_name}}", nth: 0 },
@@ -175,6 +161,9 @@ const EDITS = [
     within: "{{seller_cheque_drawer}}" },
 
   { find: "Upon successful completion of the transfer", replace: "{{#if any_deposit}}Upon successful completion of the transfer" },
+  // кому возвращают чеки — зависит от того, чьи депозиты есть
+  { find: "shall be returned to the Buyer and to the Seller or cancelled",
+    replace: "shall be returned to {{deposit_return_parties}} or cancelled" },
   { find: "shall not be presented for payment.", replace: "shall not be presented for payment.{{/if}}" },
 
   // ═══ ст. 7 — дефолт Покупателя
@@ -199,6 +188,9 @@ const EDITS = [
 
   // ═══ ст. 9 — освобождение депозита
   { find: "If Article 7 or Article 8 applies", replace: "{{#if any_deposit}}If Article 7 or Article 8 applies" },
+  // ст. 13: хвост про возврат депозита уходит, когда депозитов нет (точка снаружи)
+  { find: ", and the Security Deposit shall be returned to the Party that provided it.",
+    replace: "{{#if any_deposit}}, and the Security Deposit shall be returned to the Party that provided it{{/if}}." },
   { find: "No unilateral instruction from either Party shall authorize its release.",
     replace: "No unilateral instruction from either Party shall authorize its release.{{/if}}" },
 
