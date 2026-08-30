@@ -198,6 +198,11 @@ const EDITS = [
   { find: "via agents\u2019 email", replace: "via {{#if any_agent}}agents\u2019 {{/if}}email" },
   { find: ", with a copy of such email or letter delivered to Agencies for their reference",
     replace: "{{#if any_agent}}, with a copy of such email or letter delivered to {{agencies_word}} for their reference{{/if}}" },
+  // решение заказчика: без агентств абзац об освобождении агентства от ответственности уходит целиком
+  { find: "The Parties hereby undertake to indemnify",
+    replace: "{{#if any_agent}}The Parties hereby undertake to indemnify" },
+  { find: "the Agency", replace: "{{agencies_word}}", within: "hold harmless" },
+  { find: "in relation to this MOU.", replace: "in relation to this MOU.{{/if}}", within: "hold harmless" },
 
   // ═══ подписи агентств
   { find: "SELLER’S AGENCY", replace: "{{#if seller_agent}}SELLER’S AGENCY" },
