@@ -5,7 +5,7 @@ import { OFFPLAN } from "../scripts/markup/offplan-deals.mjs";
 
 test("список правок off-plan собирается целиком", () => {
   const edits = buildEdits(OFFPLAN);
-  assert.equal(edits.length, 170);
+  assert.equal(edits.length, 172);
   for (const e of edits) {
     assert.ok(e.find || e.cellAfter, `правка без find: ${JSON.stringify(e)}`);
     assert.ok(e.replace !== undefined || e.insertBefore !== undefined || e.bold !== undefined,

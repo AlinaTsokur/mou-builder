@@ -75,7 +75,12 @@ for (const p of marked) {
   compared += 1;
   const was = boldWords(ref.runs);
   const now = boldWords(p.runs);
-  const lost = [...was].filter((w) => !now.has(w));
+  // Слова, которых в размеченном абзаце вообще нет, заменены плейсхолдером
+  // (имя банка, дата, процент). Их начертание задаётся списком BOLD_REPAIR,
+  // сравнивать с эталоном нечего — иначе каждый плейсхолдер даст ложную потерю.
+  const markedText = p.runs.map((r) => r.text).join("").replace(/[^\p{L}\p{N}%]/gu, " ");
+  const stillThere = (w) => new RegExp(`(^| )${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}( |$)`).test(markedText);
+  const lost = [...was].filter((w) => !now.has(w) && stillThere(w));
   const extra = [...now].filter((w) => !was.has(w));
   if (lost.length || extra.length) {
     problems.push({
