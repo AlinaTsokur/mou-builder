@@ -270,3 +270,22 @@ off-plan, ready, C3. **До этого шага генерация догово�
 
 - Ипотечные шаблоны 6 и 7 — были в старом списке, уточнить, нужны ли ещё.
 - База данных для истории и статусов договоров — пока не требуется, всё в таблице.
+
+## Открытый вопрос к заказчику: реквизиты чека Продавца
+
+У Покупателя в договоре два варианта абзаца ст. 6: с реквизитами чека и без них
+(когда чек предоставляется позже). У Продавца — только вариант с полными
+реквизитами. Если реквизиты чека Продавца на момент подписания MOU неизвестны,
+в договор попадут пустые поля.
+
+Предлагаемый второй абзац для Продавца — точная копия структуры абзаца Покупателя:
+
+> {{seller_deposit_intro}} the Seller undertakes to pay a sum of **AED {{seller_deposit_amount}}**
+> as a holding Security Deposit cheque. This cheque is to secure the purchase of the Property
+> and will be held by {{deposit_holder}} as stakeholder until the Transfer Date
+> in accordance with the terms of this MOU.
+
+Новых юридических условий не добавляется — убраны только «by cheque No. … in favour of …».
+
+Проверить перед вставкой: содержит ли абзац Покупателя без реквизитов срок
+(«within X calendar days from the date of this MOU»). Если да — то же добавить Продавцу.
