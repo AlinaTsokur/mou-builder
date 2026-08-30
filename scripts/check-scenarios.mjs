@@ -3,9 +3,8 @@
 // чтобы не полагаться на выборочный просмотр кусков.
 import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
-import { buildConditionalPlan, buildRowPlan } from "../lib/google/template-engine.js";
-import { normalizeForm, calculate, buildFlags, buildReplacementsV2 } from "../lib/mou/core.js";
-import { buildArticleNumbers, ARTICLE_DEFS_OFFPLAN_V2 } from "../lib/mou/articles.js";
+import { renderLocal } from "./render-local.mjs";
+import { ARTICLE_DEFS_OFFPLAN_V2 } from "../lib/mou/articles.js";
 
 const BASE = {
   agreementDate: "28/01/2026", sellingPrice: "1,670,000", originalPrice: "1,494,050",
@@ -59,21 +58,6 @@ const DEFECTS = [
   [/\bby\s*\.\s/, "оборванная фраза «by .»"],
 ];
 
-function findTable(content, startIndex) {
-  for (const el of content) {
-    if (el.table && el.startIndex === startIndex) return el.table;
-    if (el.table) {
-      for (const r of el.table.tableRows || []) {
-        for (const c of r.tableCells || []) {
-          const found = findTable(c.content || [], startIndex);
-          if (found) return found;
-        }
-      }
-    }
-  }
-  return null;
-}
-
 const documentId = process.argv[2];
 if (!documentId) throw new Error("укажи ID документа");
 const { docs } = getBotClients();
@@ -81,42 +65,13 @@ const doc = (await docs.documents.get({ documentId })).data;
 const idx = buildIndex(doc);
 
 let problems = 0;
-let baseline = null; // дефекты, которые есть и в полном варианте — это исходная вёрстка, а не разметка
 for (const { name, over, forbidden } of SCENARIOS) {
-  const data = normalizeForm({ ...BASE, ...over });
-  const calc = calculate(data);
-  const flags = buildFlags(data, calc);
-  const numbers = buildArticleNumbers(data, undefined, ARTICLE_DEFS_OFFPLAN_V2);
-  const repl = { ...buildReplacementsV2(data, calc, numbers), ...numbers };
-  const cond = buildConditionalPlan(doc, flags);
-  const rows = buildRowPlan(doc, flags);
-
-  // у тела и каждого колонтитула своя нумерация индексов — ключ обязан
-  // включать сегмент, иначе удаления из колонтитула рвут текст тела
-  const deleted = new Set();
-  const key = (seg, i) => `${seg || ""}:${i}`;
-  for (const r of cond.requests) {
-    const g = r.deleteContentRange?.range;
-    if (g) for (let i = g.startIndex; i < g.endIndex; i += 1) deleted.add(key(g.segmentId, i));
-  }
-  // строки таблиц движок удаляет отдельным запросом — повторяем это на тексте
-  for (const r of rows.requests) {
-    const loc = r.deleteTableRow?.tableCellLocation;
-    if (!loc) continue;
-    const table = findTable(doc.body?.content || [], loc.tableStartLocation.index);
-    const row = table?.tableRows?.[loc.rowIndex];
-    for (const cell of row?.tableCells || []) {
-      for (let i = cell.startIndex; i < cell.endIndex; i += 1) deleted.add(key("", i));
-    }
-  }
-  const text = idx.chars.filter((c) => !deleted.has(key(c.seg, c.i))).map((c) => c.c).join("")
-    .replace(/\{\{#row\s+!?[a-z0-9_]+\}\}/g, "")
-    .replace(/\{\{([a-z0-9_]+)\}\}/g, (m, k) => (k in repl ? String(repl[k] ?? "") : m))
-    .replace(/<<|>>/g, "");
+  // общий рендер с комбинаторным прогоном: он умеет удалять строки таблиц
+  // в колонтитулах, а прежняя копия здесь искала таблицы только в теле
+  const { text, outsideTables, cond, rows } = renderLocal(doc, idx, { ...BASE, ...over }, ARTICLE_DEFS_OFFPLAN_V2);
 
   // пустые строки ищем только в теле и вне таблиц: в плоском тексте каждая ячейка
   // заканчивается переводом строки, и пустая ячейка шапки даёт ложное срабатывание
-  const outsideTables = idx.chars.filter((c) => c.seg === "" && !c.inTable && !deleted.has(key(c.seg, c.i))).map((c) => c.c).join("");
   let found = [];
   if (/\n[ \t]*\n[ \t]*\n/.test(outsideTables)) {
     const m = outsideTables.match(/.{0,60}\n[ \t]*\n[ \t]*\n.{0,60}/);
@@ -129,10 +84,9 @@ for (const { name, over, forbidden } of SCENARIOS) {
     const m = text.match(new RegExp(`.{0,60}${re.source}.{0,60}`, re.flags.replace("g", "")));
     if (m) found.push(`${msg} → …${m[0].replace(/\n/g, " ⏎ ")}…`);
   }
-  if (baseline === null) baseline = new Set(found.map((f) => f.split(" → ")[0]));
-  else found = found.filter((f) => !baseline.has(f.split(" → ")[0]));
   problems += found.length;
   console.log(`\n${found.length ? "✘" : "✔"} ${name}`);
   found.forEach((f) => console.log("   " + f));
 }
 console.log(`\nитого замечаний: ${problems}`);
+process.exitCode = problems ? 1 : 0;

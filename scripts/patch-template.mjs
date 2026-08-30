@@ -26,3 +26,5 @@ const { docs } = getBotClients();
 const res = await applyEdits(docs, documentId, PATCHES[key]);
 console.log(`применено: ${res.done.length} из ${PATCHES[key].length}`);
 res.failed.forEach((f) => console.log("   ——", f));
+// правка применена наполовину — это не успех, шаблон в промежуточном виде
+process.exitCode = res.failed.length ? 1 : 0;

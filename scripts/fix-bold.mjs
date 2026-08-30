@@ -9,6 +9,7 @@
 import { getBotClients } from "./google-bot.mjs";
 import { applyEdits } from "./docs-edit.mjs";
 import { BOLD_REPAIR } from "./markup/bold-repair.mjs";
+import { alignWords } from "./markup/word-align.mjs";
 
 const WORD = /[\p{L}\p{N}%]+/gu;
 
@@ -87,8 +88,10 @@ const { docs } = getBotClients();
 const res = await applyEdits(docs, markedId, BOLD_REPAIR);
 console.log(`список BOLD_REPAIR: применено ${res.done.length} из ${BOLD_REPAIR.length}`);
 res.failed.forEach((f) => console.log("   ——", f));
+// частично применённая правка — не успех: шаблон остаётся в промежуточном виде
+if (res.failed.length) process.exitCode = 1;
 
-if (!referenceId) process.exit(0);
+if (!referenceId) process.exit(process.exitCode || 0);
 
 const marked = keyed(paragraphs((await docs.documents.get({ documentId: markedId })).data));
 const reference = keyed(paragraphs((await docs.documents.get({ documentId: referenceId })).data));
@@ -100,26 +103,11 @@ for (const p of marked) {
   const ref = refByKey.get(p.key);
   if (!ref || p.base.length < 12) continue;
 
-  // Считаем вхождения: одно и то же слово в абзаце может быть жирным в одном
-  // месте и обычным в другом («the Agreement» против «Commission Agreement»),
-  // поэтому ключ — слово плюс порядковый номер, а не просто слово.
-  const numbered = (list) => {
-    const seen = new Map();
-    return list.map((w) => {
-      const n = seen.get(w.word) || 0;
-      seen.set(w.word, n + 1);
-      return { ...w, key: `${w.word}#${n}` };
-    });
-  };
-  const want = new Map(numbered(words(ref)).map((w) => [w.key, w.bold]));
-
-  for (const w of numbered(words(p))) {
-    if (!want.has(w.key)) continue;
-    const desired = want.get(w.key);
-    if (desired === w.bold) continue;
+  for (const [was, now] of alignWords(words(ref), words(p))) {
+    if (was.bold === now.bold) continue;
     requests.push({ updateTextStyle: {
-      range: { ...(p.segmentId ? { segmentId: p.segmentId } : {}), startIndex: w.start, endIndex: w.end },
-      textStyle: { bold: desired }, fields: "bold",
+      range: { ...(p.segmentId ? { segmentId: p.segmentId } : {}), startIndex: now.start, endIndex: now.end },
+      textStyle: { bold: was.bold }, fields: "bold",
     } });
     touched += 1;
   }

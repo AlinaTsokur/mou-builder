@@ -44,3 +44,7 @@ console.log(`условий: ${flags.size} видов, строк таблиц: 
 console.log(`плейсхолдеры: ${new Set(occ).size} уникальных, ${occ.length} вхождений`);
 console.log(`флаги вне движка: ${unknown.length ? unknown.join(", ") : "нет"}`);
 console.log(`суммы без AED: ${noAed.length ? [...new Set(noAed)].join(", ") : "нет"}`);
+
+// Код выхода нужен для CI: без него «ОШИБКА» в выводе всё равно считалась успехом
+const ok = depth === 0 && extra === 0 && unknown.length === 0 && noAed.length === 0;
+process.exitCode = ok ? 0 : 1;
