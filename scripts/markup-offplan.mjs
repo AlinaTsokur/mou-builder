@@ -209,6 +209,38 @@ const EDITS = [
   { find: "Company Stamp", replace: "Company Stamp{{/if}}", nth: 0 },
   { find: "BUYER’S AGENCY", replace: "{{#if buyer_agent}}BUYER’S AGENCY" },
   { find: "Company Stamp", replace: "Company Stamp{{/if}}", nth: 1 },
+
+  // ═══ номера статей: движок нумерует сам (ARTICLE_DEFS_OFFPLAN_V2),
+  // поэтому при отключении статьи остальные не «поплывут».
+  // Сначала перекрёстные ссылки в тексте, потом заголовки — от 17 к 1,
+  // иначе «Article 1» совпал бы с началом «Article 17».
+  { find: "described in Article 3 of this Agreement",
+    replace: "described in Article {{article_property_details_number}} of this Agreement" },
+  { find: "set out in Article 4 of this Agreement",
+    replace: "set out in Article {{article_payment_table_number}} of this Agreement" },
+  { find: "as defined in Article 5 of this MOU",
+    replace: "as defined in Article {{article_reservation_period_number}} of this MOU", nth: 0 },
+  { find: "as defined in Article 5 of this MOU",
+    replace: "as defined in Article {{article_reservation_period_number}} of this MOU", nth: 0 },
+  { find: "If Article 7 or Article 8 applies",
+    replace: "If Article {{article_buyer_default_number}} or Article {{article_seller_default_number}} applies" },
+  { find: "Article 17", replace: "Article {{article_electronic_signature_number}}", nth: 0, note: "заголовок ст. 17" },
+  { find: "Article 16", replace: "Article {{article_entire_agreement_number}}", nth: 0, note: "заголовок ст. 16" },
+  { find: "Article 15", replace: "Article {{article_amicable_dispute_number}}", nth: 0, note: "заголовок ст. 15" },
+  { find: "Article 14", replace: "Article {{article_aml_number}}", nth: 0, note: "заголовок ст. 14" },
+  { find: "Article 13", replace: "Article {{article_developer_approval_number}}", nth: 0, note: "заголовок ст. 13" },
+  { find: "Article 12", replace: "Article {{article_property_hold_number}}", nth: 0, note: "заголовок ст. 12" },
+  { find: "Article 11", replace: "Article {{article_seller_outstanding_charges_number}}", nth: 0, note: "заголовок ст. 11" },
+  { find: "Article 10", replace: "Article {{article_buyer_own_funds_number}}", nth: 0, note: "заголовок ст. 10" },
+  { find: "Article 9", replace: "Article {{article_deposit_release_number}}", nth: 0, note: "заголовок ст. 9" },
+  { find: "Article 8", replace: "Article {{article_seller_default_number}}", nth: 0, note: "заголовок ст. 8" },
+  { find: "Article 7", replace: "Article {{article_buyer_default_number}}", nth: 0, note: "заголовок ст. 7" },
+  { find: "Article 6", replace: "Article {{article_security_deposit_number}}", nth: 0, note: "заголовок ст. 6" },
+  { find: "Article 5", replace: "Article {{article_reservation_period_number}}", nth: 0, note: "заголовок ст. 5" },
+  { find: "Article 4", replace: "Article {{article_payment_table_number}}", nth: 0, note: "заголовок ст. 4" },
+  { find: "Article 3", replace: "Article {{article_property_details_number}}", nth: 0, note: "заголовок ст. 3" },
+  { find: "Article 2", replace: "Article {{article_effective_date_number}}", nth: 0, note: "заголовок ст. 2" },
+  { find: "Article 1", replace: "Article {{article_sale_offer_number}}", nth: 0, note: "заголовок ст. 1" },
 ];
 
 let id = SRC;
