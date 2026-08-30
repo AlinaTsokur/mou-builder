@@ -32,7 +32,7 @@ function base(overrides = {}) {
   });
 }
 
-test("ADM fee uses the higher of selling price and original price plus admin fee", () => {
+test("ADM fee always uses selling price plus admin fee, even if original price is higher", () => {
   const data = base();
   const calc = calculate(data);
   const replacements = buildReplacements(data, calc, buildArticleNumbers(data));
@@ -43,9 +43,9 @@ test("ADM fee uses the higher of selling price and original price plus admin fee
   const originalData = base({ sellingPrice: "1,200,000", originalPrice: "1,400,000" });
   const originalPriceBase = calculate(originalData);
   const originalReplacements = buildReplacements(originalData, originalPriceBase, buildArticleNumbers(originalData));
-  assert.equal(originalPriceBase.admFee, 1400000 * 0.02 + 575);
-  assert.equal(originalPriceBase.admFeeBase, 1400000);
-  assert.equal(originalReplacements.adm_fee_base_label, "Original Price");
+  assert.equal(originalPriceBase.admFee, 1200000 * 0.02 + 575);
+  assert.equal(originalPriceBase.admFeeBase, 1200000);
+  assert.equal(originalReplacements.adm_fee_base_label, "Selling Price");
 });
 
 test("threshold top-up and remaining developer balance are calculated", () => {
@@ -90,7 +90,7 @@ test("filled The Row MOU payment table matches automatic calculations", () => {
   assert.equal(calc.thresholdTopUpAmount, 1403075);
   assert.equal(calc.remainingDeveloperBalance, 3928610);
   assert.equal(calc.amountToSeller, 68315);
-  assert.equal(calc.admFee, 112821);
+  assert.equal(calc.admFee, 5400000 * 0.02 + 575);
   assert.equal(calc.buyerDepositAmount, 540000);
   assert.equal(calc.sellerDepositAmount, 540000);
 });
@@ -551,7 +551,7 @@ test("article 6 deposit block supports delayed cheque timing and drops agency la
   const replacements = buildReplacements(data, calc, {});
   const block = replacements.seller_security_deposit_article6_block;
   
-  const expected = "Similarly, upon signing this agreement, the <<Seller>> undertakes to provide a sum of <<AED 360.000,00>> as a holding <<Security Deposit cheque>> within <<5 (Five) calendar days>> from the date of this MOU. This cheque is to secure the purchase of the <<Property>> and will be held by <<PRIME BRIDGE REAL ESTATE BROKERAGE L.L.C - S.P.C (Seller’s Agency name)>> as stakeholder until the <<Transfer Date>> in accordance with the terms of this <<MOU>>.";
+  const expected = "Upon signing this agreement, the <<Seller>> undertakes to provide a sum of <<AED 360,000.00>> as a holding <<Security Deposit cheque>> within <<5 (Five) calendar days>> from the date of this MOU. This cheque is to secure the purchase of the <<Property>> and will be held by <<PRIME BRIDGE REAL ESTATE BROKERAGE L.L.C - S.P.C>> as stakeholder until the <<Transfer Date>> in accordance with the terms of this <<MOU>>.";
   
   if (block !== expected) {
     throw new Error(`Deposit block does not match expected output.\nEXPECTED: ${expected}\nACTUAL:   ${block}`);
