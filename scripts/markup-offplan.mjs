@@ -35,12 +35,12 @@ const EDITS = [
   // Агентства
   { find: "PRIME BRIDGE REAL ESTATE BROKERAGE - L.L.C - S.P.C", replace: "{{seller_agent_name}}", nth: 0 },
   { find: "Mikhail Slobodchikov", replace: "{{seller_agent_representative}}", nth: 0 },
-  { find: "#CN-6410679", replace: "{{seller_agent_license}}", nth: 0 },
+  { find: "CN-6410679", replace: "{{seller_agent_license}}", nth: 0 },
   { find: "Office 6, Ar Raha 8 St, MUSAFFAH, Abu Dhabi, 20335", replace: "{{seller_agent_address}}", nth: 0 },
   { find: "represented by the Manager", replace: "represented by the {{seller_agent_position}}", nth: 0 },
   { find: "PRIME BRIDGE REAL ESTATE BROKERAGE - L.L.C - S.P.C", replace: "{{buyer_agent_name}}", nth: 0 },
   { find: "Mikhail Slobodchikov", replace: "{{buyer_agent_representative}}", nth: 0 },
-  { find: "#CN-6410679", replace: "{{buyer_agent_license}}", nth: 0 },
+  { find: "CN-6410679", replace: "{{buyer_agent_license}}", nth: 0 },
   { find: "Office 6, Ar Raha 8 St, MUSAFFAH, Abu Dhabi, 20335", replace: "{{buyer_agent_address}}", nth: 0 },
   { find: "represented by the Manager", replace: "represented by the {{buyer_agent_position}}", nth: 0 },
   // блок каждого агентства — под своим флагом, совместное определение — только при двух
@@ -51,7 +51,7 @@ const EDITS = [
   { find: "Terms and conditions", insertBefore: "{{/if}}", note: "закрыть both_agents" },
 
   // ═══ определения
-  { find: "ALDAR DEVELOPMENT L.L.C – O.P.C", replace: "{{developer_legal_name}}", within: "being the developer authorized" },
+  { find: "ALDAR DEVELOPMENT L.L.C – O.P.C", replace: "{{developer_name}}", within: "being the developer authorized" },
   { find: "Security Deposit ", replace: "{{#if any_deposit}}Security Deposit ", within: "the security deposit, if any" },
   { find: "performance of their obligations.", replace: "performance of their obligations.{{/if}}" },
   { find: "Liquidated Damages", replace: "{{#if !both_deposits}}Liquidated Damages", within: "an agreed amount payable by the defaulting Party" },
@@ -204,8 +204,7 @@ const EDITS = [
   // решение заказчика: без агентств абзац об освобождении агентства от ответственности уходит целиком
   { find: "The Parties hereby undertake to indemnify",
     replace: "{{#if any_agent}}The Parties hereby undertake to indemnify" },
-  { find: "the Agency", replace: "{{agencies_word}}", within: "hold harmless" },
-  { find: "in relation to this MOU.", replace: "in relation to this MOU.{{/if}}", within: "hold harmless" },
+    { find: "in relation to this MOU.", replace: "in relation to this MOU.{{/if}}", within: "hold harmless" },
 
   // ═══ подписи агентств
   { find: "SELLER’S AGENCY", replace: "{{#if seller_agent}}SELLER’S AGENCY" },
@@ -251,8 +250,10 @@ const EDITS = [
   { find: "Article 2", replace: "Article {{article_effective_date_number}}", nth: 0, note: "заголовок ст. 2" },
   { find: "Article 1", replace: "Article {{article_sale_offer_number}}", nth: 0, note: "заголовок ст. 1" },
   // строки подписей агентов внизу — только если агентство есть
-  { find: "Seller\u2019s Agent signature__________", replace: "{{#if seller_agent}}Seller\u2019s Agent signature__________{{/if}}" },
-  { find: "Buyer\u2019s Agent signature__________", replace: "{{#if buyer_agent}}Buyer\u2019s Agent signature__________{{/if}}" },
+  { find: "Seller\u2019s Agent signature__________",
+    replace: "{{#if seller_agent}}Seller\u2019s Agent signature__________\nCompany Stamp{{/if}}", note: "подпись + печать агентства Продавца" },
+  { find: "Buyer\u2019s Agent signature__________",
+    replace: "{{#if buyer_agent}}Buyer\u2019s Agent signature__________\nCompany Stamp{{/if}}", note: "подпись + печать агентства Покупателя" },
 
   // заголовки депозитных статей: без депозитов остались бы голые «Article» без номера
   { find: "Article {{article_security_deposit_number}}", insertBefore: "{{#if any_deposit}}", note: "открыть ст.6 целиком" },
@@ -288,7 +289,7 @@ const EDITS = [
   // определения: пункт Addendum ссылается на агентство (правило из info.md)
   { find: "Addendum - any addendum", replace: "{{#if any_agent}}Addendum - any addendum" },
   { find: "an integral part of the Agreement between the Parties and the Agency.",
-    replace: "an integral part of the Agreement between the Parties and {{agencies_word}}.{{/if}}" },
+    replace: "an integral part of the Agreement between the Parties and the Agency.{{/if}}" },
 
   // ответы заказчика: без агентств убрать агентские и Commission Agreement,
   // а в AML написать, что стороны сами предоставляют информацию
@@ -322,6 +323,9 @@ const EDITS = [
     insertBefore: "{{#if any_deposit}}", note: "ст.8 открыть распределение" },
   { find: "a) 100% (AED {{seller_deposit_80_percent_amount}}) to the Buyer{{/if}}",
     replace: "a) 100% (AED {{seller_deposit_80_percent_amount}}) to the Buyer{{/if}}{{/if}}", note: "ст.8 закрыть распределение" },
+
+  { find: "disbursement of the deposit and balance.",
+    replace: "disbursement of the {{#if any_deposit}}deposit and {{/if}}balance.", note: "расходы без депозита" },
 ];
 
 let id = SRC;

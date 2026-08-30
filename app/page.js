@@ -489,6 +489,32 @@ export default function HomePage() {
     () => buildSectionStatuses(form, reservationMode, reservationDays),
     [form, reservationMode, reservationDays],
   );
+  const hasTemplateChoice = (init.config?.templates || []).length > 1;
+  const navItems = useMemo(() => {
+    const items = [];
+    if (hasTemplateChoice) {
+      items.push({ title: "Template", state: templateId ? "complete" : "missing", missingCount: templateId ? 0 : 1 });
+    }
+    const order = [
+      ["Agreement", sectionStatuses.agreement],
+      ["Project / Developer", sectionStatuses.project],
+      ["Property", sectionStatuses.property],
+      ["Seller", sectionStatuses.sellers],
+      ["Buyer", sectionStatuses.buyers],
+      ["Payments", sectionStatuses.payments],
+      ["Agency", sectionStatuses.agency],
+      ["Security Deposit - Buyer", sectionStatuses.buyerDeposit],
+      ["Security Deposit - Seller", sectionStatuses.sellerDeposit],
+      ["Articles", sectionStatuses.articles],
+      ["Signatures", sectionStatuses.signatures],
+    ];
+    for (const [title, status] of order) {
+      items.push({ title, state: status?.state || "optional", missingCount: status?.missingCount || 0 });
+    }
+    return items;
+  }, [sectionStatuses, templateId, hasTemplateChoice]);
+  const missingTotal = navItems.reduce((sum, item) => sum + item.missingCount, 0);
+
   const isCashToCash = String(form.unitStatus || "").toLowerCase() === "ready";
   const currentArticleDefs = getArticleDefs(form.unitStatus);
   const holidaysInRange = useMemo(
@@ -711,7 +737,6 @@ export default function HomePage() {
       <header className="topbar">
         <div>
           <h1>MOU Builder</h1>
-          <p>{session?.user?.email}</p>
         </div>
         <div className="topActions">
           <CustomSelect
@@ -733,6 +758,8 @@ export default function HomePage() {
 
       {message && <StatusLine text={message} type={message.includes("created") || message.includes("loaded") ? "ok" : actionErrors.length ? "error" : "info"} />}
       {result && <ResultBox result={result} />}
+
+      <SectionNav items={navItems} />
 
       <div className="workspace">
         <form className="formPanel" onSubmit={(e) => e.preventDefault()}>
@@ -962,6 +989,14 @@ export default function HomePage() {
           <Preview preview={preview} actionErrors={actionErrors} />
         </aside>
       </div>
+
+      <ActionBar
+        missingTotal={missingTotal}
+        sellingPrice={form.sellingPrice}
+        busy={busy}
+        disabled={busy || loadingInit}
+        onCreate={createMou}
+      />
     </main>
   );
 }
@@ -998,13 +1033,51 @@ function ResultBox({ result }) {
   );
 }
 
+
+// Якорь секции: из заголовка делаем стабильный id для прокрутки из чипов.
+function sectionAnchor(title) {
+  return "sec-" + String(title || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function SectionNav({ items }) {
+  return (
+    <nav className="sectionNav" aria-label="Разделы формы">
+      {items.map((item) => (
+        <button
+          key={item.title}
+          type="button"
+          className={`navChip ${item.state}`}
+          onClick={() => document.getElementById(sectionAnchor(item.title))?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        >
+          {item.title}
+          {item.missingCount > 0 && <span className="navChipCount">{item.missingCount}</span>}
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+function ActionBar({ missingTotal, sellingPrice, busy, disabled, onCreate }) {
+  return (
+    <div className="actionBar">
+      <div className="actionBarInfo">
+        <strong>{missingTotal ? `Не заполнено полей: ${missingTotal}` : "Все обязательные поля заполнены"}</strong>
+        {sellingPrice ? <span>Selling Price — AED {sellingPrice}</span> : null}
+      </div>
+      <button className="primary iconText" onClick={onCreate} disabled={disabled}>
+        {busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Create MOU
+      </button>
+    </div>
+  );
+}
+
 function Section({ title, children, status, grid = true, className = "", defaultOpen = true }) {
   const [open, setOpen] = useState(defaultOpen);
   const statusState = status?.state || "optional";
   const statusLabel = status?.label || "Optional";
 
   return (
-    <section className={`section ${className} ${open ? "" : "collapsed"}`}>
+    <section id={sectionAnchor(title)} className={`section ${className} ${open ? "" : "collapsed"}`}>
       <button className="sectionTitle" type="button" aria-expanded={open} onClick={() => setOpen((current) => !current)}>
         <span className={`sectionChevron ${open ? "open" : ""}`}><ChevronDown size={16} /></span>
         <span className="sectionName">{title}</span>

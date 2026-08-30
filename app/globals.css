@@ -149,27 +149,32 @@ input::placeholder {
   border-radius: var(--r-lg);
   padding: 10px 12px 10px 10px;
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(520px, 1.8fr);
+  grid-template-columns: auto minmax(520px, 1fr);
   gap: 12px;
   align-items: center;
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(18px) saturate(140%);
 }
 
-/* блок с названием — тёплая градиентная карточка, как в референсе */
+/* название — тёплая плашка-пилюля одной высоты с кнопками справа */
 .topbar > div:first-child {
+  height: 44px;
+  padding: 0 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
   background: var(--grad-warm);
-  border-radius: var(--r-md);
-  padding: 14px 18px;
+  border-radius: 999px;
   color: #fff;
   box-shadow: 0 10px 24px rgba(221, 74, 61, 0.28);
 }
 
 .topbar h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
   color: #fff;
 }
 
@@ -914,3 +919,77 @@ label span:first-child {
     justify-content: center;
   }
 }
+
+
+/* ── Навигация по разделам: чипы со статусом, клик прокручивает к секции ── */
+.sectionNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(14px);
+}
+
+.navChip {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  box-shadow: var(--shadow-sm);
+}
+
+.navChip:hover { color: var(--text); box-shadow: var(--shadow-lift); }
+.navChip.complete { color: var(--ok); background: var(--ok-bg); box-shadow: none; }
+.navChip.missing { color: #8a3c1f; background: var(--accent-soft); box-shadow: none; }
+.navChip.optional { color: #9aa1ad; }
+
+.navChipCount {
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Липкая панель снизу: статус заполнения и кнопка создания ── */
+.actionBar {
+  position: sticky;
+  bottom: 14px;
+  z-index: 40;
+  margin-top: 16px;
+  padding: 12px 14px 12px 20px;
+  border-radius: var(--r-lg);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(18px) saturate(140%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.actionBarInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.actionBarInfo strong { font-size: 14px; }
+.actionBarInfo span { color: var(--muted); font-size: 12px; font-weight: 600; }

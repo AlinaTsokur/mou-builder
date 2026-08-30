@@ -11,7 +11,7 @@ const BASE = {
   agreementDate: "28/01/2026", sellingPrice: "1,670,000", originalPrice: "1,494,050",
   paidAmountToDeveloper: "300,000", transferThresholdPercent: "30", admAdminFee: "575",
   transferFee: "4,000", transferFeeLabel: "Transfer Fee / NOC Fee", unitStatus: "Off-plan",
-  developerLegalName: "ALDAR DEVELOPMENT L.L.C", escrowAccountName: "THE SOURCE ESCROW",
+  developerName: "ALDAR DEVELOPMENT L.L.C – O.P.C", developerLegalName: "ALDAR PROPERTIES PJSC", escrowAccountName: "THE SOURCE ESCROW",
   propertyLocation: "Saadiyat Island", projectName: "The Source", unitNumber: "R18-212",
   buyerDefaultPenaltyAmount: "167,000", sellerDefaultPenaltyAmount: "167,000",
   sellers: [{ salutation: "Mr.", name: "Ivan Petrov", nationality: "Russia", passport: "222", eid: "784-1", ownershipPercent: "100" }],
@@ -32,7 +32,7 @@ const BASE = {
 const SCENARIOS = [
   { name: "всё включено", over: {}, forbidden: [] },
   { name: "депозитов нет", over: { buyerDepositEnabled: "No", sellerDepositEnabled: "No" },
-    forbidden: [/Security Deposit/i, /deposit cheque/i] },
+    forbidden: [/\bdeposits?\b/i] },
   { name: "агентств нет", over: { sellerAgentEnabled: "No", buyerAgentEnabled: "No" },
     forbidden: [/\bAgents?\b/, /\bAgenc(y|ies)\b/, /agents’/] },
   { name: "только агентство Продавца", over: { buyerAgentEnabled: "No" },
@@ -44,7 +44,7 @@ const SCENARIOS = [
   { name: "депозит только у Покупателя", over: { sellerDepositEnabled: "No" }, forbidden: [] },
   { name: "депозит только у Продавца", over: { buyerDepositEnabled: "No" }, forbidden: [] },
   { name: "депозитов нет и агентств нет", over: { buyerDepositEnabled: "No", sellerDepositEnabled: "No", sellerAgentEnabled: "No", buyerAgentEnabled: "No" },
-    forbidden: [/Security Deposit/i, /\bAgents?\b/, /\bAgenc(y|ies)\b/] },
+    forbidden: [/\bdeposits?\b/i, /\bAgents?\b/, /\bAgenc(y|ies)\b/] },
 ];
 
 // общие дефекты текста, которые ищем всегда
