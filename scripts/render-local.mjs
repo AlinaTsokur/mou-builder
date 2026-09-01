@@ -62,17 +62,21 @@ export function renderLocal(doc, idx, form, articleDefs) {
     }
   }
 
-  const substitute = (s) => s
+  const substituteMarked = (s) => s
     .replace(/\{\{#row\s+!?[a-z0-9_]+\}\}/g, "")
-    .replace(/\{\{([a-z0-9_]+)\}\}/g, (m, k) => (k in repl ? String(repl[k] ?? "") : m))
-    .replace(/<<|>>/g, "");
+    .replace(/\{\{([a-z0-9_]+)\}\}/g, (m, k) => (k in repl ? String(repl[k] ?? "") : m));
+  const substitute = (s) => substituteMarked(s).replace(/<<|>>/g, "");
 
-  const text = substitute(idx.chars.filter((c) => !deleted.has(key(c.seg, c.i))).map((c) => c.c).join(""));
+  const kept = idx.chars.filter((c) => !deleted.has(key(c.seg, c.i))).map((c) => c.c).join("");
+  const text = substitute(kept);
+  // текст с сохранёнными метками жирного — по нему verify-batch проверяет,
+  // что в готовом документе эти места действительно выделены
+  const textMarked = substituteMarked(kept);
   // пустые строки ищем только в теле и вне таблиц: в плоском тексте каждая ячейка
   // заканчивается переводом строки, и пустая ячейка шапки даёт ложное срабатывание
   const outsideTables = substitute(idx.chars
     .filter((c) => c.seg === "" && !c.inTable && !deleted.has(key(c.seg, c.i)))
     .map((c) => c.c).join(""));
 
-  return { text, outsideTables, data, calc, flags, repl, numbers, cond, rows };
+  return { text, textMarked, outsideTables, data, calc, flags, repl, numbers, cond, rows };
 }

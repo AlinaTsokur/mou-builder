@@ -136,6 +136,30 @@ test("условие внутри ячейки таблицы: false очища�
   assert.ok(text.includes("After"));
 });
 
+test("расширение до целых абзацев не создаёт пересекающихся удалений", () => {
+  // Раскладка ст. 6: блок Покупателя (false) забирает пустую строку-разделитель
+  // «вниз», а маркер Продавца (true) — ту же строку «вверх». До склейки после
+  // расширения диапазоны пересекались, и Google съедал скобку у {{intro}}.
+  const blocks = ["{{#if bd}}", "Buyer para", "{{/if}}", "", "{{#if sd}}", "{{intro}} seller para", "{{/if}}"];
+  const { doc, chars } = buildDoc(blocks);
+  const plan = buildConditionalPlan(doc, { bd: false, sd: true });
+
+  const ranges = plan.requests
+    .map((r) => r.deleteContentRange.range)
+    .sort((a, b) => a.startIndex - b.startIndex);
+  for (let i = 1; i < ranges.length; i += 1) {
+    assert.ok(ranges[i].startIndex >= ranges[i - 1].endIndex, "диапазоны удаления пересекаются");
+  }
+
+  // применяем по очереди, как Google: индексы каждого запроса — в уже сдвинутом тексте
+  let text = Array.from(chars.entries()).sort((a, b) => a[0] - b[0]).map(([, ch]) => ch).join("");
+  for (const request of plan.requests) {
+    const { startIndex, endIndex } = request.deleteContentRange.range;
+    text = text.slice(0, startIndex - 1) + text.slice(endIndex - 1);
+  }
+  assert.ok(text.includes("{{intro}} seller para"), `плейсхолдер повреждён: ${JSON.stringify(text)}`);
+});
+
 test("несбалансированные маркеры попадают в errors", () => {
   const { doc } = buildDoc(["{{#if x}}no close"]);
   const plan = buildConditionalPlan(doc, { x: true });
