@@ -68,6 +68,8 @@ const AXES = {
   sellerChequeKnown: [true, false],
   thirdPartyCheque: [false, true],
   agentFees: ["есть", "выключены"],
+  // состав сторон: один собственник, двое с долями, представитель по доверенности
+  parties: ["один", "двое", "доверенность"],
 };
 
 function combinations(axes) {
@@ -84,10 +86,33 @@ function combinations(axes) {
 const PAID_FOR = { "не добран": PAID_UNDER, "ровно": PAID_EXACT, "сверх": PAID_OVER };
 const DELAYED = { ChequeTiming: "Delayed (within X days)", ChequeDays: "5" };
 
+const PARTY_SETS = {
+  "один": {
+    sellers: [{ salutation: "Mr.", name: "Ivan Petrov", nationality: "Russia", passport: "222", eid: "784-1", ownershipPercent: "100" }],
+    buyers: [{ salutation: "Mrs.", name: "Anna Ivanova", nationality: "Russia", passport: "333", eid: "784-2", ownershipPercent: "100" }],
+  },
+  "двое": {
+    sellers: [
+      { salutation: "Mr.", name: "Ivan Petrov", nationality: "Russia", passport: "222", eid: "784-1", ownershipPercent: "50" },
+      { salutation: "Mrs.", name: "Maria Petrova", nationality: "Russia", passport: "223", eid: "784-3", ownershipPercent: "50" },
+    ],
+    buyers: [
+      { salutation: "Mrs.", name: "Anna Ivanova", nationality: "Russia", passport: "333", eid: "784-2", ownershipPercent: "50" },
+      { salutation: "Mr.", name: "Oleg Ivanov", nationality: "Russia", passport: "334", eid: "784-4", ownershipPercent: "50" },
+    ],
+  },
+  "доверенность": {
+    sellers: [{ salutation: "Mr.", name: "Ivan Petrov", nationality: "Russia", passport: "222", eid: "784-1", ownershipPercent: "100",
+      hasPoa: true, poaName: "Petr Sidorov", poaNationality: "Russia", poaPassport: "555", poaEid: "784-9" }],
+    buyers: [{ salutation: "Mrs.", name: "Anna Ivanova", nationality: "Russia", passport: "333", eid: "784-2", ownershipPercent: "100" }],
+  },
+};
+
 function formFor(c) {
   const feesOn = c.agentFees === "есть";
   return {
     ...BASE,
+    ...PARTY_SETS[c.parties],
     paidAmountToDeveloper: String(PAID_FOR[c.paidThreshold]),
     sellerAgentEnabled: c.sellerAgent ? "Yes" : "No",
     buyerAgentEnabled: c.buyerAgent ? "Yes" : "No",
@@ -270,6 +295,23 @@ for (const c of combos) {
       found.push(`процент остатка: ожидал ${pct}%, в строке «${pctLine.trim().slice(0, 70)}»`);
     }
   }
+
+  // состав сторон: все имена на месте, доли и доверенность не потерялись
+  for (const side of ["sellers", "buyers"]) {
+    for (const person of PARTY_SETS[c.parties][side]) {
+      if (!text.includes(person.name)) found.push(`нет собственника: ${person.name}`);
+      if (!text.includes(`Ownership rights – ${person.ownershipPercent}%`)) {
+        found.push(`нет доли ${person.ownershipPercent}% у ${person.name}`);
+      }
+      if (person.hasPoa && !text.includes(person.poaName)) found.push(`нет представителя: ${person.poaName}`);
+    }
+  }
+  if (c.parties === "доверенность" && !text.includes("Power of Attorney")) {
+    found.push("доверенность есть, а слов Power of Attorney нет");
+  }
+  // подписи: за собственника с доверенностью подписывает представитель
+  const signName = c.parties === "доверенность" ? "Name: Petr Sidorov" : "Name: Ivan Petrov";
+  if (!text.includes(signName)) found.push(`в подписях нет строки «${signName}»`);
 
   // нумерация статей: подряд, без дыр и повторов
   const nums = Array.from(text.matchAll(/^Article (\d+)$/gm), (m) => Number(m[1]));
