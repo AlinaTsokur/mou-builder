@@ -198,8 +198,9 @@ export function buildEdits(D) {
 
   { find: "Upon successful completion of the transfer", replace: "{{#if any_deposit}}Upon successful completion of the transfer" },
   // кому возвращают чеки — зависит от того, чьи депозиты есть
-  { find: "shall be returned to the Buyer and to the Seller or cancelled",
-    replace: "shall be returned to {{deposit_return_parties}} or cancelled" },
+  // 01.09.2026, Алина: при одном депозите чек в единственном числе
+  { find: "cheques shall be returned to the Buyer and to the Seller or cancelled",
+    replace: "cheque{{#if both_deposits}}s{{/if}} shall be returned to {{deposit_return_parties}} or cancelled" },
   { find: "shall not be presented for payment.", replace: "shall not be presented for payment.{{/if}}" },
 
   // ═══ ст. 7 — дефолт Покупателя
@@ -311,11 +312,13 @@ export function buildEdits(D) {
 
   // ответы заказчика: без агентств убрать агентские и Commission Agreement,
   // а в AML написать, что стороны сами предоставляют информацию
+  // 01.09.2026, Алина: упоминание Agency Fee следует за наличием комиссий,
+  // а не агентов — строка Agency Fee в таблице живёт по тому же флагу
   { find: "The Selling Price, the amount payable to the Seller, and the Agency Fee set out",
-    replace: "The Selling Price{{#if any_agent}}, the amount payable to the Seller, and the Agency Fee{{/if}}"
-      + "{{#if !any_agent}} and the amount payable to the Seller{{/if}} set out", note: "ст.4 итоговая строка" },
+    replace: "The Selling Price{{#if any_agent_fee}}, the amount payable to the Seller, and the Agency Fee{{/if}}"
+      + "{{#if !any_agent_fee}} and the amount payable to the Seller{{/if}} set out", note: "ст.4 итоговая строка" },
   { find: "unless otherwise agreed in writing by the Parties or in a separate Commission Agreement.",
-    replace: "unless otherwise agreed in writing by the Parties{{#if any_agent}} or in a separate Commission Agreement{{/if}}.",
+    replace: "unless otherwise agreed in writing by the Parties{{#if any_agent_fee}} or in a separate Commission Agreement{{/if}}.",
     note: "ст.4 Commission Agreement" },
   { find: "The Buyer and Seller shall fully cooperate with their respective Agents by providing all required information",
     replace: "The Buyer and Seller shall {{#if any_agent}}fully cooperate with their respective Agents by providing{{/if}}"

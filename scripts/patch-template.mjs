@@ -15,6 +15,22 @@ const PATCHES = {
       replace: "acceptable to {{#if any_agent}}the Agent and {{/if}}the Parties",
       note: "чек от третьего лица, Продавец" },
   ],
+  // 01.09, согласовано с Алиной: упоминание Agency Fee следует за наличием
+  // комиссий (any_agent_fee), а не агентов; при одном депозите чек в
+  // единственном числе
+  "fee-sentence-and-cheque-plural": [
+    { find: "The Selling Price{{#if any_agent}}, the amount payable to the Seller, and the Agency Fee{{/if}}"
+        + "{{#if !any_agent}} and the amount payable to the Seller{{/if}} set out",
+      replace: "The Selling Price{{#if any_agent_fee}}, the amount payable to the Seller, and the Agency Fee{{/if}}"
+        + "{{#if !any_agent_fee}} and the amount payable to the Seller{{/if}} set out",
+      note: "ст.4 итоговая строка" },
+    { find: "by the Parties{{#if any_agent}} or in a separate Commission Agreement{{/if}}.",
+      replace: "by the Parties{{#if any_agent_fee}} or in a separate Commission Agreement{{/if}}.",
+      note: "ст.4 Commission Agreement" },
+    { find: "Security Deposit cheques shall be returned to {{deposit_return_parties}}",
+      replace: "Security Deposit cheque{{#if both_deposits}}s{{/if}} shall be returned to {{deposit_return_parties}}",
+      note: "ст.6 возврат чеков" },
+  ],
 };
 
 const [documentId, key] = process.argv.slice(2);
