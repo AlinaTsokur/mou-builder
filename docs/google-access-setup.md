@@ -10,6 +10,26 @@ Docs, Drive и Sheets, и он правит документы напрямую,
 
 ---
 
+## Почему другой Клод говорит «не могу править таблицы»
+
+Это почти всегда правда — но про его окружение, а не про Клода вообще.
+Три ситуации:
+
+1. **Клод в приложении claude.ai с коннектором Google Drive.** Коннектор умеет
+   искать файлы, читать их и заменять файл целиком. Точечно править содержимое
+   он не может: у него нет ни Docs API, ни Sheets API — нечем сказать «впиши
+   в ячейку B7» или «замени этот абзац». Это потолок коннектора.
+2. **Клод в терминале, но в проекте нет ключей.** Без `.env.local` с тремя
+   строками ниже доступа нет вообще. Лечится настройкой из этой инструкции,
+   она занимает минут пятнадцать и делается один раз.
+3. **Ключи есть, но протухли.** Приложение осталось в режиме Testing (тогда
+   refresh token умирает через 7 дней) или доступ отозван вручную. Симптом —
+   ошибка `invalid_grant`.
+
+В проекте mou-builder работает второй вариант, уже настроенный: у Клода в
+терминале есть авторизованные клиенты Docs, Drive и Sheets, и он правит файлы
+напрямую в аккаунте Алины — тем же способом, каким человек правит их руками.
+
 ## Что должно получиться
 
 Файл `.env.local` в корне проекта с тремя строками:
@@ -164,6 +184,88 @@ console.log(r.data.files.map((f) => f.name));
 ```
 
 ---
+
+## Таблицы: что именно можно делать
+
+Скоуп `spreadsheets` даёт полный доступ: читать, писать значения, менять
+оформление, добавлять и удалять строки, создавать листы. Проверено на живой
+таблице «MOU Builder» (чтение) и на временной (запись, форматирование, удаление).
+
+`spreadsheetId` — из ссылки: `docs.google.com/spreadsheets/d/<ID>/edit`.
+
+**Прочитать диапазон:**
+
+```js
+import { getBotClients } from "./scripts/google-bot.mjs";
+const { sheets } = getBotClients();
+const spreadsheetId = "1cDlPWsD4gmmbzdaV0spVxLNSAedEXZruizYYtnn7CsQ";
+
+const r = await sheets.spreadsheets.values.get({ spreadsheetId, range: "AGENTS!A1:F50" });
+console.log(r.data.values); // массив массивов; хвостовые пустые ячейки просто отсутствуют
+```
+
+**Узнать, какие есть листы и их `sheetId`** (нужен для форматирования — это не то же
+самое, что `spreadsheetId`):
+
+```js
+const meta = await sheets.spreadsheets.get({
+  spreadsheetId, fields: "properties.title,sheets.properties(sheetId,title)",
+});
+```
+
+**Записать значения:**
+
+```js
+await sheets.spreadsheets.values.update({
+  spreadsheetId, range: "AGENTS!B7:C7",
+  valueInputOption: "USER_ENTERED", // как будто набрали руками: формулы и даты распознаются
+  requestBody: { values: [["Новое имя", "CN-1234567"]] },
+});
+```
+
+`RAW` кладёт текст как есть — `=A2*2` останется строкой. Для формул и дат нужен
+`USER_ENTERED`.
+
+**Дописать строку в конец:**
+
+```js
+await sheets.spreadsheets.values.append({
+  spreadsheetId, range: "DRAFTS_LOG!A:E",
+  valueInputOption: "USER_ENTERED", insertDataOption: "INSERT_ROWS",
+  requestBody: { values: [["2026-09-04", "off-plan №1", "готово"]] },
+});
+```
+
+**Оформление, строки, листы — через `batchUpdate`** (здесь `sheetId`, не `spreadsheetId`):
+
+```js
+await sheets.spreadsheets.batchUpdate({
+  spreadsheetId,
+  requestBody: { requests: [
+    { repeatCell: {                                  // шапка жирным
+      range: { sheetId: 0, startRowIndex: 0, endRowIndex: 1 },
+      cell: { userEnteredFormat: { textFormat: { bold: true } } },
+      fields: "userEnteredFormat.textFormat.bold" } },
+    { insertDimension: {                             // вставить строку
+      range: { sheetId: 0, dimension: "ROWS", startIndex: 5, endIndex: 6 } } },
+  ] },
+});
+```
+
+Индексы в `batchUpdate` считаются с нуля и не включают правую границу:
+`startRowIndex: 0, endRowIndex: 1` — это первая строка.
+
+---
+
+## Если что-то не работает
+
+| Ошибка | Причина | Что делать |
+|---|---|---|
+| `invalid_grant` | токен отозван, или приложение в режиме Testing и токену больше 7 дней | Publish app в консоли, затем заново `node scripts/google-auth.mjs` |
+| `403 insufficient authentication scopes` | нужный скоуп не выдавался | добавить скоуп в `SCOPES` и пере-авторизоваться с `prompt: "consent"` |
+| `404 File not found` | файл принадлежит другому аккаунту или доступ не открыт | проверить, что согласие давалось под `tsokuraline@gmail.com` |
+| `429` / `503` | превышен лимит запросов | пауза 1,1 с между записями, повтор с нарастающей задержкой |
+| Google не вернул refresh token | забыт `access_type: "offline"` или `prompt: "consent"` | вернуть оба параметра и авторизоваться заново |
 
 ## Что важно знать заранее
 
