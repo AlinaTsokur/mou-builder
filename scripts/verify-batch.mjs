@@ -1,5 +1,5 @@
 // Сверка готовых договоров из папки тестов с локальным рендером:
-//   node scripts/verify-batch.mjs <folderId> [templateId]
+//   node scripts/verify-batch.mjs <folderId> [templateId] [--mortgage]
 // Для каждого сценария из batch-scenarios.mjs:
 //   1) в документе не осталось маркеров ({{ }} << >>);
 //   2) текст документа совпадает с локальным рендером слово в слово (все сегменты);
@@ -7,11 +7,17 @@
 import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
 import { renderLocal } from "./render-local.mjs";
-import { BASE, SCENARIOS } from "./batch-scenarios.mjs";
-import { ARTICLE_DEFS_OFFPLAN_V2 } from "../lib/mou/articles.js";
+import { baseFor, SCENARIOS } from "./batch-scenarios.mjs";
+import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 } from "../lib/mou/articles.js";
 
-const folderId = process.argv[2];
-const templateId = process.argv[3] || "1LLMqzZ1xeSPzVOhVahG4B8l9bQx0KggFBvZUynOY8bU";
+const MORTGAGE = process.argv.includes("--mortgage");
+const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : ARTICLE_DEFS_OFFPLAN_V2;
+const BASE = baseFor(MORTGAGE);
+const positional = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const folderId = positional[0];
+const templateId = positional[1] || (MORTGAGE
+  ? "1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g"
+  : "1LLMqzZ1xeSPzVOhVahG4B8l9bQx0KggFBvZUynOY8bU");
 if (!folderId) throw new Error("укажи ID папки с тестовыми договорами");
 
 const { docs, drive } = getBotClients();
@@ -52,7 +58,7 @@ for (const [name, over] of SCENARIOS) {
   const leftovers = got.match(/\{\{[^}]*\}\}|\{\{|\}\}|<<|>>/g);
   if (leftovers) problems.push(`остались маркеры: ${[...new Set(leftovers)].join(" ")}`);
 
-  const local = renderLocal(templateDoc, templateIdx, { ...BASE, ...over }, ARTICLE_DEFS_OFFPLAN_V2);
+  const local = renderLocal(templateDoc, templateIdx, { ...BASE, ...over }, DEFS);
 
   if (norm(got) !== norm(local.text)) {
     problems.push(`текст расходится с рендером:\n  ${firstDiff(norm(got), norm(local.text))}`);

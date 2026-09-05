@@ -83,6 +83,9 @@ const initialForm = {
   developerLegalName: "",
   escrowAccountName: "",
   admAdminFee: "",
+  admFee: "",
+  admElectronicFee: "",
+  admValuationFee: "",
   transferFeeLabel: "",
   titleDeedNumber: "",
   propertyLocation: "",
@@ -259,6 +262,9 @@ const tips = {
   developerLegalName: "Полное юридическое имя developer (застройщика) для payment table (таблицы платежей) и transfer/NOC fee.",
   escrowAccountName: "Escrow account (эскроу-счет застройщика), куда Buyer (покупатель) платит суммы, связанные с developer. Если нет, оставьте пустым.",
   admAdminFee: "Административная часть ADM Fee (сбора Abu Dhabi Municipality). Обычно подставляется автоматически, но ее можно исправить вручную.",
+  admFee: "ADM Fee для ипотечной сделки: 2% от Selling Price или по оценке ADM (что выше). По умолчанию считается 2%, после оценки можно вписать свою сумму.",
+  admElectronicFee: "ADM Electronic Fee — электронный сбор ADREC, платит Buyer картой после оценки. По умолчанию AED 1,392.",
+  admValuationFee: "ADM Valuation Certificate — сертификат оценки ADREC, платит Buyer по запросу. По умолчанию AED 925.75.",
   transferFeeLabel: "Название строки: Transfer Fee или NOC Fee.",
   titleDeedNumber: "Номер title deed (документа о праве собственности). Если для Off-Plan его нет, оставьте пустым.",
   propertyLocation: "Можно указать только остров/район, например Yas Island. Abu Dhabi, UAE добавится автоматически.",
@@ -368,7 +374,7 @@ function depositSectionStatus(form, side) {
   return makeSectionStatus(missing);
 }
 
-function buildSectionStatuses(form, reservationMode, reservationDays) {
+function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage = false) {
   const isReady = String(form.unitStatus || "").toLowerCase() === "ready";
   const agreementMissing = missingFields(form, [
     ["agreementDate", "Agreement Date"],
@@ -400,10 +406,17 @@ function buildSectionStatuses(form, reservationMode, reservationDays) {
     ["developerLegalName", "Developer Legal Name"],
   ];
   if (!isReady) projectRequired.push(["escrowAccountName", "Escrow Account Name"]);
-  projectRequired.push(
-    ["admAdminFee", "ADM Admin Fee"],
-    ["transferFeeLabel", "Transfer Fee Label"],
-  );
+  // ипотечный off-plan: вместо админ-части — три отдельные суммы ADM
+  if (isMortgage) {
+    projectRequired.push(
+      ["admFee", "ADM Fee"],
+      ["admElectronicFee", "ADM Electronic Fee"],
+      ["admValuationFee", "ADM Valuation Certificate"],
+    );
+  } else {
+    projectRequired.push(["admAdminFee", "ADM Admin Fee"]);
+  }
+  projectRequired.push(["transferFeeLabel", "Transfer Fee Label"]);
 
   return {
     agreement: makeSectionStatus(agreementMissing),
@@ -485,10 +498,21 @@ export default function HomePage() {
 
   const lists = init.lists || {};
   const projectNames = useMemo(() => init.projects.map((p) => p.project_name).filter(Boolean), [init.projects]);
+  const selectedTemplate = (init.config?.templates || []).find((t) => t.id === templateId);
+  const isMortgage = !!selectedTemplate?.mortgage;
   const sectionStatuses = useMemo(
-    () => buildSectionStatuses(form, reservationMode, reservationDays),
-    [form, reservationMode, reservationDays],
+    () => buildSectionStatuses(form, reservationMode, reservationDays, isMortgage),
+    [form, reservationMode, reservationDays, isMortgage],
   );
+
+  // Ипотечный шаблон: ADM-сборы заполняются сами, но остаются редактируемыми
+  // (ответ Миши, 04.09.2026). ADM Fee считается на сервере (2% от Selling Price)
+  // и показывается как автозначение; фиксированные сборы подставляем один раз.
+  useEffect(() => {
+    if (!isMortgage) return;
+    if (form.admElectronicFee !== "" || form.admValuationFee !== "") return;
+    setForm((current) => ({ ...current, admElectronicFee: "1,392", admValuationFee: "925.75" }));
+  }, [isMortgage, form.admElectronicFee, form.admValuationFee]);
   const hasTemplateChoice = (init.config?.templates || []).length > 1;
   const navItems = useMemo(() => {
     const items = [];
@@ -518,7 +542,6 @@ export default function HomePage() {
   const isCashToCash = String(form.unitStatus || "").toLowerCase() === "ready";
   // Список статей берём у выбранного шаблона: у v2 своя нумерация (17 статей),
   // условия живут в самом шаблоне, поэтому старый список сюда не подходит.
-  const selectedTemplate = (init.config?.templates || []).find((t) => t.id === templateId);
   const currentArticleDefs = getArticleDefsForTemplate(selectedTemplate, form.unitStatus);
   const holidaysInRange = useMemo(
     () => getHolidaysInRange(form.agreementDate, form.reservationDeadline),
@@ -855,7 +878,15 @@ export default function HomePage() {
             <Field id="developerName" label="Developer Name" tip={tips.developerName} value={form.developerName} onChange={patch} />
             <Field id="developerLegalName" label="Developer Legal Name" tip={tips.developerLegalName} value={form.developerLegalName} onChange={patch} />
             {!isCashToCash && <Field id="escrowAccountName" label="Escrow Account Name" tip={tips.escrowAccountName} value={form.escrowAccountName} onChange={patch} />}
-            <AutoMoneyField id="admAdminFee" label="ADM Admin Fee" tip={tips.admAdminFee} value={form.admAdminFee} onChange={patch} />
+            {isMortgage ? (
+              <>
+                <AutoMoneyField id="admFee" label="ADM Fee (2% or ADM valuation)" tip={tips.admFee} value={form.admFee} autoValue={preview?.summary?.admFee} onChange={patch} placeholder="Посчитается автоматически" />
+                <AutoMoneyField id="admElectronicFee" label="ADM Electronic Fee" tip={tips.admElectronicFee} value={form.admElectronicFee} onChange={patch} />
+                <AutoMoneyField id="admValuationFee" label="ADM Valuation Certificate" tip={tips.admValuationFee} value={form.admValuationFee} onChange={patch} />
+              </>
+            ) : (
+              <AutoMoneyField id="admAdminFee" label="ADM Admin Fee" tip={tips.admAdminFee} value={form.admAdminFee} onChange={patch} />
+            )}
             <Field id="transferFeeLabel" label="Transfer Fee Label" tip={tips.transferFeeLabel} value={form.transferFeeLabel} onChange={patch} />
           </Section>
 

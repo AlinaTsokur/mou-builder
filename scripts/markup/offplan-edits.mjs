@@ -38,8 +38,63 @@ function article5Refs(count) {
   }));
 }
 
+// Статьи 7–8 ипотечного шаблона (№2). Отличия от №1: в ст.7 нет маркера перед
+// «Upon Buyer Default», в ст.8 нет второй фразы «The forfeited…» и маркеров,
+// строки a)/b) в ст.8 разделены мягким переносом, после «Agent» стоит точка.
+// Итоговая разметка та же, что у №1: без депозита у стороны — фраза про
+// liquidated damages, с депозитом — распределение удержанного депозита.
+function article78Mortgage(D) {
+  return [
+    // ═══ ст. 7 — дефолт Покупателя
+    { find: "Upon Buyer Default", insertBefore: "{{#if !buyer_deposit}}", note: "ст.7 открыть !buyer_deposit" },
+    { find: "AED 528,013", replace: "AED {{buyer_liquidated_damages_amount}}", within: "Upon Buyer Default" },
+    { find: ", being an amount equal to the Security Deposit", within: "Upon Buyer Default",
+      replace: "{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}", note: "ст.7 без депозитов" },
+    { find: "This amount shall be distributed as follows:", nth: 0,
+      replace: "{{#if any_deposit}}This amount shall be distributed as follows:{{/if}}{{/if}}", note: "ст.7 закрыть !buyer_deposit" },
+    { find: "__", replace: "{{#if buyer_deposit}}", nth: 0, note: "ст.7 открыть buyer_deposit" },
+    { find: "The forfeited Security Deposit shall be distributed as follows:", nth: 0,
+      replace: "The forfeited Security Deposit shall be distributed as follows:{{/if}}", note: "ст.7 закрыть buyer_deposit" },
+    { find: D.buyerLd80, replace: "AED {{buyer_deposit_80_percent_amount}}" },
+    { find: D.buyerLd20, replace: "AED {{buyer_deposit_20_percent_amount}}" },
+    { find: "a) 80% (AED {{buyer_deposit_80_percent_amount}}) to the Seller; and",
+      insertBefore: "{{#if any_deposit}}{{#if seller_agent}}", note: "ст.7 открыть распределение" },
+    // точка после «Agent» уходит внутрь условия, иначе без депозитов останется голая точка
+    { find: "b) 20% (AED {{buyer_deposit_20_percent_amount}}) to the Seller’s Agent.",
+      replace: "b) 20% (AED {{buyer_deposit_20_percent_amount}}) to the Seller’s Agent.{{/if}}"
+        + "{{#if !seller_agent}}\na) 100% (AED {{buyer_deposit_80_percent_amount}}) to the Seller.{{/if}}{{/if}}",
+      note: "ст.7 вариант без агентства Продавца" },
+    { find: "against the Seller or the Seller’s Agent arising",
+      replace: "against the Seller{{#if seller_agent}} or the Seller’s Agent{{/if}} arising" },
+
+    // ═══ ст. 8 — дефолт Продавца
+    { find: "Upon Seller Default", insertBefore: "{{#if !seller_deposit}}", note: "ст.8 открыть !seller_deposit" },
+    { find: "AED 528,013", replace: "AED {{seller_liquidated_damages_amount}}", within: "Upon Seller Default" },
+    { find: ", being an amount equal to the Security Deposit", within: "Upon Seller Default",
+      replace: "{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}", note: "ст.8 без депозитов" },
+    // второй фразы «The forfeited…» у Продавца в №2 нет — добавляем её, как в №1
+    { find: "This amount shall be distributed as follows:", nth: 1,
+      replace: "{{#if any_deposit}}This amount shall be distributed as follows:{{/if}}{{/if}}"
+        + "{{#if seller_deposit}}The forfeited Security Deposit shall be distributed as follows:{{/if}}",
+      note: "ст.8 пара фраз про распределение" },
+    { find: D.sellerLd80, replace: "AED {{seller_deposit_80_percent_amount}}" },
+    { find: D.sellerLd20, replace: "AED {{seller_deposit_20_percent_amount}}" },
+    { find: "a) 80% (AED {{seller_deposit_80_percent_amount}}) to the Buyer; and",
+      insertBefore: "{{#if any_deposit}}{{#if buyer_agent}}", note: "ст.8 открыть распределение" },
+    // строки a)/b) разделены мягким переносом, поэтому перед «100%» нет «\n»
+    { find: "b) 20% (AED {{seller_deposit_20_percent_amount}}) to the Buyer’s Agent.",
+      replace: "b) 20% (AED {{seller_deposit_20_percent_amount}}) to the Buyer’s Agent.{{/if}}"
+        + "{{#if !buyer_agent}}a) 100% (AED {{seller_deposit_80_percent_amount}}) to the Buyer.{{/if}}{{/if}}",
+      note: "ст.8 вариант без агентства Покупателя" },
+    { find: "against the Buyer or the Buyer’s Agent arising",
+      replace: "against the Buyer{{#if buyer_agent}} or the Buyer’s Agent{{/if}} arising" },
+  ];
+}
+
 export function buildEdits(D) {
   return [
+  // правки, которые надо сделать до общих: у документа свои разделители и ссылки
+  ...(D.pre || []),
 
   // ═══ шапка
   { find: D.agreementDate, replace: "{{agreement_date}}" },
@@ -102,7 +157,9 @@ export function buildEdits(D) {
   { find: "AED 0,000,000.00", replace: "AED {{original_price}}", within: "as per the SPA issued by the" },
   { find: "AED 0,000,000.00", replace: "AED {{selling_price}}", within: "as agreed by the" },
   { find: "AED 0,000,000.00", replace: "AED {{amount_to_seller}}", within: "to be paid by the" },
-  { find: D.amountToSellerText, replace: "{{amount_to_seller_payment_text}}", note: "способ оплаты (точка внутри значения)" },
+  ...(D.amountToSellerText
+    ? [{ find: D.amountToSellerText, replace: "{{amount_to_seller_payment_text}}", note: "способ оплаты (точка внутри значения)" }]
+    : []),
 
   ...(D.hasThresholdRow ? thresholdRowHead() : []),
 
@@ -118,9 +175,11 @@ export function buildEdits(D) {
   { find: "Transfer Fee / NOC Fee:", replace: "{{transfer_fee_label}}:" },
   { find: "AED 4,000.00", replace: "AED {{transfer_fee}}" },
   { find: "ALDAR PROPERTIES PJSC", replace: "{{developer_legal_name}}" },
-  { find: "AED 00,000.00", replace: "AED {{adm_fee}}", within: "2% from the" },
-  { find: D.admAdminFee, replace: "AED {{adm_admin_fee}}" },
-  { find: D.admFeePayee, replace: "{{adm_fee_payee}}" },
+  ...(D.admEdits || [
+    { find: "AED 00,000.00", replace: "AED {{adm_fee}}", within: "2% from the" },
+    { find: D.admAdminFee, replace: "AED {{adm_admin_fee}}" },
+    { find: D.admFeePayee, replace: "{{adm_fee_payee}}" },
+  ]),
 
   { find: "Security deposit:", replace: "{{#row any_deposit}}Security deposit:" },
   // строку целиком собирает движок: при проценте — «10% of the Selling Price…»,
@@ -203,6 +262,7 @@ export function buildEdits(D) {
     replace: "cheque{{#if both_deposits}}s{{/if}} shall be returned to {{deposit_return_parties}} or cancelled" },
   { find: "shall not be presented for payment.", replace: "shall not be presented for payment.{{/if}}" },
 
+  ...(D.article78 === "mortgage" ? [] : [
   // ═══ ст. 7 — дефолт Покупателя
   { find: "__", replace: "{{#if !buyer_deposit}}", nth: 0 },
   { find: "AED 528,013", replace: "AED {{buyer_liquidated_damages_amount}}", within: "Upon Buyer Default" },
@@ -222,6 +282,7 @@ export function buildEdits(D) {
     replace: "The forfeited Security Deposit shall be distributed as follows:{{/if}}", nth: 1 },
   { find: D.sellerLd80, replace: "AED {{seller_deposit_80_percent_amount}}" },
   { find: D.sellerLd20, replace: "AED {{seller_deposit_20_percent_amount}}" },
+  ]),
 
   // ═══ ст. 9 — освобождение депозита
   { find: "If Article 7 or Article 8 applies", replace: "{{#if any_deposit}}If Article 7 or Article 8 applies" },
@@ -241,9 +302,14 @@ export function buildEdits(D) {
     { find: "in relation to this MOU.", replace: "in relation to this MOU.{{/if}}", within: "hold harmless" },
 
   // ═══ подписи агентств
-  { find: "SELLER’S AGENCY", replace: "{{#if seller_agent}}SELLER’S AGENCY" },
+  // В №2 между блоками подписей пустые абзацы-разделители: открывающий маркер там
+  // цепляется к концу предыдущего абзаца (см. extra в OFFPLAN_MORTGAGE), чтобы
+  // разделитель уходил вместе с блоком, а не оставался лишней пустой строкой.
+  ...(D.agencyMarkersAfterPrevious ? [] : [
+    { find: "SELLER’S AGENCY", replace: "{{#if seller_agent}}SELLER’S AGENCY" },
+    { find: "BUYER’S AGENCY", replace: "{{#if buyer_agent}}BUYER’S AGENCY" },
+  ]),
   { find: "Company Stamp", replace: "Company Stamp{{/if}}", nth: 0 },
-  { find: "BUYER’S AGENCY", replace: "{{#if buyer_agent}}BUYER’S AGENCY" },
   { find: "Company Stamp", replace: "Company Stamp{{/if}}", nth: 1 },
 
   // представитель подтягивается из вкладки AGENTS, вручную вписывать не надо
@@ -280,6 +346,7 @@ export function buildEdits(D) {
   { find: "Article {{article_deposit_release_number}}", insertBefore: "{{#if any_deposit}}", note: "открыть ст.9 целиком" },
   { find: "No unilateral instruction from either Party shall authorize its release.{{/if}}",
     replace: "No unilateral instruction from either Party shall authorize its release.{{/if}}{{/if}}", note: "закрыть ст.9 целиком" },
+  ...(D.article78 === "mortgage" ? [] : [
   // ═══ варианты «без агентства» — как в эталоне templates/offplan-v2-template.md
   // ст. 7: без агентства продавца всё достаётся Продавцу, строка b) исчезает
   { find: "a) 80% (AED {{buyer_deposit_80_percent_amount}}) to the Seller; and", insertBefore: "{{#if seller_agent}}" },
@@ -296,6 +363,7 @@ export function buildEdits(D) {
       + "{{#if !buyer_agent}}\na) 100% (AED {{seller_deposit_80_percent_amount}}) to the Buyer{{/if}}" },
   { find: "against the Buyer or the Buyer’s Agent arising",
     replace: "against the Buyer{{#if buyer_agent}} or the Buyer’s Agent{{/if}} arising" },
+  ]),
 
   // ст. 9: без агентства депозит держат и освобождают сами стороны
   { find: "shall be released by the Agent strictly",
@@ -324,6 +392,7 @@ export function buildEdits(D) {
     replace: "The Buyer and Seller shall {{#if any_agent}}fully cooperate with their respective Agents by providing{{/if}}"
       + "{{#if !any_agent}}provide{{/if}} all required information", note: "ст.14 AML" },
 
+  ...(D.article78 === "mortgage" ? article78Mortgage(D) : [
   // Шаблон 1.2 (депозитов нет ни у кого) — главный для этого случая:
   // там нет ни фразы про Security Deposit, ни распределения 80/20.
   { find: "{{buyer_liquidated_damages_amount}} as liquidated damages, being an amount equal to the Security Deposit, "
@@ -344,6 +413,7 @@ export function buildEdits(D) {
     insertBefore: "{{#if any_deposit}}", note: "ст.8 открыть распределение" },
   { find: "a) 100% (AED {{seller_deposit_80_percent_amount}}) to the Buyer{{/if}}",
     replace: "a) 100% (AED {{seller_deposit_80_percent_amount}}) to the Buyer{{/if}}{{/if}}", note: "ст.8 закрыть распределение" },
+  ]),
 
   { find: "disbursement of the deposit and balance.",
     replace: "disbursement of the {{#if any_deposit}}deposit and {{/if}}balance.", note: "расходы без депозита" },

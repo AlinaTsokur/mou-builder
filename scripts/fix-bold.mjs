@@ -1,5 +1,5 @@
 // Вернуть начертание в размеченном шаблоне:
-//   node scripts/fix-bold.mjs <размеченный> [эталон до разметки]
+//   node scripts/fix-bold.mjs <размеченный> [эталон до разметки] [--mortgage]
 //
 // Два шага. Первый — список BOLD_REPAIR: там, где текст заменён плейсхолдером
 // и сравнивать не с чем (суммы, имя банка, дата), начертание задано вручную.
@@ -8,7 +8,7 @@
 // Обе операции идемпотентные, запускать можно сколько угодно раз.
 import { getBotClients } from "./google-bot.mjs";
 import { applyEdits } from "./docs-edit.mjs";
-import { BOLD_REPAIR } from "./markup/bold-repair.mjs";
+import { BOLD_REPAIR, BOLD_REPAIR_MORTGAGE } from "./markup/bold-repair.mjs";
 import { alignWords } from "./markup/word-align.mjs";
 
 const WORD = /[\p{L}\p{N}%]+/gu;
@@ -80,13 +80,15 @@ function words(p) {
   return out;
 }
 
-const [markedId, referenceId] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const REPAIRS = args.includes("--mortgage") ? BOLD_REPAIR_MORTGAGE : BOLD_REPAIR;
+const [markedId, referenceId] = args.filter((a) => !a.startsWith("--"));
 if (!markedId) throw new Error("укажи ID размеченного документа");
 
 const { docs } = getBotClients();
 
-const res = await applyEdits(docs, markedId, BOLD_REPAIR);
-console.log(`список BOLD_REPAIR: применено ${res.done.length} из ${BOLD_REPAIR.length}`);
+const res = await applyEdits(docs, markedId, REPAIRS);
+console.log(`список BOLD_REPAIR: применено ${res.done.length} из ${REPAIRS.length}`);
 res.failed.forEach((f) => console.log("   ——", f));
 // частично применённая правка — не успех: шаблон остаётся в промежуточном виде
 if (res.failed.length) process.exitCode = 1;

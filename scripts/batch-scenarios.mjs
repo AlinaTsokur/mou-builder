@@ -1,5 +1,6 @@
 // Сценарии пакета договоров для проверки глазами.
 // Используются в двух местах: generate-batch.mjs (генерация) и verify-batch.mjs (сверка).
+// Для ипотечного шаблона (№2) те же сценарии, но с полями ADM-сборов — см. baseFor().
 
 export const BASE = {
   agreementDate: "31/08/2026", reservationDeadline: "30/09/2026",
@@ -47,6 +48,14 @@ export const TWO_BUYERS = [
   { salutation: "Mr.", name: "Oleg Ivanov", nationality: "Russian Federation",
     passport: "755667789", eid: "784-1992-1111111-3", ownershipPercent: "50" },
 ];
+
+// Ипотечный off-plan: ADM Fee считается сам (2% от Selling Price), две строки
+// фиксированные (ответ Миши, 04.09.2026)
+export const MORTGAGE_FIELDS = { admAdminFee: "", admElectronicFee: "1,392", admValuationFee: "925.75" };
+
+export function baseFor(mortgage) {
+  return mortgage ? { ...BASE, ...MORTGAGE_FIELDS } : BASE;
+}
 
 export const SCENARIOS = [
   ["01 всё включено, 1+1 собственник", {}],

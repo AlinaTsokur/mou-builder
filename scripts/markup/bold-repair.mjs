@@ -40,3 +40,7 @@ export const BOLD_REPAIR = [
   { find: "AED {{seller_deposit_80_percent_amount}}", bold: true,
     within: "a) 100% (AED {{seller_deposit_80_percent_amount}})", note: "жирный: ст.8 100% сумма" },
 ];
+
+// Ипотечный шаблон (№2): те же места, только «Buyer’s Agent» с заглавной буквы.
+export const BOLD_REPAIR_MORTGAGE = BOLD_REPAIR.map((e) =>
+  (e.find === "Buyer’s agent" ? { ...e, find: "Buyer’s Agent" } : e));

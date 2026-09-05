@@ -7,7 +7,7 @@ import {
   buildSignatureTableStyleRequests,
 } from "../lib/google/docs.js";
 import { buildArticleNumbers, DEFAULT_RULES } from "../lib/mou/articles.js";
-import { buildPreview, buildReplacements, calculate, formatLongDate, normalizeForm, validateMou } from "../lib/mou/core.js";
+import { buildPreview, buildReplacements, buildReplacementsV2, calculate, formatLongDate, normalizeForm, validateMou } from "../lib/mou/core.js";
 
 function base(overrides = {}) {
   return normalizeForm({
@@ -578,4 +578,23 @@ test("значения порога из формы прижимаются к н
   }));
   assert.equal(manual.thresholdTopUpAmount, 0);
   assert.equal(manual.remainingDeveloperBalance, 0);
+});
+
+test("ADM-сборы ипотечного шаблона: ручное значение перекрывает 2%, без админ-части — чистые 2%", () => {
+  const base = { sellingPrice: "5,326,085", originalPrice: "4,000,000", paidAmountToDeveloper: "1,200,000",
+    transferThresholdPercent: "30", unitStatus: "Off-plan" };
+  const auto = calculate(normalizeForm({ ...base, admElectronicFee: "1,392", admValuationFee: "925.75" }));
+  assert.equal(auto.admFee, 5326085 * 0.02);
+  const manual = calculate(normalizeForm({ ...base, admFee: "110,000" }));
+  assert.equal(manual.admFee, 110000);
+  const data = normalizeForm({ ...base, admElectronicFee: "1,392", admValuationFee: "925.75" });
+  const r = buildReplacementsV2(data, calculate(data), {});
+  assert.equal(r.adm_fee, "106,521.70");
+  assert.equal(r.adm_electronic_fee, "1,392.00");
+  assert.equal(r.adm_valuation_fee, "925.75");
+});
+
+test("ADM Fee №1 с админ-частью считается по-прежнему", () => {
+  const calc = calculate(normalizeForm({ sellingPrice: "1,000,000", admAdminFee: "575", unitStatus: "Off-plan" }));
+  assert.equal(calc.admFee, 20000 + 575);
 });

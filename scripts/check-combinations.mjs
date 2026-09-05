@@ -1,5 +1,7 @@
 // Полный перебор вариантов сделки по шаблону off-plan:
-//   node scripts/check-combinations.mjs <documentId>
+//   node scripts/check-combinations.mjs <documentId> [--mortgage]
+// --mortgage — шаблон №2 (ипотека Покупателя): 18 статей, три строки ADM-сборов,
+// ссылки на статьи про банк в ст.7–8.
 //
 // Для каждой комбинации рендерит договор целиком и проверяет две вещи:
 //   1. текст — нет запрещённых слов, маркеров, оборванных фраз, пустых строк;
@@ -8,13 +10,19 @@
 import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
 import { renderLocal } from "./render-local.mjs";
-import { ARTICLE_DEFS_OFFPLAN_V2 } from "../lib/mou/articles.js";
+import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 } from "../lib/mou/articles.js";
+
+const MORTGAGE = process.argv.includes("--mortgage");
+const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : ARTICLE_DEFS_OFFPLAN_V2;
 
 // ───────── условия сделки, общие для всех комбинаций
 const SELLING = 1670000;
 const ORIGINAL = 1494050;
 const THRESHOLD_PCT = 30;
 const ADM_ADMIN = 575;
+// ипотечный шаблон: ADM Fee — чистые 2%, плюс две фиксированные строки
+const ADM_ELECTRONIC = 1392;
+const ADM_VALUATION = 925.75;
 const TRANSFER_FEE = 4000;
 const AMOUNT_TO_SELLER = 900000;
 const AGENCY_FEE_SELLER = 33400;
@@ -33,7 +41,10 @@ const PAID_OVER = 700000;                // больше порога — доб
 const BASE = {
   agreementDate: "28/01/2026", reservationDeadline: "28/02/2026",
   sellingPrice: String(SELLING), originalPrice: String(ORIGINAL),
-  transferThresholdPercent: String(THRESHOLD_PCT), admAdminFee: String(ADM_ADMIN),
+  transferThresholdPercent: String(THRESHOLD_PCT),
+  ...(MORTGAGE
+    ? { admAdminFee: "", admElectronicFee: String(ADM_ELECTRONIC), admValuationFee: String(ADM_VALUATION) }
+    : { admAdminFee: String(ADM_ADMIN) }),
   transferFee: String(TRANSFER_FEE), transferFeeLabel: "Transfer Fee / NOC Fee",
   amountToSeller: String(AMOUNT_TO_SELLER), unitStatus: "Off-plan",
   developerName: "ALDAR DEVELOPMENT L.L.C – O.P.C", developerLegalName: "ALDAR PROPERTIES PJSC",
@@ -154,9 +165,10 @@ function expected(c) {
   const sellerLd80 = c.buyerAgent ? sellerLd * 0.8 : sellerLd;
   const sellerLd20 = c.buyerAgent ? sellerLd * 0.2 : null;
 
+  const admFee = MORTGAGE ? SELLING * 0.02 : SELLING * 0.02 + ADM_ADMIN;
   const amounts = [
-    ORIGINAL, SELLING, toSeller, remaining, TRANSFER_FEE,
-    SELLING * 0.02 + ADM_ADMIN, ADM_ADMIN,
+    ORIGINAL, SELLING, toSeller, remaining, TRANSFER_FEE, admFee,
+    ...(MORTGAGE ? [ADM_ELECTRONIC, ADM_VALUATION] : [ADM_ADMIN]),
     buyerLd, sellerLd, buyerLd80, sellerLd80,
   ];
   if (topUp > 0) amounts.push(topUp);
@@ -173,9 +185,9 @@ function expected(c) {
   return {
     topUp, remaining, toSeller, remainingPct, buyerDep, sellerDep,
     buyerLd, sellerLd, buyerLd80, buyerLd20, sellerLd80, sellerLd20,
-    feesOn,
+    feesOn, admFee,
     money: new Set(amounts.map(fmt)),
-    articleCount: ARTICLE_DEFS_OFFPLAN_V2.length - (buyerDep === "" && sellerDep === "" ? 2 : 0),
+    articleCount: DEFS.length - (buyerDep === "" && sellerDep === "" ? 2 : 0),
   };
 }
 
@@ -203,7 +215,7 @@ const failures = [];
 
 for (const c of combos) {
   const name = Object.entries(c).map(([k, v]) => `${k}=${v}`).join(" ");
-  const { text, outsideTables, cond, rows } = renderLocal(doc, idx, formFor(c), ARTICLE_DEFS_OFFPLAN_V2);
+  const { text, outsideTables, cond, rows, numbers } = renderLocal(doc, idx, formFor(c), DEFS);
   const e = expected(c);
   let found = [];
 
@@ -265,7 +277,11 @@ for (const c of combos) {
   inRow("Selling Price", "as agreed by the Parties", SELLING);
   inRow("Amount to Seller", "to be paid by the Buyer to the Seller on the Transfer Date", e.toSeller);
   inRow("остаток застройщику", "of the Original Price to be paid to the Developer", e.remaining);
-  inRow("ADM Fee", "2% from the Selling Price", SELLING * 0.02 + ADM_ADMIN);
+  inRow("ADM Fee", "2% from the Selling Price", e.admFee);
+  if (MORTGAGE) {
+    inRow("ADM Electronic Fee", "ADM Electronic Fee:", ADM_ELECTRONIC);
+    inRow("ADM Valuation Certificate", "ADM Valuation Certificate:", ADM_VALUATION);
+  }
   inRow("Transfer Fee", "Transfer Fee", TRANSFER_FEE);
   if (e.topUp > 0) inRow("добор порога", "Remaining balance to complete", e.topUp);
   if (e.buyerDep !== "") inRow("депозит Покупателя", "provided by the Buyer to the Seller", e.buyerDep);
@@ -284,7 +300,8 @@ for (const c of combos) {
     inRow("доля Покупателю при дефолте Продавца",
       c.buyerAgent ? "to the Buyer; and" : ["a) 100%", "to the Buyer"], e.sellerLd80);
     if (c.sellerAgent) inRow("доля агенту Продавца", "to the Seller’s Agent", e.buyerLd20);
-    if (c.buyerAgent) inRow("доля агенту Покупателя", "to the Buyer’s agent", e.sellerLd20);
+    // в №1 «Buyer’s agent», в №2 «Buyer’s Agent» — ищем без учёта последней буквы
+    if (c.buyerAgent) inRow("доля агенту Покупателя", ["b) 20%", "to the Buyer’s"], e.sellerLd20);
   }
 
   // процент остатка застройщику — в подписи строки таблицы
@@ -312,6 +329,19 @@ for (const c of combos) {
   // подписи: за собственника с доверенностью подписывает представитель
   const signName = c.parties === "доверенность" ? "Name: Petr Sidorov" : "Name: Ivan Petrov";
   if (!text.includes(signName)) found.push(`в подписях нет строки «${signName}»`);
+
+  if (MORTGAGE) {
+    // ссылки на статьи про банк в ст.7–8 идут по фактическим номерам:
+    // с депозитами 10 и 11, без них — 8 и 9
+    const ref = `described in Articles ${numbers.article_mortgage_approval_number} and ${numbers.article_bank_valuation_number}`;
+    const refCount = text.split(ref).length - 1;
+    if (refCount !== 2) found.push(`ссылок «${ref}» в ст.7–8: ${refCount} вместо 2`);
+    if (/Articles \d+ and \d+/.test(text.replace(new RegExp(ref, "g"), ""))) found.push("осталась старая ссылка «Articles N and M»");
+    // возврат депозита при отказе банка — только когда депозит Покупателя есть
+    const rejection = /unable to obtain Final Mortgage Approval/.test(text);
+    if (rejection !== c.buyerDeposit) found.push(`абзац об отказе банка ${rejection ? "есть" : "отсутствует"} при депозите Покупателя=${c.buyerDeposit}`);
+    if (!/Mortgage Pre-Approval/.test(text)) found.push("нет статьи про Mortgage Approval");
+  }
 
   // нумерация статей: подряд, без дыр и повторов
   const nums = Array.from(text.matchAll(/^Article (\d+)$/gm), (m) => Number(m[1]));

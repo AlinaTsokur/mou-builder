@@ -1,14 +1,18 @@
-// Прогон шаблона через движок по сценариям: node scripts/check-scenarios.mjs <documentId>
+// Прогон шаблона через движок по сценариям: node scripts/check-scenarios.mjs <documentId> [--mortgage]
 // Рендерит весь документ целиком и ищет запрещённые для сценария упоминания —
 // чтобы не полагаться на выборочный просмотр кусков.
 import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
 import { renderLocal } from "./render-local.mjs";
-import { ARTICLE_DEFS_OFFPLAN_V2 } from "../lib/mou/articles.js";
+import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 } from "../lib/mou/articles.js";
+
+const MORTGAGE = process.argv.includes("--mortgage");
+const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : ARTICLE_DEFS_OFFPLAN_V2;
 
 const BASE = {
   agreementDate: "28/01/2026", sellingPrice: "1,670,000", originalPrice: "1,494,050",
-  paidAmountToDeveloper: "300,000", transferThresholdPercent: "30", admAdminFee: "575",
+  paidAmountToDeveloper: "300,000", transferThresholdPercent: "30",
+  ...(MORTGAGE ? { admAdminFee: "", admElectronicFee: "1,392", admValuationFee: "925.75" } : { admAdminFee: "575" }),
   transferFee: "4,000", transferFeeLabel: "Transfer Fee / NOC Fee", unitStatus: "Off-plan",
   developerName: "ALDAR DEVELOPMENT L.L.C – O.P.C", developerLegalName: "ALDAR PROPERTIES PJSC", escrowAccountName: "THE SOURCE ESCROW",
   propertyLocation: "Saadiyat Island", projectName: "The Source", unitNumber: "R18-212",
@@ -52,7 +56,8 @@ const DEFECTS = [
   [/\s+,/, "пробел перед запятой"],
   [/AED(?!\s*[\d{])/, "AED без суммы"],
   [/\{\{[a-z0-9_#/]/, "неподставленный маркер"],
-  [/[^;]\band\s*\n\s*\n/, "висящее «and»"],
+  // «; and» в конце пункта списка — не висящее, даже если дальше пустая строка
+  [/(?<!;\s?)\band\s*\n\s*\n/, "висящее «and»"],
   [/\(\s*\)/, "пустые скобки"],
   [/(?<!\{\{[a-z0-9_]{0,40})\}\}/, "обрывок маркера «}}»"],
   [/\bby\s*\.\s/, "оборванная фраза «by .»"],
@@ -68,7 +73,7 @@ let problems = 0;
 for (const { name, over, forbidden } of SCENARIOS) {
   // общий рендер с комбинаторным прогоном: он умеет удалять строки таблиц
   // в колонтитулах, а прежняя копия здесь искала таблицы только в теле
-  const { text, outsideTables, cond, rows } = renderLocal(doc, idx, { ...BASE, ...over }, ARTICLE_DEFS_OFFPLAN_V2);
+  const { text, outsideTables, cond, rows } = renderLocal(doc, idx, { ...BASE, ...over }, DEFS);
 
   // пустые строки ищем только в теле и вне таблиц: в плоском тексте каждая ячейка
   // заканчивается переводом строки, и пустая ячейка шапки даёт ложное срабатывание

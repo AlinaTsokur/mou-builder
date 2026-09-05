@@ -50,6 +50,84 @@ async function addStampRow(docs, documentId) {
   return "строка печатей добавлена";
 }
 
+// Строка таблицы в теле документа — вставляется после строки с текстом afterCell,
+// сразу с разметкой. cells: на каждую ячейку список кусков [текст, жирный?].
+// Кегль, гарнитура и параметры абзаца копируются из строки-якоря: у новой строки
+// Google ставит стиль по умолчанию, и она выбивалась бы из таблицы.
+async function addBodyRow(docs, documentId, { afterCell, cells }) {
+  const cellText = (cell) => (cell.content || [])
+    .flatMap((p) => (p.paragraph?.elements || []).map((e) => e.textRun?.content || "")).join("");
+  const findRow = (doc) => {
+    for (const el of doc.body.content || []) {
+      if (!el.table) continue;
+      const rowIndex = el.table.tableRows.findIndex((r) => r.tableCells.some((c) => cellText(c).includes(afterCell)));
+      if (rowIndex !== -1) return { table: el.table, startIndex: el.startIndex, rowIndex };
+    }
+    return null;
+  };
+
+  let doc = (await docs.documents.get({ documentId })).data;
+  let found = findRow(doc);
+  if (!found) return `строка-якорь «${afterCell}» не найдена`;
+  const anchorRow = found.table.tableRows[found.rowIndex];
+  const nextRow = found.table.tableRows[found.rowIndex + 1];
+  if (nextRow && cellText(nextRow.tableCells[0]).includes(cells[0][0][0].slice(0, 40))) return "строка уже есть";
+
+  await docs.documents.batchUpdate({ documentId, requestBody: { requests: [{
+    insertTableRow: {
+      tableCellLocation: { tableStartLocation: { index: found.startIndex }, rowIndex: found.rowIndex },
+      insertBelow: true,
+    },
+  }] } });
+
+  doc = (await docs.documents.get({ documentId })).data;
+  found = findRow(doc);
+  const row = found.table.tableRows[found.rowIndex + 1];
+  const starts = row.tableCells.map((cell) => cell.content[0].startIndex);
+  const insertRequests = starts.map((index, i) => ({
+    insertText: { location: { index }, text: cells[i].map(([t]) => t).join("") },
+  })).reverse(); // справа налево, чтобы индексы левых ячеек не сдвинулись
+  await docs.documents.batchUpdate({ documentId, requestBody: { requests: insertRequests } });
+
+  // стиль — как у строки-якоря; жирный по кускам
+  const styleRequests = [];
+  doc = (await docs.documents.get({ documentId })).data;
+  found = findRow(doc);
+  const fresh = found.table.tableRows[found.rowIndex + 1];
+  fresh.tableCells.forEach((cell, i) => {
+    const anchorCell = anchorRow.tableCells[i];
+    const anchorPara = anchorCell.content[0].paragraph;
+    const anchorRun = anchorPara.elements.find((e) => e.textRun)?.textRun.textStyle || {};
+    const para = cell.content[0];
+    const start = para.startIndex;
+    const end = para.endIndex - 1; // без завершающего перевода строки
+    if (end <= start) return;
+    styleRequests.push({ updateTextStyle: {
+      range: { startIndex: start, endIndex: end },
+      textStyle: { fontSize: anchorRun.fontSize, weightedFontFamily: anchorRun.weightedFontFamily },
+      fields: "fontSize,weightedFontFamily",
+    } });
+    let cursor = start;
+    for (const [text, bold] of cells[i]) {
+      styleRequests.push({ updateTextStyle: {
+        range: { startIndex: cursor, endIndex: cursor + text.length }, textStyle: { bold: !!bold }, fields: "bold",
+      } });
+      cursor += text.length;
+    }
+    const ps = anchorPara.paragraphStyle || {};
+    styleRequests.push({ updateParagraphStyle: {
+      range: { startIndex: start, endIndex: para.endIndex },
+      paragraphStyle: {
+        alignment: ps.alignment, lineSpacing: ps.lineSpacing, spaceAbove: ps.spaceAbove, spaceBelow: ps.spaceBelow,
+        indentFirstLine: ps.indentFirstLine, indentStart: ps.indentStart, indentEnd: ps.indentEnd,
+      },
+      fields: "alignment,lineSpacing,spaceAbove,spaceBelow,indentFirstLine,indentStart,indentEnd",
+    } });
+  });
+  await docs.documents.batchUpdate({ documentId, requestBody: { requests: styleRequests } });
+  return `строка «${afterCell.slice(0, 30)}…» добавлена`;
+}
+
 // Маркеры ищем во всём документе: тело, колонтитулы и вкладки. Документ,
 // где разметка осталась только в подвале, тоже размечен.
 function alreadyMarked(doc) {
@@ -63,7 +141,7 @@ function alreadyMarked(doc) {
   return text.includes("{{#if") || text.includes("{{#row");
 }
 
-export async function runMarkup({ sourceId, draftName, edits, toOriginal }) {
+export async function runMarkup({ sourceId, draftName, edits, rows = [], toOriginal }) {
   const { drive, docs } = getBotClients();
   let id = sourceId;
 
@@ -109,6 +187,7 @@ export async function runMarkup({ sourceId, draftName, edits, toOriginal }) {
   }
 
   const res = await applyEdits(docs, id, edits);
+  for (const row of rows) console.log(await addBodyRow(docs, id, row));
   console.log(await addStampRow(docs, id));
   console.log(`\nприменено: ${res.done.length} из ${edits.length}`);
   if (res.failed.length) {
