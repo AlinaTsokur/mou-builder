@@ -128,6 +128,16 @@ export const OFFPLAN_MORTGAGE = {
     // заголовок ст.10 приклеен к тексту мягким переносом — делаем его отдельным абзацем,
     // как все остальные заголовки
     { find: "Article 10\u000b", replace: "Article 10\n", note: "ст.10: заголовок отдельным абзацем" },
+    // в ст.8 строки a)/b) приклеены к «follows:» мягким переносом: без депозитов
+    // от абзаца оставался бы один пустой перенос — делаем a)/b) отдельным абзацем
+    { find: "This amount shall be distributed as follows:\u000ba) ",
+      replace: "This amount shall be distributed as follows:\na) ", note: "ст.8: a)/b) отдельным абзацем" },
+    // типографика исходника: двойные пробелы и точка в конце хвоста ст.4
+    { find: "to  YAS GOLF COLLECTION", replace: "to YAS GOLF COLLECTION", note: "двойной пробел, остаток застройщику" },
+    { find: "O.P.C  after valuation", replace: "O.P.C after valuation", note: "двойной пробел, ADM Fee" },
+    { find: "REVENUE ACCOU  after valuation", replace: "REVENUE ACCOU after valuation", note: "двойной пробел, ADM Electronic Fee" },
+    { find: "simultaneously with the ownership transfer at ADREC",
+      replace: "simultaneously with the ownership transfer at ADREC.", note: "точка в конце ст.4" },
     // Миша, 04.09.2026: важен факт пре-одобрения, сумма не обязана равняться Selling Price
     { find: "obtained Mortgage Pre-Approval for an amount equal to the agreed Selling Price and that",
       replace: "obtained Mortgage Pre-Approval and that", note: "ст.10: сумма пре-одобрения" },

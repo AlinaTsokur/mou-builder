@@ -48,7 +48,7 @@ function buildDoc(blocks) {
   }
 
   function pushParagraphIntoCell(target, raw) {
-    pushParagraph(target, raw);
+    for (const line of Array.isArray(raw) ? raw : [raw]) pushParagraph(target, line);
   }
 
   return { doc: { body: { content } }, chars };
@@ -158,6 +158,19 @@ test("расширение до целых абзацев не создаёт п
     text = text.slice(0, startIndex - 1) + text.slice(endIndex - 1);
   }
   assert.ok(text.includes("{{intro}} seller para"), `плейсхолдер повреждён: ${JSON.stringify(text)}`);
+});
+
+test("последний абзац ячейки под ложным условием уходит вместе с переводом строки", () => {
+  // ячейка «Security deposit»: две строки, вторая — депозит Продавца, которого нет
+  const { doc, chars } = buildDoc([
+    { table: [["Security deposit:", ["{{#if bd}}Buyer line{{/if}}", "{{#if sd}}Seller line{{/if}}"]]] },
+    "After",
+  ]);
+  const plan = buildConditionalPlan(doc, { bd: true, sd: false });
+  const text = applyDeletes(chars, plan.requests);
+  assert.ok(text.includes("Buyer line\nAfter") || text.includes("Buyer line\n") , text);
+  assert.ok(!text.includes("Buyer line\n\n"), `в ячейке осталась пустая строка: ${JSON.stringify(text)}`);
+  assert.ok(!text.includes("Seller line"));
 });
 
 test("несбалансированные маркеры попадают в errors", () => {

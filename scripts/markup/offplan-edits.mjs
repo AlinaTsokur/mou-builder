@@ -234,7 +234,9 @@ export function buildEdits(D) {
   { find: "Similarly, upon signing",
     insertBefore: "{{#if seller_deposit}}{{#if !seller_cheque_details}}{{seller_deposit_intro}} the Seller undertakes to pay a sum of AED "
       + "{{seller_deposit_amount}} as a holding Security Deposit cheque. This cheque is to secure the purchase of the Property "
-      + "and will be held by {{seller_deposit_holder}} until the Transfer Date in accordance with the terms of this MOU.{{/if}}\n",
+      // закрывающий маркер — в начале следующего абзаца: тогда при известных реквизитах
+      // удаляется вставленный абзац целиком, а пустая строка перед «Similarly» остаётся
+      + "and will be held by {{seller_deposit_holder}} until the Transfer Date in accordance with the terms of this MOU.\n{{/if}}",
     note: "абзац Продавца без реквизитов чека" },
 
   // Продавец, абзац с реквизитами чека

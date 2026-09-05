@@ -15,6 +15,13 @@ const PATCHES = {
       replace: "acceptable to {{#if any_agent}}the Agent and {{/if}}the Parties",
       note: "чек от третьего лица, Продавец" },
   ],
+  // 05.09: пустая строка перед абзацем Продавца в ст.6 пропадала, когда реквизиты
+  // чека известны — закрывающий маркер переезжает в начало следующего абзаца
+  "seller-paragraph-blank-line": [
+    { find: "in accordance with the terms of this MOU.{{/if}}\n{{#if seller_cheque_details}}",
+      replace: "in accordance with the terms of this MOU.\n{{/if}}{{#if seller_cheque_details}}",
+      note: "ст.6: маркер в начало абзаца Similarly" },
+  ],
   // 04.09, ответ Миши: у Покупателя важен факт банковского пре-одобрения, сумма
   // не обязана равняться Selling Price (ипотека может быть на меньшую сумму)
   "mortgage-preapproval-amount": [

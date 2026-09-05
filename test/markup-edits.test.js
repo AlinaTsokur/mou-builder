@@ -31,7 +31,7 @@ import { OFFPLAN_MORTGAGE, THRESHOLD_ROW } from "../scripts/markup/offplan-deals
 
 test("список правок для ипотечного шаблона собирается целиком", () => {
   const edits = buildEdits(OFFPLAN_MORTGAGE);
-  assert.equal(edits.length, 173);
+  assert.equal(edits.length, 178);
   for (const e of edits) {
     assert.ok(e.find || e.cellAfter, `правка без find: ${JSON.stringify(e)}`);
     assert.ok(e.replace !== undefined || e.insertBefore !== undefined || e.bold !== undefined,
