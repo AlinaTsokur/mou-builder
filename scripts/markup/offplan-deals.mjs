@@ -136,6 +136,10 @@ export const OFFPLAN_MORTGAGE = {
     // от абзаца оставался бы один пустой перенос — делаем a)/b) отдельным абзацем
     { find: "This amount shall be distributed as follows:\u000ba) ",
       replace: "This amount shall be distributed as follows:\na) ", note: "ст.8: a)/b) отдельным абзацем" },
+    // скобка в строке ADM Fee не закрывалась: приводим к виду №1 — скобка обнимает
+    // способ расчёта и закрывается перед «to be paid»
+    { find: "or as per ADM valuation (whatever comes higher) to be paid",
+      replace: "or as per ADM valuation, whatever comes higher) to be paid", note: "ст.4: скобка в ADM Fee" },
     // типографика исходника: двойные пробелы и точка в конце хвоста ст.4
     { find: "to  YAS GOLF COLLECTION", replace: "to YAS GOLF COLLECTION", note: "двойной пробел, остаток застройщику" },
     { find: "O.P.C  after valuation", replace: "O.P.C after valuation", note: "двойной пробел, ADM Fee" },

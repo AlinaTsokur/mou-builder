@@ -5,6 +5,15 @@ import { getBotClients } from "./google-bot.mjs";
 import { applyEdits } from "./docs-edit.mjs";
 
 const PATCHES = {
+  // 05.09: в строке ADM Fee не закрывалась скобка: «(2% from the Selling Price or
+  // as per ADM valuation (whatever comes higher) to be paid…». В №1 скобка обнимает
+  // способ расчёта и закрывается перед «to be paid» — приводим к тому же виду,
+  // внутренняя пара скобок становится запятой
+  "adm-fee-parenthesis": [
+    { find: "or as per ADM valuation (whatever comes higher) to be paid",
+      replace: "or as per ADM valuation, whatever comes higher) to be paid",
+      note: "ст.4: скобка в строке ADM Fee" },
+  ],
   // 05.09: если застройщику всё выплачено, строка остатка показывала «0% … AED 0.00».
   // Банк даёт чек застройщику, только если остаток есть (ответ Миши, 04.09) —
   // при нуле строка уходит целиком, как строка добора порога
