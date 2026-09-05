@@ -598,3 +598,32 @@ test("ADM Fee №1 с админ-частью считается по-прежн
   const calc = calculate(normalizeForm({ sellingPrice: "1,000,000", admAdminFee: "575", unitStatus: "Off-plan" }));
   assert.equal(calc.admFee, 20000 + 575);
 });
+
+test("ипотечный шаблон: ADM Fee — ровно 2% от Selling Price, без админ-части", () => {
+  const form = { sellingPrice: "1,670,000", admAdminFee: "575", unitStatus: "Off-Plan" };
+  const plain = buildPreview(form, undefined, { engine: "v2" });
+  const mortgage = buildPreview(form, undefined, { engine: "v2", mortgage: true });
+  assert.equal(plain.calc.admFee, 1670000 * 0.02 + 575);
+  assert.equal(mortgage.calc.admFee, 1670000 * 0.02);
+});
+
+test("ипотечный шаблон: способ оплаты Продавцу не требуется", () => {
+  const data = normalizeForm({ amountToSellerPaymentMethod: "" });
+  const withMethod = validateMou(data).errors.join(" ");
+  const mortgage = validateMou(data, { mortgage: true }).errors.join(" ");
+  assert.ok(withMethod.includes("payment method"));
+  assert.ok(!mortgage.includes("payment method"));
+});
+
+test("движок v2: снятая галочка статьи не сдвигает нумерацию", () => {
+  const base = { sellingPrice: "1,670,000", unitStatus: "Off-Plan", buyerDepositEnabled: "Yes", sellerDepositEnabled: "Yes" };
+  const template = { engine: "v2", mortgage: true, articles: "offplan-mortgage-v2" };
+  const p = buildPreview({ ...base, excludedArticleKeys: ["article_property_hold_number"] }, undefined, template);
+  assert.equal(p.replacements.article_property_hold_number, "13");
+  assert.equal(p.replacements.article_electronic_signature_number, "18");
+
+  const noDeposits = buildPreview({ ...base, buyerDepositEnabled: "No", sellerDepositEnabled: "No" }, undefined, template);
+  assert.equal(noDeposits.replacements.article_security_deposit_number, "");
+  assert.equal(noDeposits.replacements.article_deposit_release_number, "");
+  assert.equal(noDeposits.replacements.article_electronic_signature_number, "16");
+});

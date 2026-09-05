@@ -1,0 +1,495 @@
+- generic [active] [ref=f12e1]:
+  - alert [ref=f12e7]
+  - main [ref=f12e8]:
+    - generic [ref=f12e9]:
+      - heading "MOU Builder" [level=1] [ref=f12e11]
+      - generic [ref=f12e12]:
+        - button "Existing Draft" [ref=f12e14] [cursor=pointer]
+        - button "Load Draft" [disabled] [ref=f12e18]
+        - button "Refresh" [ref=f12e19] [cursor=pointer]
+        - button "Sign out" [ref=f12e25] [cursor=pointer]
+    - navigation "Разделы формы" [ref=f12e26]:
+      - button "Template 1" [ref=f12e27] [cursor=pointer]:
+        - text: Template
+        - generic [ref=f12e28]: "1"
+      - button "Agreement 2" [ref=f12e29] [cursor=pointer]:
+        - text: Agreement
+        - generic [ref=f12e30]: "2"
+      - button "Project / Developer 7" [ref=f12e31] [cursor=pointer]:
+        - text: Project / Developer
+        - generic [ref=f12e32]: "7"
+      - button "Property 5" [ref=f12e33] [cursor=pointer]:
+        - text: Property
+        - generic [ref=f12e34]: "5"
+      - button "Seller 3" [ref=f12e35] [cursor=pointer]:
+        - text: Seller
+        - generic [ref=f12e36]: "3"
+      - button "Buyer 3" [ref=f12e37] [cursor=pointer]:
+        - text: Buyer
+        - generic [ref=f12e38]: "3"
+      - button "Payments 6" [ref=f12e39] [cursor=pointer]:
+        - text: Payments
+        - generic [ref=f12e40]: "6"
+      - button "Agency" [ref=f12e41] [cursor=pointer]
+      - button "Security Deposit - Buyer 6" [ref=f12e42] [cursor=pointer]:
+        - text: Security Deposit - Buyer
+        - generic [ref=f12e43]: "6"
+      - button "Security Deposit - Seller 6" [ref=f12e44] [cursor=pointer]:
+        - text: Security Deposit - Seller
+        - generic [ref=f12e45]: "6"
+      - button "Articles" [ref=f12e46] [cursor=pointer]
+      - button "Signatures" [ref=f12e47] [cursor=pointer]
+    - generic [ref=f12e48]:
+      - generic [ref=f12e49]:
+        - generic [ref=f12e50]:
+          - button "Template Choose template" [expanded] [ref=f12e51] [cursor=pointer]:
+            - generic [ref=f12e55]: Template
+            - generic [ref=f12e56]: Choose template
+          - generic [ref=f12e58]:
+            - generic [ref=f12e59]: Document Template
+            - button "Select template..." [ref=f12e66] [cursor=pointer]
+        - generic [ref=f12e70]:
+          - button "Agreement Needs info (2)" [expanded] [ref=f12e71] [cursor=pointer]:
+            - generic [ref=f12e75]: Agreement
+            - generic [ref=f12e76]: Needs info (2)
+          - generic [ref=f12e77]:
+            - generic [ref=f12e78]:
+              - generic [ref=f12e79]: Agreement Date
+              - textbox [ref=f12e85]
+            - generic [ref=f12e86]:
+              - generic [ref=f12e87]: Reservation Deadline Mode
+              - button "Specific date" [ref=f12e94] [cursor=pointer]
+            - generic [ref=f12e98]:
+              - generic [ref=f12e99]: Reservation Deadline
+              - textbox [ref=f12e105]
+        - generic [ref=f12e106]:
+          - button "Project / Developer Needs info (7)" [expanded] [ref=f12e107] [cursor=pointer]:
+            - generic [ref=f12e111]: Project / Developer
+            - generic [ref=f12e112]: Needs info (7)
+          - generic [ref=f12e113]:
+            - generic [ref=f12e114]:
+              - generic [ref=f12e115]: Project
+              - generic [ref=f12e121]:
+                - textbox [ref=f12e122]
+                - button "Open options" [ref=f12e123] [cursor=pointer]
+            - generic [ref=f12e126]:
+              - generic [ref=f12e127]: Unit Status
+              - button "Select..." [ref=f12e134] [cursor=pointer]
+            - generic [ref=f12e138]:
+              - generic [ref=f12e139]: Developer Name
+              - textbox [ref=f12e145]
+            - generic [ref=f12e146]:
+              - generic [ref=f12e147]: Developer Legal Name
+              - textbox [ref=f12e153]
+            - generic [ref=f12e154]:
+              - generic [ref=f12e155]: Escrow Account Name
+              - textbox [ref=f12e161]
+            - generic [ref=f12e162]:
+              - generic [ref=f12e163]: ADM Admin Fee
+              - textbox [ref=f12e169]
+            - generic [ref=f12e170]:
+              - generic [ref=f12e171]: Transfer Fee Label
+              - textbox [ref=f12e177]
+        - generic [ref=f12e178]:
+          - button "Property Needs info (5)" [expanded] [ref=f12e179] [cursor=pointer]:
+            - generic [ref=f12e183]: Property
+            - generic [ref=f12e184]: Needs info (5)
+          - generic [ref=f12e185]:
+            - generic [ref=f12e186]:
+              - generic [ref=f12e187]: Title Deed Number
+              - textbox [ref=f12e193]
+            - generic [ref=f12e194]:
+              - generic [ref=f12e195]: Property Location / Island
+              - textbox [ref=f12e201]
+            - generic [ref=f12e202]:
+              - generic [ref=f12e203]: Bedrooms
+              - generic [ref=f12e209]:
+                - textbox [ref=f12e210]
+                - button "Open options" [ref=f12e211] [cursor=pointer]
+            - generic [ref=f12e214]:
+              - generic [ref=f12e215]: Area, sq.m
+              - textbox [ref=f12e221]
+            - generic [ref=f12e222]:
+              - generic [ref=f12e223]: Property Type
+              - generic [ref=f12e229]:
+                - textbox [ref=f12e230]
+                - button "Open options" [ref=f12e231] [cursor=pointer]
+            - generic [ref=f12e234]:
+              - generic [ref=f12e235]: Unit Number
+              - textbox [ref=f12e241]
+            - generic [ref=f12e242]:
+              - generic [ref=f12e243]: Parking Spaces
+              - textbox [ref=f12e249]
+            - generic [ref=f12e250]:
+              - generic [ref=f12e251]: Additional Information
+              - textbox [ref=f12e257]
+        - generic [ref=f12e258]:
+          - button "Seller Needs info (3)" [expanded] [ref=f12e259] [cursor=pointer]:
+            - generic [ref=f12e263]: Seller
+            - generic [ref=f12e264]: Needs info (3)
+          - generic [ref=f12e265]:
+            - generic [ref=f12e266]:
+              - heading "Seller 1" [level=3] [ref=f12e268]
+              - generic [ref=f12e269]:
+                - generic [ref=f12e270]:
+                  - generic [ref=f12e271]: Title
+                  - button "Select..." [ref=f12e278] [cursor=pointer]
+                - generic [ref=f12e282]:
+                  - generic [ref=f12e283]: Name Surname
+                  - textbox [ref=f12e289]
+                - generic [ref=f12e290]:
+                  - generic [ref=f12e291]: Nationality
+                  - generic [ref=f12e297]:
+                    - textbox [ref=f12e298]
+                    - button "Open options" [ref=f12e299] [cursor=pointer]
+                - generic [ref=f12e302]:
+                  - generic [ref=f12e303]: Passport
+                  - textbox [ref=f12e309]
+                - generic [ref=f12e310]:
+                  - generic [ref=f12e311]: EID
+                  - textbox "784-XXXX-XXXXXXX-X" [ref=f12e317]
+                - generic [ref=f12e318]:
+                  - generic [ref=f12e319]: Ownership %
+                  - generic [ref=f12e325]:
+                    - textbox [ref=f12e326]: "100"
+                    - button "Open options" [ref=f12e327] [cursor=pointer]
+                - generic [ref=f12e330]:
+                  - generic [ref=f12e331]: POA?
+                  - button "No" [ref=f12e338] [cursor=pointer]
+            - generic [ref=f12e342]:
+              - button "Add Seller" [ref=f12e343] [cursor=pointer]
+              - generic [ref=f12e345]: "Ownership total (итого доля): 100%"
+        - generic [ref=f12e346]:
+          - button "Buyer Needs info (3)" [expanded] [ref=f12e347] [cursor=pointer]:
+            - generic [ref=f12e351]: Buyer
+            - generic [ref=f12e352]: Needs info (3)
+          - generic [ref=f12e353]:
+            - generic [ref=f12e354]:
+              - heading "Buyer 1" [level=3] [ref=f12e356]
+              - generic [ref=f12e357]:
+                - generic [ref=f12e358]:
+                  - generic [ref=f12e359]: Title
+                  - button "Select..." [ref=f12e366] [cursor=pointer]
+                - generic [ref=f12e370]:
+                  - generic [ref=f12e371]: Name Surname
+                  - textbox [ref=f12e377]
+                - generic [ref=f12e378]:
+                  - generic [ref=f12e379]: Nationality
+                  - generic [ref=f12e385]:
+                    - textbox [ref=f12e386]
+                    - button "Open options" [ref=f12e387] [cursor=pointer]
+                - generic [ref=f12e390]:
+                  - generic [ref=f12e391]: Passport
+                  - textbox [ref=f12e397]
+                - generic [ref=f12e398]:
+                  - generic [ref=f12e399]: EID
+                  - textbox "784-XXXX-XXXXXXX-X" [ref=f12e405]
+                - generic [ref=f12e406]:
+                  - generic [ref=f12e407]: Ownership %
+                  - generic [ref=f12e413]:
+                    - textbox [ref=f12e414]: "100"
+                    - button "Open options" [ref=f12e415] [cursor=pointer]
+                - generic [ref=f12e418]:
+                  - generic [ref=f12e419]: POA?
+                  - button "No" [ref=f12e426] [cursor=pointer]
+            - generic [ref=f12e430]:
+              - button "Add Buyer" [ref=f12e431] [cursor=pointer]
+              - generic [ref=f12e433]: "Ownership total (итого доля): 100%"
+        - generic [ref=f12e434]:
+          - button "Payments Needs info (6)" [expanded] [ref=f12e435] [cursor=pointer]:
+            - generic [ref=f12e439]: Payments
+            - generic [ref=f12e440]: Needs info (6)
+          - generic [ref=f12e441]:
+            - generic [ref=f12e442]:
+              - generic [ref=f12e443]: Original Price from SPA
+              - textbox [ref=f12e449]
+            - generic [ref=f12e450]:
+              - generic [ref=f12e451]: Selling Price agreed by Parties
+              - textbox [ref=f12e457]
+            - generic [ref=f12e458]:
+              - generic [ref=f12e459]: Paid to Developer
+              - textbox "Например 600,000" [ref=f12e465]
+            - generic [ref=f12e466]:
+              - generic [ref=f12e467]: Amount to be paid to Seller
+              - textbox "Посчитается автоматически" [ref=f12e473]
+            - generic [ref=f12e474]:
+              - generic [ref=f12e475]: Amount to Seller Payment Method
+              - button "Select..." [ref=f12e482] [cursor=pointer]
+            - generic [ref=f12e486]:
+              - generic [ref=f12e487]: Transfer Threshold %
+              - generic [ref=f12e493]:
+                - textbox [ref=f12e494]
+                - button "Open options" [ref=f12e495] [cursor=pointer]
+            - generic [ref=f12e498]:
+              - generic [ref=f12e499]: Threshold Top-up to Developer
+              - textbox "Посчитается автоматически" [ref=f12e505]
+            - generic [ref=f12e506]:
+              - generic [ref=f12e507]: Remaining Developer Balance
+              - textbox "Посчитается автоматически" [ref=f12e513]
+            - generic [ref=f12e514]:
+              - generic [ref=f12e515]: Transfer / NOC Fee
+              - textbox [ref=f12e521]
+        - generic [ref=f12e522]:
+          - button "Agency Complete" [expanded] [ref=f12e523] [cursor=pointer]:
+            - generic [ref=f12e527]: Agency
+            - generic [ref=f12e528]: Complete
+          - generic [ref=f12e529]:
+            - generic [ref=f12e530]:
+              - generic [ref=f12e531]:
+                - checkbox [checked] [ref=f12e532]
+                - generic [ref=f12e533]: Seller has an Agent
+              - generic [ref=f12e539]:
+                - generic [ref=f12e540]: Seller Agent
+                - generic [ref=f12e546]:
+                  - textbox [ref=f12e547]: PRIME BRIDGE REAL ESTATE BROKERAGE L.L.C
+                  - button "Open options" [ref=f12e548] [cursor=pointer]
+              - generic [ref=f12e551]:
+                - generic [ref=f12e552]: Representative
+                - textbox "Авто из справочника" [ref=f12e558]
+              - generic [ref=f12e559]:
+                - generic [ref=f12e560]: License
+                - textbox "Авто из справочника" [ref=f12e566]
+              - generic [ref=f12e567]:
+                - generic [ref=f12e568]: Address
+                - textbox "Авто из справочника" [ref=f12e574]
+              - generic [ref=f12e575]:
+                - checkbox [checked] [ref=f12e576]
+                - generic [ref=f12e577]: Agency Fee enabled
+              - generic [ref=f12e583]:
+                - generic [ref=f12e584]: Agency Fee Seller
+                - textbox "Пусто = auto 2.1%, 0 = нет комиссии" [ref=f12e590]
+            - generic [ref=f12e591]:
+              - generic [ref=f12e592]:
+                - checkbox [checked] [ref=f12e593]
+                - generic [ref=f12e594]: Buyer has an Agent
+              - generic [ref=f12e600]:
+                - generic [ref=f12e601]: Buyer Agent
+                - generic [ref=f12e607]:
+                  - textbox [ref=f12e608]: PRIME BRIDGE REAL ESTATE BROKERAGE L.L.C
+                  - button "Open options" [ref=f12e609] [cursor=pointer]
+              - generic [ref=f12e612]:
+                - generic [ref=f12e613]: Representative
+                - textbox "Авто из справочника" [ref=f12e619]
+              - generic [ref=f12e620]:
+                - generic [ref=f12e621]: License
+                - textbox "Авто из справочника" [ref=f12e627]
+              - generic [ref=f12e628]:
+                - generic [ref=f12e629]: Address
+                - textbox "Авто из справочника" [ref=f12e635]
+              - generic [ref=f12e636]:
+                - checkbox [checked] [ref=f12e637]
+                - generic [ref=f12e638]: Agency Fee enabled
+              - generic [ref=f12e644]:
+                - generic [ref=f12e645]: Agency Fee Buyer
+                - textbox "Пусто = auto 2.1%, можно вручную" [ref=f12e651]
+        - generic [ref=f12e652]:
+          - button "Security Deposit - Buyer Needs info (6)" [expanded] [ref=f12e653] [cursor=pointer]:
+            - generic [ref=f12e657]: Security Deposit - Buyer
+            - generic [ref=f12e658]: Needs info (6)
+          - generic [ref=f12e659]:
+            - generic [ref=f12e660]:
+              - generic [ref=f12e661]: Buyer provides cheque?
+              - button "Yes" [ref=f12e668] [cursor=pointer]
+            - generic [ref=f12e672]:
+              - generic [ref=f12e673]: Calculation Type
+              - button "% of Selling Price" [ref=f12e680] [cursor=pointer]
+            - generic [ref=f12e684]:
+              - generic [ref=f12e685]: Deposit %
+              - textbox [ref=f12e691]
+            - generic [ref=f12e692]:
+              - generic [ref=f12e693]: Calculated Deposit Amount
+              - textbox "Посчитается автоматически" [ref=f12e699]
+            - generic [ref=f12e700]:
+              - generic [ref=f12e701]: Cheque Timing
+              - button "Upon signing" [ref=f12e708] [cursor=pointer]
+            - generic [ref=f12e712]:
+              - generic [ref=f12e713]: Cheque No.
+              - textbox [ref=f12e719]
+            - generic [ref=f12e720]:
+              - generic [ref=f12e721]: Cheque Date
+              - textbox [ref=f12e727]
+            - generic [ref=f12e728]:
+              - generic [ref=f12e729]: Cheque Bank
+              - generic [ref=f12e735]:
+                - textbox [ref=f12e736]
+                - button "Open options" [ref=f12e737] [cursor=pointer]
+            - generic [ref=f12e740]:
+              - generic [ref=f12e741]: Drawn by
+              - textbox [ref=f12e747]
+            - generic [ref=f12e748]:
+              - checkbox [ref=f12e749]
+              - generic [ref=f12e750]: Cheque issued by a third party
+            - generic [ref=f12e756]:
+              - generic [ref=f12e757]: In favour of
+              - textbox [ref=f12e763]
+        - generic [ref=f12e764]:
+          - button "Security Deposit - Seller Needs info (6)" [expanded] [ref=f12e765] [cursor=pointer]:
+            - generic [ref=f12e769]: Security Deposit - Seller
+            - generic [ref=f12e770]: Needs info (6)
+          - generic [ref=f12e771]:
+            - generic [ref=f12e772]:
+              - generic [ref=f12e773]: Seller provides cheque?
+              - button "Yes" [ref=f12e780] [cursor=pointer]
+            - generic [ref=f12e784]:
+              - generic [ref=f12e785]: Calculation Type
+              - button "% of Selling Price" [ref=f12e792] [cursor=pointer]
+            - generic [ref=f12e796]:
+              - generic [ref=f12e797]: Deposit %
+              - textbox [ref=f12e803]
+            - generic [ref=f12e804]:
+              - generic [ref=f12e805]: Calculated Deposit Amount
+              - textbox "Посчитается автоматически" [ref=f12e811]
+            - generic [ref=f12e812]:
+              - generic [ref=f12e813]: Cheque Timing
+              - button "Upon signing" [ref=f12e820] [cursor=pointer]
+            - generic [ref=f12e824]:
+              - generic [ref=f12e825]: Cheque No.
+              - textbox [ref=f12e831]
+            - generic [ref=f12e832]:
+              - generic [ref=f12e833]: Cheque Date
+              - textbox [ref=f12e839]
+            - generic [ref=f12e840]:
+              - generic [ref=f12e841]: Cheque Bank
+              - generic [ref=f12e847]:
+                - textbox [ref=f12e848]
+                - button "Open options" [ref=f12e849] [cursor=pointer]
+            - generic [ref=f12e852]:
+              - generic [ref=f12e853]: Drawn by
+              - textbox [ref=f12e859]
+            - generic [ref=f12e860]:
+              - checkbox [ref=f12e861]
+              - generic [ref=f12e862]: Cheque issued by a third party
+            - generic [ref=f12e868]:
+              - generic [ref=f12e869]: In favour of
+              - textbox [ref=f12e875]
+        - button "Articles Complete" [ref=f12e877] [cursor=pointer]:
+          - generic [ref=f12e881]: Articles
+          - generic [ref=f12e882]: Complete
+        - generic [ref=f12e883]:
+          - button "Signatures Optional" [expanded] [ref=f12e884] [cursor=pointer]:
+            - generic [ref=f12e888]: Signatures
+            - generic [ref=f12e889]: Optional
+          - generic [ref=f12e890]:
+            - generic [ref=f12e891]:
+              - generic [ref=f12e892]: Seller Signature Date
+              - textbox [ref=f12e898]
+            - generic [ref=f12e899]:
+              - generic [ref=f12e900]: Buyer Signature Date
+              - textbox [ref=f12e906]
+      - complementary [ref=f12e907]:
+        - generic [ref=f12e908]:
+          - generic [ref=f12e909]:
+            - heading "Preview Summary" [level=2] [ref=f12e910]
+            - paragraph [ref=f12e911]: Это проверочный summary. Финальный текст берется из Google Doc-шаблона.
+          - button "Create MOU" [ref=f12e912] [cursor=pointer]
+        - generic [ref=f12e916]:
+          - generic [ref=f12e917]:
+            - strong [ref=f12e918]: "Test mode: these fields are not blocking now"
+            - list [ref=f12e919]:
+              - listitem [ref=f12e920]: "Agreement Date: заполните поле."
+              - listitem [ref=f12e921]: "Reservation Deadline: заполните поле."
+              - listitem [ref=f12e922]: "Project: заполните поле."
+              - listitem [ref=f12e923]: "Unit Status: заполните поле."
+              - listitem [ref=f12e924]: "Unit Number: заполните поле."
+              - listitem [ref=f12e925]: "Seller: добавьте имя продавца."
+              - listitem [ref=f12e926]: "Buyer: добавьте имя покупателя."
+              - listitem [ref=f12e927]: "Selling Price: введите корректную сумму."
+              - listitem [ref=f12e928]: "Amount to Seller payment method: выберите способ оплаты."
+              - listitem [ref=f12e929]: "Buyer Security Deposit: введите процент депозита."
+              - listitem [ref=f12e930]: "Buyer Security Deposit: заполните ChequeNumber."
+              - listitem [ref=f12e931]: "Buyer Security Deposit: заполните ChequeDate."
+              - listitem [ref=f12e932]: "Buyer Security Deposit: заполните ChequeBank."
+              - listitem [ref=f12e933]: "Buyer Security Deposit: заполните ChequeDrawnBy."
+              - listitem [ref=f12e934]: "Buyer Security Deposit: заполните ChequeInFavourOf."
+              - listitem [ref=f12e935]: "Seller Security Deposit: введите процент депозита."
+              - listitem [ref=f12e936]: "Seller Security Deposit: заполните ChequeNumber."
+              - listitem [ref=f12e937]: "Seller Security Deposit: заполните ChequeDate."
+              - listitem [ref=f12e938]: "Seller Security Deposit: заполните ChequeBank."
+              - listitem [ref=f12e939]: "Seller Security Deposit: заполните ChequeDrawnBy."
+              - listitem [ref=f12e940]: "Seller Security Deposit: заполните ChequeInFavourOf."
+          - generic [ref=f12e941]:
+            - strong [ref=f12e942]: Warnings
+            - list [ref=f12e943]:
+              - listitem [ref=f12e944]: "Original Price пустой: часть расчетов может остаться пустой."
+          - generic [ref=f12e945]:
+            - heading "Parties" [level=3] [ref=f12e946]
+            - generic [ref=f12e947]:
+              - generic [ref=f12e948]: Seller
+              - strong [ref=f12e949]: —
+            - generic [ref=f12e950]:
+              - generic [ref=f12e951]: Buyer
+              - strong [ref=f12e952]: —
+          - generic [ref=f12e953]:
+            - heading "Property" [level=3] [ref=f12e954]
+            - generic [ref=f12e955]:
+              - generic [ref=f12e956]: Project
+              - strong [ref=f12e957]: —
+            - generic [ref=f12e958]:
+              - generic [ref=f12e959]: Unit
+              - strong [ref=f12e960]: —
+            - generic [ref=f12e961]:
+              - generic [ref=f12e962]: Location
+              - strong [ref=f12e963]: —
+            - generic [ref=f12e964]:
+              - generic [ref=f12e965]: Type of Area
+              - strong [ref=f12e966]: Residential
+          - generic [ref=f12e967]:
+            - heading "Payment Table" [level=3] [ref=f12e968]
+            - generic [ref=f12e969]:
+              - generic [ref=f12e970]: Selling Price
+              - strong [ref=f12e971]: —
+            - generic [ref=f12e972]:
+              - generic [ref=f12e973]: Amount to be paid to Seller
+              - strong [ref=f12e974]: —
+            - generic [ref=f12e975]:
+              - generic [ref=f12e976]: Threshold Top-up to Developer
+              - strong [ref=f12e977]: —
+            - generic [ref=f12e978]:
+              - generic [ref=f12e979]: Remaining Developer Balance
+              - strong [ref=f12e980]: —
+            - generic [ref=f12e981]:
+              - generic [ref=f12e982]: ADM Fee
+              - strong [ref=f12e983]: —
+            - generic [ref=f12e984]:
+              - generic [ref=f12e985]: Agency Fee Seller
+              - strong [ref=f12e986]: —
+            - generic [ref=f12e987]:
+              - generic [ref=f12e988]: Agency Fee Buyer
+              - strong [ref=f12e989]: —
+          - generic [ref=f12e990]:
+            - heading "Security Deposits / Penalties" [level=3] [ref=f12e991]
+            - generic [ref=f12e992]:
+              - generic [ref=f12e993]: Buyer Deposit
+              - strong [ref=f12e994]: —
+            - generic [ref=f12e995]:
+              - generic [ref=f12e996]: Seller Deposit
+              - strong [ref=f12e997]: —
+            - generic [ref=f12e998]:
+              - generic [ref=f12e999]: Buyer Penalty (No Deposit)
+              - strong [ref=f12e1000]: —
+            - generic [ref=f12e1001]:
+              - generic [ref=f12e1002]: Seller Penalty (No Deposit)
+              - strong [ref=f12e1003]: —
+          - generic [ref=f12e1004]:
+            - heading "Articles" [level=3] [ref=f12e1005]
+            - generic [ref=f12e1006]:
+              - generic [ref=f12e1007]: Article 1 - Sale Offer
+              - generic [ref=f12e1008]: Article 2 - Effective Date
+              - generic [ref=f12e1009]: Article 3 - Property Details
+              - generic [ref=f12e1010]: Article 4 - Payment Table
+              - generic [ref=f12e1011]: Article 5 - Reservation Period
+              - generic [ref=f12e1012]: Article 6 - Security Deposit
+              - generic [ref=f12e1013]: Article 7 - Buyer Default
+              - generic [ref=f12e1014]: Article 8 - Seller Default
+              - generic [ref=f12e1015]: Article 9 - Deposit Release
+              - generic [ref=f12e1016]: Article 10 - Buyer Own Funds
+              - generic [ref=f12e1017]: Article 11 - Seller Outstanding Charges
+              - generic [ref=f12e1018]: Article 12 - Property Hold
+              - generic [ref=f12e1019]: Article 13 - Developer Approval
+              - generic [ref=f12e1020]: Article 14 - AML / Compliance
+              - generic [ref=f12e1021]: Article 15 - Dispute Resolution, Courts & Indemnity
+              - generic [ref=f12e1022]: Article 16 - Entire Agreement & Confidentiality
+              - generic [ref=f12e1023]: Article 17 - Electronic Signature
+    - generic [ref=f12e1024]:
+      - strong [ref=f12e1026]: "Не заполнено полей: 39"
+      - button "Create MOU" [ref=f12e1027] [cursor=pointer]

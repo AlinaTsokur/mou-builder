@@ -394,8 +394,10 @@ function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage
   }
   paymentsRequired.push(["transferFee", "Transfer / NOC Fee"]);
   if (form.manualAmountToSeller === "Yes") paymentsRequired.push(["amountToSeller", "Amount to Seller"]);
-  paymentsRequired.push(["amountToSellerPaymentMethod", "Amount to Seller Payment Method"]);
-  if (form.amountToSellerPaymentMethod === "manager_cheque_in_favour") {
+  // в ипотечном шаблоне способ оплаты Продавцу зашит в текст («Manager's Cheque»),
+  // поле ни на что не влияет — не показываем и не требуем
+  if (!isMortgage) paymentsRequired.push(["amountToSellerPaymentMethod", "Amount to Seller Payment Method"]);
+  if (!isMortgage && form.amountToSellerPaymentMethod === "manager_cheque_in_favour") {
     paymentsRequired.push(["amountToSellerChequeInFavourOf", "Cheque in favour of"]);
   }
 
@@ -408,8 +410,9 @@ function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage
   if (!isReady) projectRequired.push(["escrowAccountName", "Escrow Account Name"]);
   // ипотечный off-plan: вместо админ-части — три отдельные суммы ADM
   if (isMortgage) {
+    // admFee не требуем: он считается сам (2% от Selling Price), вручную его
+    // вписывают только после оценки ADM
     projectRequired.push(
-      ["admFee", "ADM Fee"],
       ["admElectronicFee", "ADM Electronic Fee"],
       ["admValuationFee", "ADM Valuation Certificate"],
     );
@@ -909,7 +912,7 @@ export default function HomePage() {
             <AutoMoneyField id="sellingPrice" label="Selling Price agreed by Parties" tip={tips.sellingPrice} value={form.sellingPrice} onChange={patch} />
             {!isCashToCash && <AutoMoneyField id="paidAmountToDeveloper" label="Paid to Developer" tip={tips.paidAmountToDeveloper} value={form.paidAmountToDeveloper} onChange={patch} placeholder="Например 600,000" />}
             <Field id="amountToSellerAuto" label="Amount to be paid to Seller" tip={tips.amountToSeller} value={preview?.summary?.amountToSeller ? `AED ${preview.summary.amountToSeller}` : ""} onChange={() => {}} placeholder={isCashToCash ? "= Selling Price" : "Посчитается автоматически"} readOnly />
-            <SelectField
+            {!isMortgage && <SelectField
               id="amountToSellerPaymentMethod"
               label="Amount to Seller Payment Method"
               tip={tips.amountToSellerPaymentMethod}
@@ -921,8 +924,8 @@ export default function HomePage() {
                 { value: "cash", label: "Cash" },
                 { value: "manager_cheque_in_favour", label: "Manager's Cheque issued in favour of..." },
               ]}
-            />
-            {form.amountToSellerPaymentMethod === "manager_cheque_in_favour" ? (
+            />}
+            {!isMortgage && form.amountToSellerPaymentMethod === "manager_cheque_in_favour" ? (
               <Field
                 id="amountToSellerChequeInFavourOf"
                 label="Cheque in favour of"
@@ -989,16 +992,21 @@ export default function HomePage() {
                 "article_reservation_period_number"
               ].includes(key);
               const isSecurityDisabled = (key === "article_security_deposit_number" || key === "article_deposit_release_number") && form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No";
+              // в шаблонах на движке v2 состав статей задан самим документом:
+              // выключить статью галочкой нельзя, иначе номера съедут, а текст останется
+              const isV2 = selectedTemplate?.engine === "v2";
 
               return (
                 <CheckboxField
                   key={key}
                   id={key}
                   label={`Include Article ${originalNumber} - ${title}`}
-                  tip={articleTips[key] || tips.articles}
+                  tip={isV2
+                    ? "Состав статей задан шаблоном: галочки только показывают, что войдёт. Статьи про депозит уходят сами, когда обе стороны без чеков."
+                    : articleTips[key] || tips.articles}
                   checked={isMandatory ? true : isArticleIncluded(form, key)}
                   onChange={(_, checked) => !isMandatory && toggleArticle(key, checked)}
-                  disabled={isMandatory || isSecurityDisabled}
+                  disabled={isMandatory || isSecurityDisabled || isV2}
                 />
               );
             })}

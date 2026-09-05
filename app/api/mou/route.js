@@ -10,6 +10,7 @@ import {
   calculate,
   getMainPartyName,
   normalizeForm,
+  formForTemplate,
   validateMou,
 } from "@/lib/mou/core";
 import { buildArticleNumbers, getArticleDefs, getArticleDefsForTemplate } from "@/lib/mou/articles";
@@ -25,8 +26,8 @@ export async function POST(request) {
     const templateEntry = MOU_TEMPLATES.find((t) => t.id === templateId) || MOU_TEMPLATES[0];
     const engine = templateEntry?.engine === "v2" ? "v2" : "legacy";
 
-    const data = normalizeForm(form);
-    const validation = validateMou(data);
+    const data = normalizeForm(formForTemplate(form, templateEntry));
+    const validation = validateMou(data, { mortgage: !!templateEntry?.mortgage });
     if (REQUIRE_VALIDATION_BEFORE_CREATE && !validation.ok) {
       return Response.json({ ok: false, validation }, { status: 422 });
     }
