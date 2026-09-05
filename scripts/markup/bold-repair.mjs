@@ -41,6 +41,11 @@ export const BOLD_REPAIR = [
     within: "a) 100% (AED {{seller_deposit_80_percent_amount}})", note: "жирный: ст.8 100% сумма" },
 ];
 
-// Ипотечный шаблон (№2): те же места, только «Buyer’s Agent» с заглавной буквы.
-export const BOLD_REPAIR_MORTGAGE = BOLD_REPAIR.map((e) =>
-  (e.find === "Buyer’s agent" ? { ...e, find: "Buyer’s Agent" } : e));
+// Ипотечный шаблон (№2): те же места, только «Buyer’s Agent» с заглавной буквы,
+// а в ст.8 строки a) 80% и a) 100% — один абзац (мягкий перенос), поэтому сумму
+// у 100% ищем вторым вхождением, иначе правка попадает в строку 80%.
+export const BOLD_REPAIR_MORTGAGE = BOLD_REPAIR.map((e) => {
+  if (e.find === "Buyer’s agent") return { ...e, find: "Buyer’s Agent" };
+  if (e.find === "AED {{seller_deposit_80_percent_amount}}" && e.within.startsWith("a) 100%")) return { ...e, nth: 1 };
+  return e;
+});
