@@ -5,6 +5,14 @@ import { getBotClients } from "./google-bot.mjs";
 import { applyEdits } from "./docs-edit.mjs";
 
 const PATCHES = {
+  // 05.09: если застройщику всё выплачено, строка остатка показывала «0% … AED 0.00».
+  // Банк даёт чек застройщику, только если остаток есть (ответ Миши, 04.09) —
+  // при нуле строка уходит целиком, как строка добора порога
+  "developer-balance-row": [
+    { find: "Remaining balance of {{remaining_balance_percent}}% of the Original Price",
+      replace: "{{#row has_developer_balance}}Remaining balance of {{remaining_balance_percent}}% of the Original Price",
+      note: "ст.4: строка остатка застройщику по условию" },
+  ],
   // 30.08, согласовано с Алиной: без агентств одобрять гарантийное письмо
   // от третьего лица некому, Агент из фразы уходит
   "agent-in-third-party-cheque": [

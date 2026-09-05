@@ -66,3 +66,9 @@ test("строка порога для №2 — с маркером строки
     assert.ok(text.includes(`{{${key}}}`), key);
   }
 });
+
+test("строка остатка застройщику размечается условием", () => {
+  const edit = buildEdits(OFFPLAN).find((e) => e.find === "Remaining balance of 70% of the Original Price");
+  assert.ok(edit, "правка строки остатка не найдена");
+  assert.ok(edit.replace.startsWith("{{#row has_developer_balance}}"));
+});

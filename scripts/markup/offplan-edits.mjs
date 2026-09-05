@@ -163,8 +163,9 @@ export function buildEdits(D) {
 
   ...(D.hasThresholdRow ? thresholdRowHead() : []),
 
+  // строка остатка застройщику уходит целиком, когда платить нечего
   { find: "Remaining balance of 70% of the Original Price",
-    replace: "Remaining balance of {{remaining_balance_percent}}% of the Original Price" },
+    replace: "{{#row has_developer_balance}}Remaining balance of {{remaining_balance_percent}}% of the Original Price" },
 
   ...(D.hasThresholdRow ? thresholdRowTail(D) : []),
   { find: D.remainingDeveloperBalance, replace: "AED {{remaining_developer_balance}}",
