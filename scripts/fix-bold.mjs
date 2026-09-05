@@ -20,7 +20,7 @@ function paragraphs(doc) {
       if (el.paragraph) {
         const runs = (el.paragraph.elements || [])
           .filter((e) => e.textRun?.content)
-          .map((e) => ({ text: e.textRun.content, start: e.startIndex, bold: !!e.textRun.textStyle?.bold }));
+          .map((e) => ({ text: e.textRun.content, start: e.startIndex ?? 0, bold: !!e.textRun.textStyle?.bold }));
         if (runs.some((r) => r.text.trim())) out.push({ runs, segmentId });
       }
       if (el.table) for (const r of el.table.tableRows || []) for (const c of r.tableCells || []) walk(c.content, segmentId);

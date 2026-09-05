@@ -14,5 +14,7 @@ await runMarkup({
   draftName: "РАЗМЕТКА — off-plan ипотека (черновик)",
   edits: buildEdits(OFFPLAN_MORTGAGE),
   rows: [THRESHOLD_ROW],
+  // дата в шапке: табы убраны правкой, абзац прижимаем к правому краю
+  paragraphStyles: [{ contains: "{{agreement_date_long}}", style: { alignment: "END" }, fields: "alignment" }],
   toOriginal: process.argv.includes("--original"),
 });

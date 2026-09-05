@@ -12,7 +12,7 @@ export function buildIndex(doc) {
           const run = pe.textRun;
           if (!run) continue;
           const bold = Boolean(run.textStyle?.bold);
-          [...run.content].forEach((c, k) => chars.push({ c, i: pe.startIndex + k, bold, seg, inTable }));
+          [...run.content].forEach((c, k) => chars.push({ c, i: (pe.startIndex ?? 0) + k, bold, seg, inTable }));
         }
       } else if (el.table) {
         for (const row of el.table.tableRows || []) {

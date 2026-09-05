@@ -141,7 +141,36 @@ function alreadyMarked(doc) {
   return text.includes("{{#if") || text.includes("{{#row");
 }
 
-export async function runMarkup({ sourceId, draftName, edits, rows = [], toOriginal }) {
+// Стиль абзаца по его тексту — в теле, шапке или подвале (там обязателен segmentId).
+async function setParagraphStyle(docs, documentId, { contains, style, fields }) {
+  const doc = (await docs.documents.get({ documentId })).data;
+  const hits = [];
+  const walk = (content, segmentId) => {
+    for (const el of content || []) {
+      if (el.paragraph) {
+        const text = (el.paragraph.elements || []).map((e) => e.textRun?.content || "").join("");
+        if (text.includes(contains)) hits.push({ segmentId, start: el.startIndex ?? 0, end: el.endIndex });
+      }
+      if (el.table) for (const r of el.table.tableRows || []) for (const c of r.tableCells || []) walk(c.content, segmentId);
+    }
+  };
+  walk(doc.body?.content, undefined);
+  for (const kind of ["headers", "footers"]) {
+    for (const [id, obj] of Object.entries(doc[kind] || {})) walk(obj.content, id);
+  }
+  if (hits.length !== 1) return `стиль абзаца «${contains}»: найдено ${hits.length}, ожидался один`;
+  const [h] = hits;
+  await docs.documents.batchUpdate({ documentId, requestBody: { requests: [{
+    updateParagraphStyle: {
+      range: { ...(h.segmentId ? { segmentId: h.segmentId } : {}), startIndex: h.start, endIndex: h.end },
+      paragraphStyle: style,
+      fields,
+    },
+  }] } });
+  return `стиль абзаца «${contains}»: ${fields} обновлён`;
+}
+
+export async function runMarkup({ sourceId, draftName, edits, rows = [], paragraphStyles = [], toOriginal }) {
   const { drive, docs } = getBotClients();
   let id = sourceId;
 
@@ -188,6 +217,7 @@ export async function runMarkup({ sourceId, draftName, edits, rows = [], toOrigi
 
   const res = await applyEdits(docs, id, edits);
   for (const row of rows) console.log(await addBodyRow(docs, id, row));
+  for (const ps of paragraphStyles) console.log(await setParagraphStyle(docs, id, ps));
   console.log(await addStampRow(docs, id));
   console.log(`\nприменено: ${res.done.length} из ${edits.length}`);
   if (res.failed.length) {
