@@ -15,6 +15,12 @@ const PATCHES = {
       replace: "acceptable to {{#if any_agent}}the Agent and {{/if}}the Parties",
       note: "чек от третьего лица, Продавец" },
   ],
+  // 04.09, ответ Миши: у Покупателя важен факт банковского пре-одобрения, сумма
+  // не обязана равняться Selling Price (ипотека может быть на меньшую сумму)
+  "mortgage-preapproval-amount": [
+    { find: "obtained Mortgage Pre-Approval for an amount equal to the agreed Selling Price and that",
+      replace: "obtained Mortgage Pre-Approval and that", note: "ст.10: сумма пре-одобрения" },
+  ],
   // 01.09, согласовано с Алиной: упоминание Agency Fee следует за наличием
   // комиссий (any_agent_fee), а не агентов; при одном депозите чек в
   // единственном числе

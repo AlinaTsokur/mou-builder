@@ -128,6 +128,9 @@ export const OFFPLAN_MORTGAGE = {
     // заголовок ст.10 приклеен к тексту мягким переносом — делаем его отдельным абзацем,
     // как все остальные заголовки
     { find: "Article 10\u000b", replace: "Article 10\n", note: "ст.10: заголовок отдельным абзацем" },
+    // Миша, 04.09.2026: важен факт пре-одобрения, сумма не обязана равняться Selling Price
+    { find: "obtained Mortgage Pre-Approval for an amount equal to the agreed Selling Price and that",
+      replace: "obtained Mortgage Pre-Approval and that", note: "ст.10: сумма пре-одобрения" },
   ],
   extra: [
     // возврат депозита при отказе банка — только если депозит Покупателя есть
