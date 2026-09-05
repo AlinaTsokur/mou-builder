@@ -979,10 +979,15 @@ export default function HomePage() {
           <DepositSection side="seller" title="Security Deposit - Seller" form={form} patch={patch} lists={lists} status={sectionStatuses.sellerDeposit} preview={preview} />
 
           <Section title="Articles" status={sectionStatuses.articles} defaultOpen={false}>
+            {/* без выбранного шаблона показывался старый список на 27 статей — он
+                остался от движка до v2 и ни к одному размеченному шаблону не относится */}
+            {!selectedTemplate ? (
+              <p className="smallNote">Выберите шаблон в разделе Template — список статей берётся из него.</p>
+            ) : null}
             {form.buyerDepositEnabled === "No" && form.sellerDepositEnabled === "No" ? (
               <p className="smallNote">Оба security cheque отключены: Article 6 и Article 9 снимаются автоматически.</p>
             ) : null}
-            {currentArticleDefs.map(([key, originalNumber, title]) => {
+            {(selectedTemplate ? currentArticleDefs : []).map(([key, originalNumber, title]) => {
               const isMandatory = [
                 "article_sale_offer_number",
                 "article_effective_date_number",

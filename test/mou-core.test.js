@@ -627,3 +627,14 @@ test("движок v2: снятая галочка статьи не сдвиг�
   assert.equal(noDeposits.replacements.article_deposit_release_number, "");
   assert.equal(noDeposits.replacements.article_electronic_signature_number, "16");
 });
+
+test("MOU_TEMPLATES из окружения не отменяет движок шаблона", async () => {
+  const id = "1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g";
+  process.env.MOU_TEMPLATES = JSON.stringify([{ id, label: "2. Off-plan — mortgage" }]);
+  const { MOU_TEMPLATES } = await import(`../lib/mou/config.js?env-check=${Date.now()}`);
+  delete process.env.MOU_TEMPLATES;
+  const t = MOU_TEMPLATES.find((x) => x.id === id);
+  assert.equal(t.engine, "v2");
+  assert.equal(t.articles, "offplan-mortgage-v2");
+  assert.equal(t.mortgage, true);
+});
