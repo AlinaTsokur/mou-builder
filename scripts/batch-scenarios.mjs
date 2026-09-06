@@ -76,4 +76,8 @@ export const SCENARIOS = [
   ["14 депозит фиксированной суммой", {
     buyerDepositCalcType: "Fixed amount", buyerDepositFixedAmount: "150,000",
     sellerDepositCalcType: "Fixed amount", sellerDepositFixedAmount: "120,000" }],
+  ["15 чек Продавца от третьего лица", { sellerChequeDrawnBy: "Olga Petrova", sellerChequeThirdParty: "Yes" }],
+  ["16 оба чека от третьих лиц", {
+    buyerChequeDrawnBy: "Sergey Kuznetsov", buyerChequeThirdParty: "Yes",
+    sellerChequeDrawnBy: "Olga Petrova", sellerChequeThirdParty: "Yes" }],
 ];
