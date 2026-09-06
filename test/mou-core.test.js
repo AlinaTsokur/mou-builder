@@ -615,6 +615,16 @@ test("ипотечный шаблон: способ оплаты Продавц�
   assert.ok(!mortgage.includes("payment method"));
 });
 
+test("готовый объект: сумма Продавцу всегда Manager's Cheque", () => {
+  const form = { sellingPrice: "1,670,000", unitStatus: "Ready", amountToSellerPaymentMethod: "cash" };
+  const ready = buildPreview(form, undefined, { engine: "v2", ready: true, articles: "ready-cash-v2" });
+  assert.equal(ready.replacements.amount_to_seller_payment_text, "Manager's Cheque.");
+  assert.ok(!ready.validation.errors.join(" ").includes("payment method"));
+
+  const offplan = buildPreview(form, undefined, { engine: "v2", articles: "offplan-v2" });
+  assert.equal(offplan.replacements.amount_to_seller_payment_text, "Cash.");
+});
+
 test("движок v2: снятая галочка статьи не сдвигает нумерацию", () => {
   const base = { sellingPrice: "1,670,000", unitStatus: "Off-Plan", buyerDepositEnabled: "Yes", sellerDepositEnabled: "Yes" };
   const template = { engine: "v2", mortgage: true, articles: "offplan-mortgage-v2" };

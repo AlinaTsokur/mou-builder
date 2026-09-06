@@ -407,9 +407,10 @@ function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage
   paymentsRequired.push(["transferFee", "Transfer / NOC Fee"]);
   if (form.manualAmountToSeller === "Yes") paymentsRequired.push(["amountToSeller", "Amount to Seller"]);
   // в ипотечном шаблоне способ оплаты Продавцу зашит в текст («Manager's Cheque»),
-  // поле ни на что не влияет — не показываем и не требуем
-  if (!isMortgage) paymentsRequired.push(["amountToSellerPaymentMethod", "Amount to Seller Payment Method"]);
-  if (!isMortgage && form.amountToSellerPaymentMethod === "manager_cheque_in_favour") {
+  // поле ни на что не влияет — не показываем и не требуем; в готовых объектах
+  // способ тоже один, поле показываем заблокированным и не требуем
+  if (!isMortgage && !isReadyTemplate) paymentsRequired.push(["amountToSellerPaymentMethod", "Amount to Seller Payment Method"]);
+  if (!isMortgage && !isReadyTemplate && form.amountToSellerPaymentMethod === "manager_cheque_in_favour") {
     paymentsRequired.push(["amountToSellerChequeInFavourOf", "Cheque in favour of"]);
   }
 
@@ -979,9 +980,12 @@ export default function HomePage() {
             {!isMortgage && <SelectField
               id="amountToSellerPaymentMethod"
               label="Amount to Seller Payment Method"
-              tip={tips.amountToSellerPaymentMethod}
-              value={form.amountToSellerPaymentMethod}
+              tip={isReadyTemplate
+                ? "В этом шаблоне сумма Продавцу платится только Manager\u2019s Cheque, выбора нет."
+                : tips.amountToSellerPaymentMethod}
+              value={isReadyTemplate ? "manager_cheque" : form.amountToSellerPaymentMethod}
               onChange={patch}
+              disabled={isReadyTemplate}
               options={[
                 { value: "", label: "Select..." },
                 { value: "manager_cheque", label: "Manager's Cheque" },
@@ -989,7 +993,7 @@ export default function HomePage() {
                 { value: "manager_cheque_in_favour", label: "Manager's Cheque issued in favour of..." },
               ]}
             />}
-            {!isMortgage && form.amountToSellerPaymentMethod === "manager_cheque_in_favour" ? (
+            {!isMortgage && !isReadyTemplate && form.amountToSellerPaymentMethod === "manager_cheque_in_favour" ? (
               <Field
                 id="amountToSellerChequeInFavourOf"
                 label="Cheque in favour of"
