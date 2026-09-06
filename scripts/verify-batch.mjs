@@ -7,12 +7,14 @@
 import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
 import { renderLocal } from "./render-local.mjs";
-import { baseFor, SCENARIOS } from "./batch-scenarios.mjs";
-import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 } from "../lib/mou/articles.js";
+import { baseFor, SCENARIOS, READY_SCENARIOS } from "./batch-scenarios.mjs";
+import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2, ARTICLE_DEFS_READY_CASH_V2 } from "../lib/mou/articles.js";
 
 const MORTGAGE = process.argv.includes("--mortgage");
-const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : ARTICLE_DEFS_OFFPLAN_V2;
-const BASE = baseFor(MORTGAGE);
+const READY = process.argv.includes("--ready");
+const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : READY ? ARTICLE_DEFS_READY_CASH_V2 : ARTICLE_DEFS_OFFPLAN_V2;
+const BASE = baseFor(MORTGAGE, READY);
+const CASES = READY ? [...SCENARIOS, ...READY_SCENARIOS] : SCENARIOS;
 const positional = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const folderId = positional[0];
 const templateId = positional[1] || (MORTGAGE
@@ -43,7 +45,7 @@ function firstDiff(a, b) {
 }
 
 let bad = 0;
-for (const [name, over] of SCENARIOS) {
+for (const [name, over] of CASES) {
   const file = files.find((f) => f.name === name);
   const problems = [];
   if (!file) {

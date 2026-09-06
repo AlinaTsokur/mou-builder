@@ -53,9 +53,27 @@ export const TWO_BUYERS = [
 // фиксированные (ответ Миши, 04.09.2026)
 export const MORTGAGE_FIELDS = { admAdminFee: "", admElectronicFee: "1,392", admValuationFee: "925.75" };
 
-export function baseFor(mortgage) {
+// Готовый объект (№3): застройщику не платят, вместо Transfer Fee два NOC-сбора,
+// свои суммы ADM, номер проекта и номер парковки, объект по умолчанию свободен
+export const READY_FIELDS = {
+  unitStatus: "Ready",
+  admAdminFee: "", admElectronicFee: "919", admValuationFee: "1,037",
+  developerNocFee: "2,750", communityNocFee: "1,050",
+  projectNumber: "2023/278930", titleDeedNumber: "2026/0000", parkingSpaces: "B27",
+  propertyRented: "No", annualRent: "150,000", tenancyEndDate: "12/12/2027",
+  transferFeeLabel: "NOC Fee",
+};
+
+export function baseFor(mortgage, ready = false) {
+  if (ready) return { ...BASE, ...READY_FIELDS };
   return mortgage ? { ...BASE, ...MORTGAGE_FIELDS } : BASE;
 }
+
+// сценарии, которые есть только у готовых объектов
+export const READY_SCENARIOS = [
+  ["17 объект сдан в аренду", { propertyRented: "Yes" }],
+  ["18 сдан в аренду и без депозитов", { propertyRented: "Yes", buyerDepositEnabled: "No", sellerDepositEnabled: "No" }],
+];
 
 export const SCENARIOS = [
   ["01 всё включено, 1+1 собственник", {}],

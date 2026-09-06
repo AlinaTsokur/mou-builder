@@ -4,12 +4,14 @@
 import { getBotClients } from "./google-bot.mjs";
 import { createMouDocument } from "../lib/google/docs.js";
 import { normalizeForm, calculate, buildFlags, buildReplacementsV2 } from "../lib/mou/core.js";
-import { buildArticleNumbers, ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 } from "../lib/mou/articles.js";
-import { baseFor, SCENARIOS } from "./batch-scenarios.mjs";
+import { buildArticleNumbers, ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2, ARTICLE_DEFS_READY_CASH_V2 } from "../lib/mou/articles.js";
+import { baseFor, SCENARIOS, READY_SCENARIOS } from "./batch-scenarios.mjs";
 
 const MORTGAGE = process.argv.includes("--mortgage");
-const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : ARTICLE_DEFS_OFFPLAN_V2;
-const BASE = baseFor(MORTGAGE);
+const READY = process.argv.includes("--ready");
+const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : READY ? ARTICLE_DEFS_READY_CASH_V2 : ARTICLE_DEFS_OFFPLAN_V2;
+const BASE = baseFor(MORTGAGE, READY);
+const CASES = READY ? [...SCENARIOS, ...READY_SCENARIOS] : SCENARIOS;
 
 const MOU_FOLDER = "1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm";
 
@@ -21,7 +23,7 @@ const { docs, drive } = getBotClients();
 const stamp = new Date().toISOString().slice(0, 10);
 const folder = await drive.files.create({
   requestBody: {
-    name: `ТЕСТЫ ${stamp} — ${MORTGAGE ? "off-plan №2 ипотека" : "off-plan №1"}`,
+    name: `ТЕСТЫ ${stamp} — ${MORTGAGE ? "off-plan №2 ипотека" : READY ? "ready №3 cash to cash" : "off-plan №1"}`,
     mimeType: "application/vnd.google-apps.folder",
     parents: [MOU_FOLDER],
   },
@@ -30,7 +32,7 @@ const folder = await drive.files.create({
 console.log("папка:", folder.data.webViewLink, "\n");
 
 // createMouDocument кладёт копию в MOU_CONFIG.outputFolderId — переносим в папку тестов
-for (const [name, over] of SCENARIOS) {
+for (const [name, over] of CASES) {
   const form = { ...BASE, ...over };
   const data = normalizeForm(form);
   const calc = calculate(data);
