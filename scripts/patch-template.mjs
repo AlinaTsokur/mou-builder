@@ -14,6 +14,15 @@ const PATCHES = {
       replace: "or as per ADM valuation, whatever comes higher) to be paid",
       note: "ст.4: скобка в строке ADM Fee" },
   ],
+  // 06.09: в ст.8 абзац о дефолте Продавца начинался и кончался мягким переносом —
+  // остаток черновикового разделителя «—-». В договоре это давало пустую строку
+  // до и после фразы «Upon Seller Default…», у Покупателя такого нет
+  "seller-default-soft-breaks": [
+    { find: "{{#if !seller_deposit}}\u000bUpon Seller Default",
+      replace: "{{#if !seller_deposit}}Upon Seller Default", note: "ст.8: убрать перенос перед фразой" },
+    { find: "not a penalty. \u000b\n{{#if any_deposit}}This amount",
+      replace: "not a penalty.\n{{#if any_deposit}}This amount", note: "ст.8: убрать перенос после фразы" },
+  ],
   // 05.09: если застройщику всё выплачено, строка остатка показывала «0% … AED 0.00».
   // Банк даёт чек застройщику, только если остаток есть (ответ Миши, 04.09) —
   // при нуле строка уходит целиком, как строка добора порога

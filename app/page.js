@@ -86,6 +86,12 @@ const initialForm = {
   admFee: "",
   admElectronicFee: "",
   admValuationFee: "",
+  developerNocFee: "",
+  communityNocFee: "",
+  projectNumber: "",
+  propertyRented: "No",
+  annualRent: "",
+  tenancyEndDate: "",
   transferFeeLabel: "",
   titleDeedNumber: "",
   propertyLocation: "",
@@ -264,6 +270,12 @@ const tips = {
   admAdminFee: "Административная часть ADM Fee (сбора Abu Dhabi Municipality). Обычно подставляется автоматически, но ее можно исправить вручную.",
   admFee: "ADM Fee для ипотечной сделки: 2% от Selling Price или по оценке ADM (что выше). По умолчанию считается 2%, после оценки можно вписать свою сумму.",
   admElectronicFee: "ADM Electronic Fee — электронный сбор ADREC, платит Buyer картой после оценки. По умолчанию AED 1,392.",
+  developerNocFee: "Сбор застройщика за NOC. По умолчанию AED 2,750, можно поменять.",
+  communityNocFee: "Сбор сообщества за NOC, платит Seller. По умолчанию AED 1,050, можно поменять.",
+  projectNumber: "Номер проекта из документов на готовый объект, например 2023/278930. Вводится вручную.",
+  propertyRented: "Объект сдан в аренду? От этого зависит статья о состоянии объекта: свободен на Transfer Date или продаётся с арендатором.",
+  annualRent: "Годовая аренда по действующему договору. Сумма прописью в договоре пишется сама.",
+  tenancyEndDate: "До какой даты действует договор аренды.",
   admValuationFee: "ADM Valuation Certificate — сертификат оценки ADREC, платит Buyer по запросу. По умолчанию AED 925.75.",
   transferFeeLabel: "Название строки: Transfer Fee или NOC Fee.",
   titleDeedNumber: "Номер title deed (документа о праве собственности). Если для Off-Plan его нет, оставьте пустым.",
@@ -374,7 +386,7 @@ function depositSectionStatus(form, side) {
   return makeSectionStatus(missing);
 }
 
-function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage = false) {
+function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage = false, isReadyTemplate = false) {
   const isReady = String(form.unitStatus || "").toLowerCase() === "ready";
   const agreementMissing = missingFields(form, [
     ["agreementDate", "Agreement Date"],
@@ -416,10 +428,18 @@ function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage
       ["admElectronicFee", "ADM Electronic Fee"],
       ["admValuationFee", "ADM Valuation Certificate"],
     );
+  } else if (isReadyTemplate) {
+    // суммы фиксированные и подставляются сами, но должны быть заполнены
+    projectRequired.push(
+      ["admElectronicFee", "ADM Electronic Fee"],
+      ["admValuationFee", "ADM Valuation Certificate"],
+      ["developerNocFee", "Developer NOC Fee"],
+      ["communityNocFee", "Community NOC Fee"],
+    );
   } else {
     projectRequired.push(["admAdminFee", "ADM Admin Fee"]);
   }
-  projectRequired.push(["transferFeeLabel", "Transfer Fee Label"]);
+  if (!isReadyTemplate) projectRequired.push(["transferFeeLabel", "Transfer Fee Label"]);
 
   return {
     agreement: makeSectionStatus(agreementMissing),
@@ -503,9 +523,11 @@ export default function HomePage() {
   const projectNames = useMemo(() => init.projects.map((p) => p.project_name).filter(Boolean), [init.projects]);
   const selectedTemplate = (init.config?.templates || []).find((t) => t.id === templateId);
   const isMortgage = !!selectedTemplate?.mortgage;
+  // готовый объект: свои сборы, номер проекта и статья про аренду
+  const isReadyTemplate = !!selectedTemplate?.ready;
   const sectionStatuses = useMemo(
-    () => buildSectionStatuses(form, reservationMode, reservationDays, isMortgage),
-    [form, reservationMode, reservationDays, isMortgage],
+    () => buildSectionStatuses(form, reservationMode, reservationDays, isMortgage, isReadyTemplate),
+    [form, reservationMode, reservationDays, isMortgage, isReadyTemplate],
   );
 
   // Ипотечный шаблон: ADM-сборы заполняются сами, но остаются редактируемыми
@@ -516,6 +538,22 @@ export default function HomePage() {
     if (form.admElectronicFee !== "" || form.admValuationFee !== "") return;
     setForm((current) => ({ ...current, admElectronicFee: "1,392", admValuationFee: "925.75" }));
   }, [isMortgage, form.admElectronicFee, form.admValuationFee]);
+
+  // Готовый объект: свои фиксированные суммы сборов (Алина, 06.09.2026).
+  // Подставляем один раз, дальше их можно править руками.
+  useEffect(() => {
+    if (!isReadyTemplate) return;
+    if (form.admElectronicFee !== "" || form.admValuationFee !== ""
+      || form.developerNocFee !== "" || form.communityNocFee !== "") return;
+    setForm((current) => ({
+      ...current,
+      admElectronicFee: "919",
+      admValuationFee: "1,037",
+      developerNocFee: "2,750",
+      communityNocFee: "1,050",
+      admAdminFee: "",
+    }));
+  }, [isReadyTemplate, form.admElectronicFee, form.admValuationFee, form.developerNocFee, form.communityNocFee]);
   const hasTemplateChoice = (init.config?.templates || []).length > 1;
   const navItems = useMemo(() => {
     const items = [];
@@ -887,10 +925,18 @@ export default function HomePage() {
                 <AutoMoneyField id="admElectronicFee" label="ADM Electronic Fee" tip={tips.admElectronicFee} value={form.admElectronicFee} onChange={patch} />
                 <AutoMoneyField id="admValuationFee" label="ADM Valuation Certificate" tip={tips.admValuationFee} value={form.admValuationFee} onChange={patch} />
               </>
+            ) : isReadyTemplate ? (
+              <>
+                <AutoMoneyField id="admFee" label="ADM Fee (2% or ADM valuation)" tip={tips.admFee} value={form.admFee} autoValue={preview?.summary?.admFee} onChange={patch} placeholder="Посчитается автоматически" />
+                <AutoMoneyField id="admElectronicFee" label="ADM Electronic Fee" tip={tips.admElectronicFee} value={form.admElectronicFee} onChange={patch} />
+                <AutoMoneyField id="admValuationFee" label="ADM Valuation Certificate" tip={tips.admValuationFee} value={form.admValuationFee} onChange={patch} />
+                <AutoMoneyField id="developerNocFee" label="Developer NOC Fee" tip={tips.developerNocFee} value={form.developerNocFee} onChange={patch} />
+                <AutoMoneyField id="communityNocFee" label="Community NOC Fee" tip={tips.communityNocFee} value={form.communityNocFee} onChange={patch} />
+              </>
             ) : (
               <AutoMoneyField id="admAdminFee" label="ADM Admin Fee" tip={tips.admAdminFee} value={form.admAdminFee} onChange={patch} />
             )}
-            <Field id="transferFeeLabel" label="Transfer Fee Label" tip={tips.transferFeeLabel} value={form.transferFeeLabel} onChange={patch} />
+            {!isReadyTemplate && <Field id="transferFeeLabel" label="Transfer Fee Label" tip={tips.transferFeeLabel} value={form.transferFeeLabel} onChange={patch} />}
           </Section>
 
           <Section title="Property" status={sectionStatuses.property}>
@@ -900,8 +946,26 @@ export default function HomePage() {
             <Field id="areaM2" label="Area, sq.m" tip={tips.areaM2} value={form.areaM2} onChange={patch} />
             <Field id="propertyType" label="Property Type" tip={tips.propertyType} value={form.propertyType} onChange={patch} list="propertyTypesList" options={lists.property_types || []} />
             <Field id="unitNumber" label="Unit Number" tip={tips.unitNumber} value={form.unitNumber} onChange={patch} />
-            <Field id="parkingSpaces" label="Parking Spaces" tip={tips.parkingSpaces} value={form.parkingSpaces} onChange={patch} />
-            <Field id="additionalInformation" label="Additional Information" tip={tips.additionalInformation} value={form.additionalInformation} onChange={patch} />
+            {isReadyTemplate && <Field id="projectNumber" label="Project No." tip={tips.projectNumber} value={form.projectNumber} onChange={patch} />}
+            <Field
+              id="parkingSpaces"
+              label={isReadyTemplate ? "Parking Space No." : "Parking Spaces"}
+              tip={isReadyTemplate ? "Номер парковочного места в готовом объекте, например B27." : tips.parkingSpaces}
+              value={form.parkingSpaces}
+              onChange={patch}
+            />
+            {!isReadyTemplate && <Field id="additionalInformation" label="Additional Information" tip={tips.additionalInformation} value={form.additionalInformation} onChange={patch} />}
+            {isReadyTemplate && (
+              <>
+                <SelectField id="propertyRented" label="Property is rented?" tip={tips.propertyRented} value={form.propertyRented || "No"} onChange={patch} options={["No", "Yes"]} />
+                {form.propertyRented === "Yes" && (
+                  <>
+                    <AutoMoneyField id="annualRent" label="Annual Rent" tip={tips.annualRent} value={form.annualRent} onChange={patch} />
+                    <DateField id="tenancyEndDate" label="Tenancy Contract Until" tip={tips.tenancyEndDate} value={form.tenancyEndDate} onChange={patch} />
+                  </>
+                )}
+              </>
+            )}
           </Section>
 
           <PartySection title="Seller" type="sellers" parties={form.sellers} setForm={setForm} lists={lists} status={sectionStatuses.sellers} />

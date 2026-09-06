@@ -638,3 +638,17 @@ test("MOU_TEMPLATES из окружения не отменяет движок �
   assert.equal(t.articles, "offplan-mortgage-v2");
   assert.equal(t.mortgage, true);
 });
+
+test("готовый объект: ADM Fee без админ-части, аренда прописью", () => {
+  const template = { engine: "v2", ready: true, articles: "ready-cash-v2" };
+  const p = buildPreview({
+    sellingPrice: "1,670,000", admAdminFee: "575", unitStatus: "Ready",
+    propertyRented: "Yes", annualRent: "150,000", tenancyEndDate: "12/12/2027",
+    developerNocFee: "2,750", communityNocFee: "1,050", projectNumber: "2023/278930",
+  }, undefined, template);
+  assert.equal(p.calc.admFee, 1670000 * 0.02);
+  assert.equal(p.replacements.annual_rent_words, "One hundred fifty thousand dirhams");
+  assert.equal(p.replacements.tenancy_end_date, "12 December 2027");
+  assert.equal(p.replacements.developer_noc_fee, "2,750.00");
+  assert.equal(p.replacements.project_number, "2023/278930");
+});

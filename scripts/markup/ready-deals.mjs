@@ -76,9 +76,9 @@ export const READY_CASH = {
         + "which the Parties agree is not a penalty.\n{{#if any_deposit}}\nThis amount shall be distributed as follows:{{/if}}",
       note: "ст.7 без депозитов" },
     { find: "{{seller_liquidated_damages_amount}} as liquidated damages, being an amount equal to the Security Deposit, "
-        + "which the Parties agree is not a penalty. \u000b\nThis amount shall be distributed as follows:",
+        + "which the Parties agree is not a penalty.\nThis amount shall be distributed as follows:",
       replace: "{{seller_liquidated_damages_amount}} as liquidated damages{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}, "
-        + "which the Parties agree is not a penalty. \u000b\n{{#if any_deposit}}This amount shall be distributed as follows:{{/if}}",
+        + "which the Parties agree is not a penalty.\n{{#if any_deposit}}This amount shall be distributed as follows:{{/if}}",
       note: "ст.8 без депозитов" },
   ],
 
@@ -99,6 +99,11 @@ export const READY_CASH = {
     // скобка в строке ADM Fee не закрывалась — приводим к виду №1
     { find: "or as per ADM valuation (whatever comes higher) to be paid",
       replace: "or as per ADM valuation, whatever comes higher) to be paid", note: "ст.4: скобка в ADM Fee" },
+    // ст.8: разделитель «—-» и хвост абзаца оставляли по мягкому переносу,
+    // из-за них в договоре появлялись пустые строки вокруг фразы о дефолте Продавца
+    { find: "—-\u000bUpon Seller Default", replace: "—-Upon Seller Default", note: "ст.8: перенос после разделителя" },
+    { find: "not a penalty. \u000b\nThis amount shall be distributed",
+      replace: "not a penalty.\nThis amount shall be distributed", note: "ст.8: перенос в конце абзаца" },
     // двойные пробелы исходника
     { find: "REVENUE ACCOU  on the Transfer Date by a Manager", replace: "REVENUE ACCOU on the Transfer Date by a Manager",
       note: "двойной пробел, ADM Fee" },

@@ -78,7 +78,7 @@ import { READY_CASH, ARTICLES_READY_CASH } from "../scripts/markup/ready-deals.m
 
 test("список правок для Ready cash-to-cash собирается целиком", () => {
   const edits = buildEdits(READY_CASH);
-  assert.equal(edits.length, 176);
+  assert.equal(edits.length, 178);
   assert.equal(ARTICLES_READY_CASH.length, 18);
   const heads = edits.filter((e) => /^Article \d+$/.test(e.find));
   assert.equal(heads.length, 18);
