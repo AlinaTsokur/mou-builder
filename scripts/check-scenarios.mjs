@@ -4,11 +4,13 @@
 import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
 import { renderLocal } from "./render-local.mjs";
+import { templateFor } from "./batch-scenarios.mjs";
 import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2, ARTICLE_DEFS_READY_CASH_V2 } from "../lib/mou/articles.js";
 
 const MORTGAGE = process.argv.includes("--mortgage");
 const READY = process.argv.includes("--ready");
 const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : READY ? ARTICLE_DEFS_READY_CASH_V2 : ARTICLE_DEFS_OFFPLAN_V2;
+const TEMPLATE = templateFor(MORTGAGE, READY);
 
 const BASE = {
   agreementDate: "28/01/2026", sellingPrice: "1,670,000", originalPrice: "1,494,050",
@@ -86,7 +88,7 @@ let problems = 0;
 for (const { name, over, forbidden } of SCENARIOS) {
   // общий рендер с комбинаторным прогоном: он умеет удалять строки таблиц
   // в колонтитулах, а прежняя копия здесь искала таблицы только в теле
-  const { text, outsideTables, cond, rows } = renderLocal(doc, idx, { ...BASE, ...over }, DEFS);
+  const { text, outsideTables, cond, rows } = renderLocal(doc, idx, { ...BASE, ...over }, DEFS, TEMPLATE);
 
   // пустые строки ищем только в теле и вне таблиц: в плоском тексте каждая ячейка
   // заканчивается переводом строки, и пустая ячейка шапки даёт ложное срабатывание

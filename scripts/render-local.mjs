@@ -1,7 +1,7 @@
 // Локальный рендер шаблона: тот же движок, что на сервере, но без записи в Google.
 // Возвращает готовый текст договора — по нему и проверяем.
 import { buildConditionalPlan, buildRowPlan } from "../lib/google/template-engine.js";
-import { normalizeForm, calculate, buildFlags, buildReplacementsV2 } from "../lib/mou/core.js";
+import { normalizeForm, calculate, buildFlags, buildReplacementsV2, formForTemplate } from "../lib/mou/core.js";
 import { buildArticleNumbers } from "../lib/mou/articles.js";
 
 const key = (seg, i) => `${seg || ""}:${i}`;
@@ -35,8 +35,11 @@ function findTableInSegment(doc, segmentId, startIndex) {
   return null;
 }
 
-export function renderLocal(doc, idx, form, articleDefs) {
-  const data = normalizeForm(form);
+// template — описание шаблона из реестра ({ engine, mortgage, ready }). Без него
+// проверки считали бы форму иначе, чем сайт: formForTemplate убирает админ-часть
+// ADM Fee и фиксирует способ оплаты Продавцу в готовых объектах.
+export function renderLocal(doc, idx, form, articleDefs, template = { engine: "v2" }) {
+  const data = normalizeForm(formForTemplate(form, template));
   const calc = calculate(data);
   const flags = buildFlags(data, calc);
   const numbers = buildArticleNumbers(data, undefined, articleDefs);

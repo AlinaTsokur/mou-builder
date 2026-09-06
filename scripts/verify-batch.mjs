@@ -7,12 +7,13 @@
 import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
 import { renderLocal } from "./render-local.mjs";
-import { baseFor, SCENARIOS, READY_SCENARIOS } from "./batch-scenarios.mjs";
+import { baseFor, templateFor, SCENARIOS, READY_SCENARIOS } from "./batch-scenarios.mjs";
 import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2, ARTICLE_DEFS_READY_CASH_V2 } from "../lib/mou/articles.js";
 
 const MORTGAGE = process.argv.includes("--mortgage");
 const READY = process.argv.includes("--ready");
 const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : READY ? ARTICLE_DEFS_READY_CASH_V2 : ARTICLE_DEFS_OFFPLAN_V2;
+const TEMPLATE = templateFor(MORTGAGE, READY);
 const BASE = baseFor(MORTGAGE, READY);
 const CASES = READY ? [...SCENARIOS, ...READY_SCENARIOS] : SCENARIOS;
 const positional = process.argv.slice(2).filter((a) => !a.startsWith("--"));
@@ -60,7 +61,7 @@ for (const [name, over] of CASES) {
   const leftovers = got.match(/\{\{[^}]*\}\}|\{\{|\}\}|<<|>>/g);
   if (leftovers) problems.push(`остались маркеры: ${[...new Set(leftovers)].join(" ")}`);
 
-  const local = renderLocal(templateDoc, templateIdx, { ...BASE, ...over }, DEFS);
+  const local = renderLocal(templateDoc, templateIdx, { ...BASE, ...over }, DEFS, TEMPLATE);
 
   if (norm(got) !== norm(local.text)) {
     problems.push(`текст расходится с рендером:\n  ${firstDiff(norm(got), norm(local.text))}`);

@@ -3,14 +3,17 @@
 // Генерация — тем же кодом, что и сайт.
 import { getBotClients } from "./google-bot.mjs";
 import { createMouDocument } from "../lib/google/docs.js";
-import { normalizeForm, calculate, buildFlags, buildReplacementsV2 } from "../lib/mou/core.js";
+import { normalizeForm, calculate, buildFlags, buildReplacementsV2, formForTemplate } from "../lib/mou/core.js";
 import { buildArticleNumbers, ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2, ARTICLE_DEFS_READY_CASH_V2 } from "../lib/mou/articles.js";
-import { baseFor, SCENARIOS, READY_SCENARIOS } from "./batch-scenarios.mjs";
+import { baseFor, templateFor, SCENARIOS, READY_SCENARIOS } from "./batch-scenarios.mjs";
 
 const MORTGAGE = process.argv.includes("--mortgage");
 const READY = process.argv.includes("--ready");
 const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : READY ? ARTICLE_DEFS_READY_CASH_V2 : ARTICLE_DEFS_OFFPLAN_V2;
 const BASE = baseFor(MORTGAGE, READY);
+// то же описание шаблона, что и на сайте: иначе в пакет уедет форма, которой
+// в реальной генерации не бывает (админ-часть ADM Fee, способ оплаты Продавцу)
+const TEMPLATE = templateFor(MORTGAGE, READY);
 const CASES = READY ? [...SCENARIOS, ...READY_SCENARIOS] : SCENARIOS;
 
 const MOU_FOLDER = "1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm";
@@ -34,7 +37,7 @@ console.log("папка:", folder.data.webViewLink, "\n");
 // createMouDocument кладёт копию в MOU_CONFIG.outputFolderId — переносим в папку тестов
 for (const [name, over] of CASES) {
   const form = { ...BASE, ...over };
-  const data = normalizeForm(form);
+  const data = normalizeForm(formForTemplate(form, TEMPLATE));
   const calc = calculate(data);
   const flags = buildFlags(data, calc);
   const numbers = buildArticleNumbers(data, [], DEFS);

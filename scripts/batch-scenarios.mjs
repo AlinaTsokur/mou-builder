@@ -69,6 +69,14 @@ export function baseFor(mortgage, ready = false) {
   return mortgage ? { ...BASE, ...MORTGAGE_FIELDS } : BASE;
 }
 
+// Описание шаблона для formForTemplate: проверки должны считать форму так же,
+// как сайт, иначе в пакет уезжает то, чего в договоре быть не может.
+export function templateFor(mortgage, ready = false) {
+  if (ready) return { engine: "v2", ready: true, articles: "ready-cash-v2" };
+  if (mortgage) return { engine: "v2", mortgage: true, articles: "offplan-mortgage-v2" };
+  return { engine: "v2", articles: "offplan-v2" };
+}
+
 // сценарии, которые есть только у готовых объектов
 export const READY_SCENARIOS = [
   ["17 объект сдан в аренду", { propertyRented: "Yes" }],
