@@ -133,49 +133,71 @@ export function buildEdits(D) {
   { find: "Terms and conditions", insertBefore: "{{/if}}", note: "закрыть both_agents" },
 
   // ═══ определения
-  { find: "ALDAR DEVELOPMENT L.L.C – O.P.C", replace: "{{developer_name}}", within: "being the developer authorized" },
+  { find: D.developerDefinitionName || "ALDAR DEVELOPMENT L.L.C – O.P.C", replace: "{{developer_name}}",
+    within: "being the developer authorized" },
   { find: "Security Deposit ", replace: "{{#if any_deposit}}Security Deposit ", within: "the security deposit, if any" },
   { find: "performance of their obligations.", replace: "performance of their obligations.{{/if}}" },
   { find: "Liquidated Damages", replace: "{{#if !both_deposits}}Liquidated Damages", within: "an agreed amount payable by the defaulting Party" },
   { find: "pre-estimate of loss and not a penalty.", replace: "pre-estimate of loss and not a penalty.{{/if}}", within: "an agreed amount payable by the defaulting Party" },
-  { find: " NOC fee", replace: "{{#if noc_fee}} NOC fee", within: "any fee levied by the" },
-  { find: "no objection to a specific action.", replace: "no objection to a specific action.{{/if}}", within: "any fee levied by the" },
+  ...(D.hasNocDefinition === false ? [] : [
+    { find: " NOC fee", replace: "{{#if noc_fee}} NOC fee", within: "any fee levied by the" },
+    { find: "no objection to a specific action.", replace: "no objection to a specific action.{{/if}}", within: "any fee levied by the" },
+  ]),
 
   // ═══ ст. 3 — объект
-  { find: "Residential", replace: "{{type_of_area}}", within: "Type of Area" },
-  { find: "N/A", replace: "{{title_deed_number}}" },
+  { find: D.typeOfAreaValue || "Residential", replace: "{{type_of_area}}", within: "Type of Area" },
+  { find: D.titleDeedValue || "N/A", replace: "{{title_deed_number}}" },
   { find: D.location, replace: "{{property_location}}" },
   { find: D.bedrooms, replace: "{{bedrooms}}" },
   { find: D.area, replace: "{{area_m2}}" },
   { find: "Apartment", replace: "{{property_type}}" },
   { find: D.unitNumber, replace: "{{unit_number}}" },
   { find: D.projectName, replace: "{{project_name}}", within: "Project name" },
-  { find: "Additional Information:", replace: "Additional Information: {{additional_information}}" },
-  { cellAfter: "Number of Car Parking Spaces:", replace: "{{parking_spaces}}", note: "parking_spaces" },
+  ...(D.hasAdditionalInformation === false
+    ? []
+    : [{ find: "Additional Information:", replace: "Additional Information: {{additional_information}}" }]),
+  // в готовых объектах вместо количества парковок стоит их номер (Алина, 06.09.2026),
+  // подпись строки в таблице тоже другая
+  { cellAfter: D.parkingLabel || "Number of Car Parking Spaces:", replace: "{{parking_spaces}}", note: "parking_spaces" },
+  ...(D.propertyExtra || []),
 
   // ═══ ст. 4 — платёжная таблица
-  { find: "AED 0,000,000.00", replace: "AED {{original_price}}", within: "as per the SPA issued by the" },
-  { find: "AED 0,000,000.00", replace: "AED {{selling_price}}", within: "as agreed by the" },
-  { find: "AED 0,000,000.00", replace: "AED {{amount_to_seller}}", within: "to be paid by the" },
+  ...(D.hasOriginalPrice === false
+    ? []
+    : [{ find: D.priceValue || "AED 0,000,000.00", replace: "AED {{original_price}}", within: "as per the SPA issued by the" }]),
+  { find: D.priceValue || "AED 0,000,000.00", replace: "AED {{selling_price}}", within: "as agreed by the" },
+  { find: D.priceValue || "AED 0,000,000.00", replace: "AED {{amount_to_seller}}",
+    within: D.amountToSellerWithin || "to be paid by the" },
   ...(D.amountToSellerText
-    ? [{ find: D.amountToSellerText, replace: "{{amount_to_seller_payment_text}}", note: "способ оплаты (точка внутри значения)" }]
+    ? [{
+        find: D.amountToSellerText,
+        replace: "{{amount_to_seller_payment_text}}",
+        ...(D.amountToSellerWithin ? { within: D.amountToSellerWithin } : {}),
+        note: "способ оплаты (точка внутри значения)",
+      }]
     : []),
 
   ...(D.hasThresholdRow ? thresholdRowHead() : []),
 
-  // строка остатка застройщику уходит целиком, когда платить нечего
-  { find: "Remaining balance of 70% of the Original Price",
-    replace: "{{#row has_developer_balance}}Remaining balance of {{remaining_balance_percent}}% of the Original Price" },
+  // строка остатка застройщику уходит целиком, когда платить нечего.
+  // В готовых объектах застройщику не платят, строки в таблице нет вовсе
+  ...(D.hasDeveloperBalanceRow === false ? [] : [
+    { find: "Remaining balance of 70% of the Original Price",
+      replace: "{{#row has_developer_balance}}Remaining balance of {{remaining_balance_percent}}% of the Original Price" },
 
-  ...(D.hasThresholdRow ? thresholdRowTail(D) : []),
-  { find: D.remainingDeveloperBalance, replace: "AED {{remaining_developer_balance}}",
-    ...(D.remainingBalanceWithin ? { within: D.remainingBalanceWithin } : {}) },
-  { find: D.escrowName, replace: "{{escrow_account_name}}", within: D.developerPaymentWithin },
+    ...(D.hasThresholdRow ? thresholdRowTail(D) : []),
+    { find: D.remainingDeveloperBalance, replace: "AED {{remaining_developer_balance}}",
+      ...(D.remainingBalanceWithin ? { within: D.remainingBalanceWithin } : {}) },
+    { find: D.escrowName, replace: "{{escrow_account_name}}", within: D.developerPaymentWithin },
+  ]),
 
-  // подпись строки: «Transfer Fee / NOC Fee» либо просто «Transfer Fee» — решает движок
-  { find: "Transfer Fee / NOC Fee:", replace: "{{transfer_fee_label}}:" },
-  { find: "AED 4,000.00", replace: "AED {{transfer_fee}}" },
-  { find: "ALDAR PROPERTIES PJSC", replace: "{{developer_legal_name}}" },
+  // строки сборов: в off-plan это Transfer Fee, в готовых — два NOC-сбора
+  ...(D.feeEdits || [
+    // подпись строки: «Transfer Fee / NOC Fee» либо просто «Transfer Fee» — решает движок
+    { find: "Transfer Fee / NOC Fee:", replace: "{{transfer_fee_label}}:" },
+    { find: "AED 4,000.00", replace: "AED {{transfer_fee}}" },
+    { find: "ALDAR PROPERTIES PJSC", replace: "{{developer_legal_name}}" },
+  ]),
   ...(D.admEdits || [
     { find: "AED 00,000.00", replace: "AED {{adm_fee}}", within: "2% from the" },
     { find: D.admAdminFee, replace: "AED {{adm_admin_fee}}" },
@@ -398,16 +420,20 @@ export function buildEdits(D) {
   ...(D.article78 === "mortgage" ? article78Mortgage(D) : [
   // Шаблон 1.2 (депозитов нет ни у кого) — главный для этого случая:
   // там нет ни фразы про Security Deposit, ни распределения 80/20.
-  { find: "{{buyer_liquidated_damages_amount}} as liquidated damages, being an amount equal to the Security Deposit, "
-      + "which the Parties agree is not a penalty. \nThis amount shall be distributed as follows:",
-    replace: "{{buyer_liquidated_damages_amount}} as liquidated damages{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}, "
-      + "which the Parties agree is not a penalty. \n{{#if any_deposit}}This amount shall be distributed as follows:{{/if}}",
-    note: "ст.7 без депозитов" },
-  { find: "{{seller_liquidated_damages_amount}} as liquidated damages, being an amount equal to the Security Deposit, "
-      + "which the Parties agree is not a penalty. \u000b\nThis amount shall be distributed as follows:",
-    replace: "{{seller_liquidated_damages_amount}} as liquidated damages{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}, "
-      + "which the Parties agree is not a penalty. \u000b\n{{#if any_deposit}}This amount shall be distributed as follows:{{/if}}",
-    note: "ст.8 без депозитов" },
+  // Хвост абзаца у документов разный (пробелы, мягкий перенос, пустой абзац между),
+  // поэтому пару правок можно задать в конфиге сделки
+  ...(D.noDepositLdEdits || [
+    { find: "{{buyer_liquidated_damages_amount}} as liquidated damages, being an amount equal to the Security Deposit, "
+        + "which the Parties agree is not a penalty. \nThis amount shall be distributed as follows:",
+      replace: "{{buyer_liquidated_damages_amount}} as liquidated damages{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}, "
+        + "which the Parties agree is not a penalty. \n{{#if any_deposit}}This amount shall be distributed as follows:{{/if}}",
+      note: "ст.7 без депозитов" },
+    { find: "{{seller_liquidated_damages_amount}} as liquidated damages, being an amount equal to the Security Deposit, "
+        + "which the Parties agree is not a penalty. \u000b\nThis amount shall be distributed as follows:",
+      replace: "{{seller_liquidated_damages_amount}} as liquidated damages{{#if any_deposit}}, being an amount equal to the Security Deposit{{/if}}, "
+        + "which the Parties agree is not a penalty. \u000b\n{{#if any_deposit}}This amount shall be distributed as follows:{{/if}}",
+      note: "ст.8 без депозитов" },
+  ]),
   { find: "{{#if seller_agent}}a) 80% (AED {{buyer_deposit_80_percent_amount}}) to the Seller; and",
     insertBefore: "{{#if any_deposit}}", note: "ст.7 открыть распределение" },
   { find: "a) 100% (AED {{buyer_deposit_80_percent_amount}}) to the Seller{{/if}}",

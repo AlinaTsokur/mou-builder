@@ -10,10 +10,17 @@
 import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
 import { renderLocal } from "./render-local.mjs";
-import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 } from "../lib/mou/articles.js";
+import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2, ARTICLE_DEFS_READY_CASH_V2 } from "../lib/mou/articles.js";
 
 const MORTGAGE = process.argv.includes("--mortgage");
-const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : ARTICLE_DEFS_OFFPLAN_V2;
+// --ready — шаблон №3 (готовый объект): застройщику не платят, зато два NOC-сбора
+// и статья про состояние объекта в двух вариантах
+const READY = process.argv.includes("--ready");
+const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : READY ? ARTICLE_DEFS_READY_CASH_V2 : ARTICLE_DEFS_OFFPLAN_V2;
+const ADM_ELECTRONIC_READY = 919;
+const ADM_VALUATION_READY = 1037;
+const DEVELOPER_NOC = 2750;
+const COMMUNITY_NOC = 1050;
 
 // ───────── условия сделки, общие для всех комбинаций
 const SELLING = 1670000;
@@ -71,7 +78,7 @@ const AXES = {
   buyerAgent: [true, false],
   // «ровно» — застройщику заплачено ровно столько, сколько требует порог:
   // добор равен нулю, строка из таблицы должна уйти. «сверх» — переплата.
-  paidThreshold: ["не добран", "ровно", "сверх"],
+  ...(READY ? { rented: [false, true] } : { paidThreshold: ["не добран", "ровно", "сверх"] }),
   // способ расчёта у сторон независимый: у одного процент, у другого сумма
   buyerDepositCalc: ["процент", "сумма"],
   sellerDepositCalc: ["процент", "сумма"],
@@ -124,7 +131,13 @@ function formFor(c) {
   return {
     ...BASE,
     ...PARTY_SETS[c.parties],
-    paidAmountToDeveloper: String(PAID_FOR[c.paidThreshold]),
+    ...(READY ? {
+      unitStatus: "Ready",
+      admAdminFee: "", admElectronicFee: String(ADM_ELECTRONIC_READY), admValuationFee: String(ADM_VALUATION_READY),
+      developerNocFee: String(DEVELOPER_NOC), communityNocFee: String(COMMUNITY_NOC),
+      projectNumber: "2023/278930", titleDeedNumber: "2026/0000", parkingSpaces: "B27",
+      propertyRented: c.rented ? "Yes" : "No", annualRent: "150,000", tenancyEndDate: "12/12/2027",
+    } : { paidAmountToDeveloper: String(PAID_FOR[c.paidThreshold]) }),
     sellerAgentEnabled: c.sellerAgent ? "Yes" : "No",
     buyerAgentEnabled: c.buyerAgent ? "Yes" : "No",
     sellerAgentFeeEnabled: feesOn ? "Yes" : "No",
@@ -144,13 +157,13 @@ function formFor(c) {
 
 // ───────── независимый пересчёт: как должно быть по условиям договора
 function expected(c) {
-  const paid = PAID_FOR[c.paidThreshold];
+  const paid = READY ? ORIGINAL : PAID_FOR[c.paidThreshold];
   const required = (ORIGINAL * THRESHOLD_PCT) / 100;
-  const topUp = Math.max(required - paid, 0);
-  const remaining = Math.max(ORIGINAL - paid - topUp, 0);
+  const topUp = READY ? 0 : Math.max(required - paid, 0);
+  const remaining = READY ? 0 : Math.max(ORIGINAL - paid - topUp, 0);
   // Продавцу достаётся то, что осталось от цены после выплат застройщику:
   // добор порога и остаток по SPA идут не ему. Поле формы здесь перекрывается расчётом.
-  const toSeller = SELLING - topUp - remaining;
+  const toSeller = READY ? SELLING : SELLING - topUp - remaining;
 
   const dep = (on, calc, fixed) => (on ? (calc === "процент" ? (SELLING * DEPOSIT_PCT) / 100 : fixed) : "");
   const buyerDep = dep(c.buyerDeposit, c.buyerDepositCalc, DEPOSIT_FIXED_BUYER);
@@ -165,12 +178,16 @@ function expected(c) {
   const sellerLd80 = c.buyerAgent ? sellerLd * 0.8 : sellerLd;
   const sellerLd20 = c.buyerAgent ? sellerLd * 0.2 : null;
 
-  const admFee = MORTGAGE ? SELLING * 0.02 : SELLING * 0.02 + ADM_ADMIN;
-  const amounts = [
-    ORIGINAL, SELLING, toSeller, remaining, TRANSFER_FEE, admFee,
-    ...(MORTGAGE ? [ADM_ELECTRONIC, ADM_VALUATION] : [ADM_ADMIN]),
-    buyerLd, sellerLd, buyerLd80, sellerLd80,
-  ];
+  const admFee = MORTGAGE || READY ? SELLING * 0.02 : SELLING * 0.02 + ADM_ADMIN;
+  const amounts = READY
+    ? [SELLING, toSeller, admFee, ADM_ELECTRONIC_READY, ADM_VALUATION_READY, DEVELOPER_NOC, COMMUNITY_NOC,
+      buyerLd, sellerLd, buyerLd80, sellerLd80]
+    : [
+      ORIGINAL, SELLING, toSeller, remaining, TRANSFER_FEE, admFee,
+      ...(MORTGAGE ? [ADM_ELECTRONIC, ADM_VALUATION] : [ADM_ADMIN]),
+      buyerLd, sellerLd, buyerLd80, sellerLd80,
+    ];
+  if (READY && c.rented) amounts.push(150000);
   if (topUp > 0) amounts.push(topUp);
   if (buyerDep !== "") amounts.push(buyerDep);
   if (sellerDep !== "") amounts.push(sellerDep);
@@ -231,8 +248,14 @@ for (const c of combos) {
   if (/\n[ \t]*\n[ \t]*\n/.test(outsideTables)) found.push("две пустые строки подряд");
 
   // запрещённые упоминания
-  if (e.buyerDep === "" && e.sellerDep === "" && /\bdeposits?\b/i.test(text)) {
-    found.push("депозитов нет, а слово deposit в тексте есть");
+  if (e.buyerDep === "" && e.sellerDep === "") {
+    // депозит арендатора в ст.12 — это не Security Deposit по договору,
+    // он остаётся в тексте и при выключенных чеках сторон
+    const cleaned = text.replace(/tenancy security deposit[^.]*\./gi, "").replace(/the tenancy Security deposit[^.]*\./gi, "");
+    if (/\bdeposits?\b/i.test(cleaned)) {
+      const m = cleaned.match(/.{0,60}\bdeposits?\b.{0,60}/i);
+      found.push(`депозитов нет, а слово deposit в тексте есть → …${m[0].replace(/\n/g, " ⏎ ")}…`);
+    }
   }
   if (!c.sellerAgent && !c.buyerAgent) {
     // «through any other real estate agency» — известное место, слово other там
@@ -246,9 +269,16 @@ for (const c of combos) {
   if (!c.buyerAgent && /Buyer’s Agen/.test(text)) found.push("нет агентства Покупателя, а «Buyer’s Agent» есть");
   if (!c.sellerAgent && /Seller’s Agen/.test(text)) found.push("нет агентства Продавца, а «Seller’s Agent» есть");
 
+  if (READY) {
+    const vacant = /shall be vacant on the Transfer Date/.test(text);
+    const leased = /currently leased at a rent of/.test(text);
+    if (c.rented && (vacant || !leased)) found.push("объект сдан, а в тексте вариант «свободен»");
+    if (!c.rented && (leased || !vacant)) found.push("объект свободен, а в тексте вариант «сдан»");
+  }
+
   // строка добора порога — только когда порог не закрыт
   const hasTopUpRow = /Remaining balance to complete/.test(text);
-  if (hasTopUpRow !== (e.topUp > 0)) {
+  if (!READY && hasTopUpRow !== (e.topUp > 0)) {
     found.push(`строка добора порога ${hasTopUpRow ? "есть" : "отсутствует"}, а должна быть ${e.topUp > 0 ? "есть" : "отсутствовать"}`);
   }
 
@@ -274,16 +304,22 @@ for (const c of combos) {
       found.push(`${label}: ожидал AED ${fmt(value)}, а в строке «${where.trim().slice(0, 90)}»`);
     }
   };
-  inRow("Original Price", "as per the SPA issued by", ORIGINAL);
+  if (!READY) inRow("Original Price", "as per the SPA issued by", ORIGINAL);
   inRow("Selling Price", "as agreed by the Parties", SELLING);
   inRow("Amount to Seller", "to be paid by the Buyer to the Seller on the Transfer Date", e.toSeller);
-  inRow("остаток застройщику", "of the Original Price to be paid to the Developer", e.remaining);
+  if (!READY) inRow("остаток застройщику", "of the Original Price to be paid to the Developer", e.remaining);
   inRow("ADM Fee", "2% from the Selling Price", e.admFee);
   if (MORTGAGE) {
     inRow("ADM Electronic Fee", "ADM Electronic Fee:", ADM_ELECTRONIC);
     inRow("ADM Valuation Certificate", "ADM Valuation Certificate:", ADM_VALUATION);
   }
-  inRow("Transfer Fee", "Transfer Fee", TRANSFER_FEE);
+  if (READY) {
+    inRow("Developer NOC Fee", "Developer NOC Fee:", DEVELOPER_NOC);
+    inRow("Community NOC Fee", "Community NOC Fee:", COMMUNITY_NOC);
+    inRow("ADM Electronic Fee", "ADM Electronic Fee:", ADM_ELECTRONIC_READY);
+    inRow("ADM Valuation Certificate", "ADM Valuation Certificate:", ADM_VALUATION_READY);
+  }
+  if (!READY) inRow("Transfer Fee", "Transfer Fee", TRANSFER_FEE);
   if (e.topUp > 0) inRow("добор порога", "Remaining balance to complete", e.topUp);
   if (e.buyerDep !== "") inRow("депозит Покупателя", "provided by the Buyer to the Seller", e.buyerDep);
   if (e.sellerDep !== "") inRow("депозит Продавца", "provided by the Seller to the Buyer", e.sellerDep);

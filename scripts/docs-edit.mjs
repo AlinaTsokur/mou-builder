@@ -143,15 +143,27 @@ export async function applyEdit(docs, documentId, edit) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Сетевые обрывы: разметка идёт полчаса, и один таймаут посреди прогона
+// раньше ронял весь скрипт, а повторить его нельзя — маркеры бы задвоились.
+const NETWORK_ERRORS = new Set(["ETIMEDOUT", "ECONNRESET", "ECONNREFUSED", "EAI_AGAIN", "ENOTFOUND", "EPIPE"]);
+
+function isRetriable(e) {
+  const code = e?.code || e?.response?.status;
+  if (code === 429 || code === 503 || code === 500 || code === 502 || code === 504) return true;
+  if (NETWORK_ERRORS.has(code) || NETWORK_ERRORS.has(e?.cause?.code)) return true;
+  return /ETIMEDOUT|ECONNRESET|socket hang up|network|fetch failed/i.test(e?.message || "");
+}
+
 // У Google Docs API лимит 60 записей в минуту на проект — ждём и повторяем.
-async function withRetry(fn, attempts = 6) {
+async function withRetry(fn, attempts = 8) {
   for (let i = 0; ; i += 1) {
     try {
       return await fn();
     } catch (e) {
-      const code = e?.code || e?.response?.status;
-      if ((code !== 429 && code !== 503) || i >= attempts - 1) throw e;
-      await sleep(15000 * (i + 1));
+      if (!isRetriable(e) || i >= attempts - 1) throw e;
+      const wait = 15000 * (i + 1);
+      console.log(`   повтор через ${wait / 1000} с: ${e?.code || e?.message || "ошибка"}`);
+      await sleep(wait);
     }
   }
 }

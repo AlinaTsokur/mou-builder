@@ -72,3 +72,22 @@ test("строка остатка застройщику размечается 
   assert.ok(edit, "правка строки остатка не найдена");
   assert.ok(edit.replace.startsWith("{{#row has_developer_balance}}"));
 });
+
+// ═══ шаблон №3 — Ready cash to cash
+import { READY_CASH, ARTICLES_READY_CASH } from "../scripts/markup/ready-deals.mjs";
+
+test("список правок для Ready cash-to-cash собирается целиком", () => {
+  const edits = buildEdits(READY_CASH);
+  assert.equal(edits.length, 176);
+  assert.equal(ARTICLES_READY_CASH.length, 18);
+  const heads = edits.filter((e) => /^Article \d+$/.test(e.find));
+  assert.equal(heads.length, 18);
+  assert.equal(heads[0].find, "Article 18");
+  // в готовом объекте нет платежей застройщику
+  assert.ok(!edits.some((e) => e.replace === "AED {{original_price}}"));
+  assert.ok(!edits.some((e) => String(e.replace || "").includes("{{remaining_developer_balance}}")));
+  // и есть два NOC-сбора со своим состоянием объекта
+  assert.ok(edits.some((e) => e.replace === "AED {{developer_noc_fee}}"));
+  assert.ok(edits.some((e) => e.replace === "AED {{community_noc_fee}}"));
+  assert.ok(edits.some((e) => e.insertBefore === "{{#if property_rented}}"));
+});

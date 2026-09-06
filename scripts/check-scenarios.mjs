@@ -4,16 +4,24 @@
 import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
 import { renderLocal } from "./render-local.mjs";
-import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 } from "../lib/mou/articles.js";
+import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2, ARTICLE_DEFS_READY_CASH_V2 } from "../lib/mou/articles.js";
 
 const MORTGAGE = process.argv.includes("--mortgage");
-const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : ARTICLE_DEFS_OFFPLAN_V2;
+const READY = process.argv.includes("--ready");
+const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : READY ? ARTICLE_DEFS_READY_CASH_V2 : ARTICLE_DEFS_OFFPLAN_V2;
 
 const BASE = {
   agreementDate: "28/01/2026", sellingPrice: "1,670,000", originalPrice: "1,494,050",
   paidAmountToDeveloper: "300,000", transferThresholdPercent: "30",
   ...(MORTGAGE ? { admAdminFee: "", admElectronicFee: "1,392", admValuationFee: "925.75" } : { admAdminFee: "575" }),
-  transferFee: "4,000", transferFeeLabel: "Transfer Fee / NOC Fee", unitStatus: "Off-plan",
+  transferFee: "4,000", transferFeeLabel: "Transfer Fee / NOC Fee", unitStatus: READY ? "Ready" : "Off-plan",
+  // готовый объект: два NOC-сбора, свои ADM-суммы, номер проекта и аренда
+  ...(READY ? {
+    admAdminFee: "", admElectronicFee: "919", admValuationFee: "1,037",
+    developerNocFee: "2,750", communityNocFee: "1,050", projectNumber: "2023/278930",
+    propertyRented: "No", annualRent: "150,000", tenancyEndDate: "12/12/2027",
+    titleDeedNumber: "2026/0000", parkingSpaces: "B27",
+  } : {}),
   developerName: "ALDAR DEVELOPMENT L.L.C – O.P.C", developerLegalName: "ALDAR PROPERTIES PJSC", escrowAccountName: "THE SOURCE ESCROW",
   propertyLocation: "Saadiyat Island", projectName: "The Source", unitNumber: "R18-212",
   buyerDefaultPenaltyAmount: "167,000", sellerDefaultPenaltyAmount: "167,000",
@@ -46,6 +54,10 @@ const SCENARIOS = [
     forbidden: [] },
   { name: "депозит только у Покупателя", over: { sellerDepositEnabled: "No" }, forbidden: [] },
   { name: "депозит только у Продавца", over: { buyerDepositEnabled: "No" }, forbidden: [] },
+  ...(READY ? [
+    { name: "объект сдан в аренду", over: { propertyRented: "Yes" }, forbidden: [/shall be vacant on the Transfer Date/] },
+    { name: "объект свободен", over: { propertyRented: "No" }, forbidden: [/currently leased/, /tenancy contract/] },
+  ] : []),
   { name: "депозитов нет и агентств нет", over: { buyerDepositEnabled: "No", sellerDepositEnabled: "No", sellerAgentEnabled: "No", buyerAgentEnabled: "No" },
     forbidden: [/\bdeposits?\b/i, /\bAgents?\b/, /\bAgenc(y|ies)\b/] },
 ];
