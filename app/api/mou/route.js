@@ -27,7 +27,7 @@ export async function POST(request) {
     const engine = templateEntry?.engine === "v2" ? "v2" : "legacy";
 
     const data = normalizeForm(formForTemplate(form, templateEntry));
-    const validation = validateMou(data, { mortgage: !!templateEntry?.mortgage });
+    const validation = validateMou(data, { mortgage: !!templateEntry?.mortgage, ready: !!templateEntry?.ready });
     if (REQUIRE_VALIDATION_BEFORE_CREATE && !validation.ok) {
       return Response.json({ ok: false, validation }, { status: 422 });
     }
@@ -73,7 +73,7 @@ export async function POST(request) {
       title: document.title,
       url: document.url,
       remainingPlaceholders: document.remainingPlaceholders,
-      preview: buildPreview(form, rules),
+      preview: buildPreview(form, rules, templateEntry),
     });
   } catch (error) {
     return jsonError(error);

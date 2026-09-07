@@ -442,16 +442,22 @@ function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage
   }
   if (!isReadyTemplate) projectRequired.push(["transferFeeLabel", "Transfer Fee Label"]);
 
+  const propertyRequired = [
+    ["propertyLocation", "Property Location"],
+    ["bedrooms", "Bedrooms"],
+    ["areaM2", "Area"],
+    ["propertyType", "Property Type"],
+    ["unitNumber", "Unit Number"],
+  ];
+  // объект сдан в аренду: без суммы и срока в статье остаются дырки
+  if (isReadyTemplate && form.propertyRented === "Yes") {
+    propertyRequired.push(["annualRent", "Annual Rent"], ["tenancyEndDate", "Tenancy Contract Until"]);
+  }
+
   return {
     agreement: makeSectionStatus(agreementMissing),
     project: makeSectionStatus(missingFields(form, projectRequired)),
-    property: makeSectionStatus(missingFields(form, [
-      ["propertyLocation", "Property Location"],
-      ["bedrooms", "Bedrooms"],
-      ["areaM2", "Area"],
-      ["propertyType", "Property Type"],
-      ["unitNumber", "Unit Number"],
-    ])),
+    property: makeSectionStatus(missingFields(form, propertyRequired)),
     sellers: partySectionStatus(form.sellers),
     buyers: partySectionStatus(form.buyers),
     payments: makeSectionStatus(missingFields(form, paymentsRequired)),

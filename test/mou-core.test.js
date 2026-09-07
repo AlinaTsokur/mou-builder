@@ -625,6 +625,32 @@ test("готовый объект: сумма Продавцу всегда Mana
   assert.equal(offplan.replacements.amount_to_seller_payment_text, "Cash.");
 });
 
+test("готовый объект: сдан в аренду — нужны сумма и срок", () => {
+  const template = { engine: "v2", ready: true, articles: "ready-cash-v2" };
+  const base = { sellingPrice: "1,670,000", unitStatus: "Ready", propertyRented: "Yes" };
+  const empty = buildPreview(base, undefined, template).validation.errors.join(" ");
+  assert.ok(empty.includes("Annual Rent"));
+  assert.ok(empty.includes("Tenancy Contract Until"));
+
+  const filled = buildPreview({ ...base, annualRent: "150,000", tenancyEndDate: "12/12/2027" }, undefined, template)
+    .validation.errors.join(" ");
+  assert.ok(!filled.includes("Annual Rent"));
+  assert.ok(!filled.includes("Tenancy Contract Until"));
+
+  // объект свободен — аренду не требуем; off-plan про аренду не знает вовсе
+  const vacant = buildPreview({ ...base, propertyRented: "No" }, undefined, template).validation.errors.join(" ");
+  assert.ok(!vacant.includes("Annual Rent"));
+  const offplan = buildPreview(base, undefined, { engine: "v2", articles: "offplan-v2" }).validation.errors.join(" ");
+  assert.ok(!offplan.includes("Annual Rent"));
+});
+
+test("отрицательные суммы не проходят валидацию", () => {
+  const errors = validateMou(normalizeForm({ sellingPrice: "-1,670,000", agencyFeeBuyer: "-100", annualRent: "150,000" })).errors.join(" ");
+  assert.ok(errors.includes("Selling Price: сумма не может быть отрицательной"));
+  assert.ok(errors.includes("Agency Fee Buyer: сумма не может быть отрицательной"));
+  assert.ok(!errors.includes("Annual Rent: сумма"));
+});
+
 test("движок v2: снятая галочка статьи не сдвигает нумерацию", () => {
   const base = { sellingPrice: "1,670,000", unitStatus: "Off-Plan", buyerDepositEnabled: "Yes", sellerDepositEnabled: "Yes" };
   const template = { engine: "v2", mortgage: true, articles: "offplan-mortgage-v2" };
