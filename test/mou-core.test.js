@@ -675,6 +675,14 @@ test("MOU_TEMPLATES из окружения не отменяет движок �
   assert.equal(t.mortgage, true);
 });
 
+test("реестр: №3 Ready cash to cash — движок v2, признак готового объекта", async () => {
+  const { MOU_TEMPLATES } = await import(`../lib/mou/config.js?registry-check=${Date.now()}`);
+  const t = MOU_TEMPLATES.find((x) => x.id === "1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k");
+  assert.equal(t.engine, "v2");
+  assert.equal(t.articles, "ready-cash-v2");
+  assert.equal(t.ready, true);
+});
+
 test("готовый объект: ADM Fee без админ-части, аренда прописью", () => {
   const template = { engine: "v2", ready: true, articles: "ready-cash-v2" };
   const p = buildPreview({

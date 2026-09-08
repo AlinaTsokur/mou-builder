@@ -82,7 +82,7 @@
 | 1 | [Off-plan](https://docs.google.com/document/d/1LLMqzZ1xeSPzVOhVahG4B8l9bQx0KggFBvZUynOY8bU/edit) | Off-plan | 17 | `1LLMqzZ1xeSPzVOhVahG4B8l9bQx0KggFBvZUynOY8bU` |
 | 1.2 | [Off-plan NO DEPOSIT CHEQUES](https://docs.google.com/document/d/1vftXIyFV32PKyFoCg-2J5b_58V94e5TFXJgXSIbIvWM/edit) | Off-plan | 15 | `1vftXIyFV32PKyFoCg-2J5b_58V94e5TFXJgXSIbIvWM` |
 | 2 | [Off-plan–mortgage](https://docs.google.com/document/d/1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g/edit) | Off-plan | 18 | `1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g` |
-| 3 | [Cash to cash READY](https://docs.google.com/document/d/1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k/edit) | Ready | 18 | `1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k` |
+| 3 | [Cash to cash READY](https://docs.google.com/document/d/1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k/edit) — **размечен, v2** (08.09, бэкап `121Mwvo-6GlqkEJ3fMZ52DsdF4XrvdTVm9UpcY6L_0o4`) | Ready | 18 | `1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k` |
 | 4 | [Cash to Mortgage READY](https://docs.google.com/document/d/1slUJ8aQCw8nKIhlKBHWvhUFkLWnLH3k_N_OtwH5sm3Y/edit) | Ready | 19 | `1slUJ8aQCw8nKIhlKBHWvhUFkLWnLH3k_N_OtwH5sm3Y` |
 | 5 | [Mortgage to cash READY](https://docs.google.com/document/d/1RDNBmgnI3V-1o-Nk--g4XJUpwvHP0sC2IrGY7R_hhw0/edit) | Ready | 18 | `1RDNBmgnI3V-1o-Nk--g4XJUpwvHP0sC2IrGY7R_hhw0` |
 | 6 | [Mortgage to mortgage READY](https://docs.google.com/document/d/1tRz59MGjnZKQpAZv0q_QMU4W6UPFLDBLr8uKPZYWP3w/edit) | Ready | 20 | `1tRz59MGjnZKQpAZv0q_QMU4W6UPFLDBLr8uKPZYWP3w` |
