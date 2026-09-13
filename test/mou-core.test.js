@@ -690,6 +690,12 @@ test("суммы сборов по умолчанию — свои у каждо
     { admElectronicFee: "1,392", admValuationFee: "925.75" });
   assert.deepEqual(byId("1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k").defaults,
     { admElectronicFee: "919", admValuationFee: "1,037", developerNocFee: "2,750", communityNocFee: "1,050" });
+  const t4 = byId("1slUJ8aQCw8nKIhlKBHWvhUFkLWnLH3k_N_OtwH5sm3Y");
+  assert.equal(t4.engine, "v2");
+  assert.equal(t4.articles, "ready-mortgage-v2");
+  assert.ok(t4.ready && t4.mortgage && t4.unitVerification);
+  assert.deepEqual(t4.defaults, { admElectronicFee: "1,392", admValuationFee: "1,037", developerNocFee: "2,750",
+    communityNocFee: "1,050", unitVerificationFee: "103.50" });
 });
 
 test("готовый объект с ипотекой: 19 статей, справка Unit Verification, способ оплаты зашит", () => {
