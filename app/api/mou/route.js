@@ -14,7 +14,7 @@ import {
   validateMou,
 } from "@/lib/mou/core";
 import { buildArticleNumbers, getArticleDefs, getArticleDefsForTemplate } from "@/lib/mou/articles";
-import { resolveTemplate } from "@/lib/mou/config";
+import { resolveTemplate, TEMPLATE_REQUIRED_ERROR } from "@/lib/mou/config";
 
 const REQUIRE_VALIDATION_BEFORE_CREATE = process.env.MOU_REQUIRE_VALIDATION === "true";
 
@@ -23,7 +23,7 @@ export async function POST(request) {
     const form = await request.json();
     const templateEntry = resolveTemplate(form.templateId || "");
     if (!templateEntry) {
-      return Response.json({ ok: false, error: "Не выбран шаблон договора: выберите его в разделе Template." }, { status: 400 });
+      return Response.json({ ok: false, error: TEMPLATE_REQUIRED_ERROR }, { status: 400 });
     }
     const templateId = templateEntry.id;
     const { drive, docs, sheets } = await getGoogleClients();

@@ -633,7 +633,8 @@ export default function HomePage() {
       const data = await api("/api/preview", { method: "POST", body: JSON.stringify({ ...form, templateId }) });
       setPreview(data.preview);
     } catch (error) {
-      setPreview({ validation: { errors: [error.message], warnings: [] } });
+      // Без расчётов: сводка и авто-суммы пустые, чтобы не показывать цифры чужого шаблона.
+      setPreview({ error: error.message });
     }
   }
 
@@ -1688,6 +1689,15 @@ function Preview({ preview, actionErrors }) {
   if (!preview) return <div className="emptyPreview">Preview will appear after data loads.</div>;
   const validation = preview.validation || { errors: [], warnings: [] };
   const s = preview.summary || {};
+
+  if (preview.error) {
+    return (
+      <div className="previewContent">
+        {actionErrors?.length ? <Notice title="MOU was not created" items={actionErrors} type="error" /> : null}
+        <Notice title="Preview unavailable" items={[preview.error]} type="error" />
+      </div>
+    );
+  }
 
   return (
     <div className="previewContent">
