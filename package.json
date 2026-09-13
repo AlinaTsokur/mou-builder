@@ -8,7 +8,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --test"
+    "test": "node --test",
+    "check:undef": "npx --yes eslint@10.10.0 --no-config-lookup --rule \"no-undef: error\" --global Response,Request,process,console,Date,JSON,Error,Number,String,Math,Object,Array,Set,Map,Promise,URL,URLSearchParams,Buffer,setTimeout,clearTimeout,window,document,fetch,Intl,RegExp,Boolean,encodeURIComponent,decodeURIComponent,globalThis,structuredClone --parser-options ecmaVersion:latest --parser-options sourceType:module --parser-options \"ecmaFeatures:{jsx:true}\" \"app/**/*.js\" \"lib/**/*.js\""
   },
   "keywords": [],
   "author": "",

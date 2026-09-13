@@ -25,6 +25,7 @@ export async function POST(request) {
     if (!templateEntry) {
       return Response.json({ ok: false, error: "Не выбран шаблон договора: выберите его в разделе Template." }, { status: 400 });
     }
+    const templateId = templateEntry.id;
     const { drive, docs, sheets } = await getGoogleClients();
     const engine = templateEntry?.engine === "v2" ? "v2" : "legacy";
 
