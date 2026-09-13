@@ -299,6 +299,13 @@ for (const c of combos) {
     const wantOwn = c.buyerFunds === "свои";
     if (own !== wantOwn || financing === wantOwn) found.push(`деньги Покупателя: в тексте «${own ? "свои" : ""}${financing ? "кредит" : ""}», а выбрано «${c.buyerFunds}»`);
     if (/^_{2,}\s*$/m.test(text)) found.push("осталась строка-разделитель из подчёркиваний");
+    // Personal Cheque держат по правилу депозитных чеков
+    const holder = c.sellerAgent ? "the Seller’s Agency" : c.buyerAgent ? "the Buyer’s Agency" : "the Buyer";
+    if (!text.includes(`to be held by ${holder} and returned to the Seller`)) found.push(`Personal Cheque: ожидал держателя «${holder}»`);
+    const collect = c.sellerAgent ? "the Buyer may collect this Personal Cheque from the Seller’s Agent and present it for payment."
+      : c.buyerAgent ? "the Buyer may collect this Personal Cheque from the Buyer’s Agent and present it for payment."
+      : "the Buyer may present this Personal Cheque for payment.";
+    if (!text.includes(collect)) found.push(`Personal Cheque: ожидал «${collect}»`);
   }
 
   // строка добора порога — только когда порог не закрыт

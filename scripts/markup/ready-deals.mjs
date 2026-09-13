@@ -288,6 +288,16 @@ export const READY_MORTGAGE_CASH = {
     ...TENANCY_EDITS,
     // ст.10: банк Продавца — поле формы со списком банков (Алина, 13.09.2026)
     { find: "Dubai Islamic Bank", replace: "{{seller_bank_name}}", note: "банк Продавца" },
+    // ст.10: Personal Cheque держат по правилу депозитных чеков (Миша, 30.08.2026; Алина, 13.09.2026):
+    // агентство Продавца, без него — агентство Покупателя, без агентств — сам Покупатель
+    { find: "to be held by the Seller’s Agency and returned to the Seller",
+      replace: "to be held by {{#if seller_agent}}the Seller’s Agency{{/if}}{{#if !seller_agent}}{{#if buyer_agent}}the Buyer’s Agency{{/if}}"
+        + "{{#if !buyer_agent}}the Buyer{{/if}}{{/if}} and returned to the Seller",
+      note: "ст.10: кто держит Personal Cheque" },
+    { find: "the Buyer may collect this Personal Cheque from the Seller’s Agent and present it for payment.",
+      replace: "the Buyer may {{#if any_agent}}collect this Personal Cheque from {{#if seller_agent}}the Seller’s Agent{{/if}}"
+        + "{{#if !seller_agent}}the Buyer’s Agent{{/if}} and present it{{/if}}{{#if !any_agent}}present this Personal Cheque{{/if}} for payment.",
+      note: "ст.10: у кого Покупатель забирает Personal Cheque" },
     // ст.10: деньги Покупателя — свои или с кредитом / Equity Release, по умолчанию свои
     // (комментарии Даши, решение Алины 13.09.2026). Разделитель «___» уходит.
     { find: "The Buyer confirms that the purchase of the Property is made solely", insertBefore: "{{#if buyer_own_funds}}",

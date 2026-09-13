@@ -131,7 +131,7 @@ import { ARTICLE_DEFS_READY_MORTGAGE_CASH_V2 } from "../lib/mou/articles.js";
 
 test("список правок для Ready mortgage-to-cash собирается целиком", () => {
   const edits = buildEdits(READY_MORTGAGE_CASH);
-  assert.equal(edits.length, 183);
+  assert.equal(edits.length, 185);
   for (const e of edits) {
     assert.ok(e.find || e.cellAfter, `правка без find: ${JSON.stringify(e)}`);
     assert.ok(e.replace !== undefined || e.insertBefore !== undefined, `правка без замены: ${JSON.stringify(e)}`);
@@ -143,6 +143,8 @@ test("список правок для Ready mortgage-to-cash собираетс
   assert.ok(edits.some((e) => e.replace === "{{seller_bank_name}}"));
   assert.ok(edits.some((e) => e.insertBefore === "{{#if buyer_own_funds}}"));
   assert.ok(edits.some((e) => e.replace?.includes("{{#if !buyer_own_funds}}")));
+  // Personal Cheque — по правилу депозитных чеков (13.09.2026)
+  assert.ok(edits.some((e) => e.note === "ст.10: кто держит Personal Cheque"));
   // приписка про Liability Letter стоит сразу после способа оплаты — его текст не трогаем
   assert.ok(!edits.some((e) => e.replace === "{{amount_to_seller_payment_text}}"));
   // сборы и аренда — как в №3

@@ -8,7 +8,7 @@
 ## Сейчас
 
 Четыре шаблона на движке v2 и на проде: №1 off-plan, №2 off-plan ипотека,
-№3 Ready cash to cash, №4 Ready cash to mortgage. В работе — №5 Ready mortgage to cash: читаю исходник, готовлю вопросы Алине.
+№3 Ready cash to cash, №4 Ready cash to mortgage. В работе — №5 Ready mortgage to cash: размечен черновик, собран пакет, ждём «да» Алины на оригинал.
 
 Сквозная проверка 13.09: 8 договоров (по два сценария на каждый из №1–№4) созданы
 на проде через `/api/mou` и сверены с локальным рендером боевых шаблонов посимвольно,
@@ -41,6 +41,16 @@ E2E-TEST) убраны в корзину Диска a.tsokur, их строки 
 
 Разметка неидемпотентна: повторный прогон по уже размеченному документу его сломает.
 Перед прогоном по оригиналу бэкап делается сам (`--original`).
+
+## №5 Ready mortgage to cash — черновик
+
+Черновик `1-zyRMRg_qjbjRt5TtEBZW4gZaSkdStLHZjaRj48gvoc` (185 правок, стиль — 0 расхождений,
+сценарии — 0), пакет 19 договоров `1SdMGVK92gK0cylUTl1Pf_lyBlhtFUbnG` — совпадает с рендером.
+Разметка: `node scripts/markup-ready-mortgage-cash.mjs [--original]`, затем
+`fix-bold.mjs <шаблон> <бэкап>` (без `--mortgage`: ст.7–8 как в №3). Проверки — с флагами
+`--ready --seller-mortgage`. В реестр `lib/mou/config.js` не вписан — до разметки оригинала;
+при вписывании: `sellerMortgage: true`, articles `ready-mortgage-cash-v2`, defaults как у №3
+плюс `mortgageReleaseFee: "960"`.
 
 ## Папки с тестовыми договорами
 
@@ -85,13 +95,19 @@ E2E-TEST) убраны в корзину Диска a.tsokur, их строки 
   не поднимать повторно.
 - Документ 14 пакетов (фиксированный депозит) проверен 13.09: суммы 150,000 и 120,000
   на месте во всех пакетах. Замечание GPT про 167,000 было ошибкой — он перепутал файлы.
+- №5 (13.09): Mortgage Release Fee — поле с подстановкой 960; банк Продавца — выпадашка
+  со списком банков и своим вариантом; деньги Покупателя в ст.10 — Own funds (по умолчанию)
+  или Own funds, Personal Loan, Equity Release; сумма Продавцу — вся Selling Price одной
+  строкой с припиской про Liability Letter, как в исходнике.
+- Personal Cheque в ст.10 №5 (и №6) держат по правилу депозитных чеков: агентство Продавца,
+  без него — агентство Покупателя, без агентств — сам Покупатель (13.09).
 - Мягкий режим валидации оставлен: договор создаётся даже с пропусками, пока на
   Vercel нет `MOU_REQUIRE_VALIDATION=true`. Включать — решение Алины.
 
 ## Дальше
 
-1. №5 Ready mortgage to cash `1RDNBmgnI3V-1o-Nk--g4XJUpwvHP0sC2IrGY7R_hhw0` — 18 статей,
-   ADM Electronic 919, строки Unit Verification нет.
+1. №5 Ready mortgage to cash `1RDNBmgnI3V-1o-Nk--g4XJUpwvHP0sC2IrGY7R_hhw0` — черновик и пакет
+   готовы (см. выше), ждём «да» на разметку оригинала.
 2. №6 Ready mortgage to mortgage `1tRz59MGjnZKQpAZv0q_QMU4W6UPFLDBLr8uKPZYWP3w` — 20 статей,
    ADM Electronic 1,392, строка Unit Verification есть.
 3. C3-1 и C3-2 — нужен блок стороны-юрлица, его ещё нет.
