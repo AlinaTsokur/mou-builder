@@ -64,7 +64,12 @@ export const READY_FIELDS = {
   transferFeeLabel: "NOC Fee",
 };
 
+// Готовый объект с ипотекой Покупателя (№4): суммы из исходника №4 — ADM Electronic
+// как у ипотеки, плюс справка Unit Verification (Алина, 13.09.2026)
+export const READY_MORTGAGE_FIELDS = { admElectronicFee: "1,392", unitVerificationFee: "103.50" };
+
 export function baseFor(mortgage, ready = false) {
+  if (ready && mortgage) return { ...BASE, ...READY_FIELDS, ...READY_MORTGAGE_FIELDS };
   if (ready) return { ...BASE, ...READY_FIELDS };
   return mortgage ? { ...BASE, ...MORTGAGE_FIELDS } : BASE;
 }
@@ -72,6 +77,7 @@ export function baseFor(mortgage, ready = false) {
 // Описание шаблона для formForTemplate: проверки должны считать форму так же,
 // как сайт, иначе в пакет уезжает то, чего в договоре быть не может.
 export function templateFor(mortgage, ready = false) {
+  if (ready && mortgage) return { engine: "v2", ready: true, mortgage: true, articles: "ready-mortgage-v2", unitVerification: true };
   if (ready) return { engine: "v2", ready: true, articles: "ready-cash-v2" };
   if (mortgage) return { engine: "v2", mortgage: true, articles: "offplan-mortgage-v2" };
   return { engine: "v2", articles: "offplan-v2" };

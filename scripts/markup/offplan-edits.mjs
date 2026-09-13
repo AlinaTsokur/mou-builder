@@ -108,7 +108,8 @@ export function buildEdits(D) {
       + "(pursuant to a valid Power of Attorney), nationality: Russian Federation, holder of Passport number: 11 1111111, "
       + "holder of EID Number 784-1990-1111111-1",
     replace: "{{seller_party_block}}", note: "блок Продавца" },
-  { find: "Mr(s). Name Surname, nationality: Russian Federation, holder of Passport number: 222222222, "
+  // в №4 демо-Покупатель другой (без доверенности) — текст блока задаётся в конфиге
+  { find: D.buyerBlockText || "Mr(s). Name Surname, nationality: Russian Federation, holder of Passport number: 222222222, "
       + "holder of EID Number 784-1990-2222222-2, Ownership rights \u2013 100%, has designated Mr(s). Name Surname "
       + "(pursuant to a valid Power of Attorney), nationality: Russian Federation, holder of Passport number: 11 1111111, "
       + "holder of EID Number 784-1990-1111111-1",

@@ -4,13 +4,14 @@
 import { getBotClients } from "../google-bot.mjs";
 import { buildIndex } from "../docs-edit.mjs";
 import { buildEdits } from "./offplan-edits.mjs";
-import { READY_CASH } from "./ready-deals.mjs";
+import { READY_CASH, READY_MORTGAGE } from "./ready-deals.mjs";
 import { OFFPLAN, OFFPLAN_MORTGAGE } from "./offplan-deals.mjs";
 
 const DEALS = {
   offplan: ["1LLMqzZ1xeSPzVOhVahG4B8l9bQx0KggFBvZUynOY8bU", OFFPLAN],
   mortgage: ["1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g", OFFPLAN_MORTGAGE],
   ready: ["1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k", READY_CASH],
+  "ready-mortgage": ["1slUJ8aQCw8nKIhlKBHWvhUFkLWnLH3k_N_OtwH5sm3Y", READY_MORTGAGE],
 };
 
 const key = process.argv[2] || "ready";

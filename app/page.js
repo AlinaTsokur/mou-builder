@@ -88,6 +88,7 @@ const initialForm = {
   admValuationFee: "",
   developerNocFee: "",
   communityNocFee: "",
+  unitVerificationFee: "",
   projectNumber: "",
   propertyRented: "No",
   annualRent: "",
@@ -269,14 +270,15 @@ const tips = {
   escrowAccountName: "Escrow account (эскроу-счет застройщика), куда Buyer (покупатель) платит суммы, связанные с developer. Если нет, оставьте пустым.",
   admAdminFee: "Административная часть ADM Fee (сбора Abu Dhabi Municipality). Обычно подставляется автоматически, но ее можно исправить вручную.",
   admFee: "ADM Fee для ипотечной сделки: 2% от Selling Price или по оценке ADM (что выше). По умолчанию считается 2%, после оценки можно вписать свою сумму.",
-  admElectronicFee: "ADM Electronic Fee — электронный сбор ADREC, платит Buyer картой после оценки. По умолчанию AED 1,392.",
-  developerNocFee: "Сбор застройщика за NOC. По умолчанию AED 2,750, можно поменять.",
-  communityNocFee: "Сбор сообщества за NOC, платит Seller. По умолчанию AED 1,050, можно поменять.",
+  admElectronicFee: "ADM Electronic Fee — электронный сбор ADREC. Сумма по умолчанию — из выбранного шаблона, можно поменять.",
+  developerNocFee: "Сбор застройщика за NOC. Сумма по умолчанию — из выбранного шаблона, можно поменять.",
+  communityNocFee: "Сбор сообщества за NOC, платит Seller. Сумма по умолчанию — из выбранного шаблона, можно поменять.",
+  unitVerificationFee: "Unit Verification / Search Certificate — справка Abu Dhabi Municipality, платит Seller. Сумма по умолчанию — из шаблона, можно поменять.",
   projectNumber: "Номер проекта из документов на готовый объект, например 2023/278930. Вводится вручную.",
   propertyRented: "Объект сдан в аренду? От этого зависит статья о состоянии объекта: свободен на Transfer Date или продаётся с арендатором.",
   annualRent: "Годовая аренда по действующему договору. Сумма прописью в договоре пишется сама.",
   tenancyEndDate: "До какой даты действует договор аренды.",
-  admValuationFee: "ADM Valuation Certificate — сертификат оценки ADREC, платит Buyer по запросу. По умолчанию AED 925.75.",
+  admValuationFee: "ADM Valuation Certificate — сертификат оценки ADREC. Сумма по умолчанию — из выбранного шаблона, можно поменять.",
   transferFeeLabel: "Название строки: Transfer Fee или NOC Fee.",
   titleDeedNumber: "Номер title deed (документа о праве собственности). Если для Off-Plan его нет, оставьте пустым.",
   propertyLocation: "Можно указать только остров/район, например Yas Island. Abu Dhabi, UAE добавится автоматически.",
@@ -386,7 +388,7 @@ function depositSectionStatus(form, side) {
   return makeSectionStatus(missing);
 }
 
-function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage = false, isReadyTemplate = false) {
+function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage = false, isReadyTemplate = false, hasUnitVerification = false) {
   const isReady = String(form.unitStatus || "").toLowerCase() === "ready";
   const agreementMissing = missingFields(form, [
     ["agreementDate", "Agreement Date"],
@@ -422,7 +424,7 @@ function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage
   ];
   if (!isReady) projectRequired.push(["escrowAccountName", "Escrow Account Name"]);
   // ипотечный off-plan: вместо админ-части — три отдельные суммы ADM
-  if (isMortgage) {
+  if (isMortgage && !isReadyTemplate) {
     // admFee не требуем: он считается сам (2% от Selling Price), вручную его
     // вписывают только после оценки ADM
     projectRequired.push(
@@ -437,6 +439,7 @@ function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage
       ["developerNocFee", "Developer NOC Fee"],
       ["communityNocFee", "Community NOC Fee"],
     );
+    if (hasUnitVerification) projectRequired.push(["unitVerificationFee", "Unit Verification / Search Certificate"]);
   } else {
     projectRequired.push(["admAdminFee", "ADM Admin Fee"]);
   }
@@ -532,35 +535,33 @@ export default function HomePage() {
   const isMortgage = !!selectedTemplate?.mortgage;
   // готовый объект: свои сборы, номер проекта и статья про аренду
   const isReadyTemplate = !!selectedTemplate?.ready;
+  // строка «Unit Verification / Search Certificate» есть не во всех готовых шаблонах
+  const hasUnitVerification = !!selectedTemplate?.unitVerification;
   const sectionStatuses = useMemo(
-    () => buildSectionStatuses(form, reservationMode, reservationDays, isMortgage, isReadyTemplate),
-    [form, reservationMode, reservationDays, isMortgage, isReadyTemplate],
+    () => buildSectionStatuses(form, reservationMode, reservationDays, isMortgage, isReadyTemplate, hasUnitVerification),
+    [form, reservationMode, reservationDays, isMortgage, isReadyTemplate, hasUnitVerification],
   );
 
-  // Ипотечный шаблон: ADM-сборы заполняются сами, но остаются редактируемыми
-  // (ответ Миши, 04.09.2026). ADM Fee считается на сервере (2% от Selling Price)
-  // и показывается как автозначение; фиксированные сборы подставляем один раз.
+  // Суммы сборов по умолчанию — свои у каждого шаблона, взяты из его исходника
+  // (реестр lib/mou/config.js, поле defaults). Подставляются при выборе шаблона
+  // и остаются редактируемыми. Раньше суммы зависели от типа шаблона — «ипотека»
+  // или «готовый объект», — и шаблон, который одновременно и то и другое (№4),
+  // получал бы чужой набор. При смене шаблона меняются только значения, которые
+  // не трогали руками: пустые или равные умолчаниям предыдущего шаблона.
+  const appliedDefaults = useRef({});
   useEffect(() => {
-    if (!isMortgage) return;
-    if (form.admElectronicFee !== "" || form.admValuationFee !== "") return;
-    setForm((current) => ({ ...current, admElectronicFee: "1,392", admValuationFee: "925.75" }));
-  }, [isMortgage, form.admElectronicFee, form.admValuationFee]);
-
-  // Готовый объект: свои фиксированные суммы сборов (Алина, 06.09.2026).
-  // Подставляем один раз, дальше их можно править руками.
-  useEffect(() => {
-    if (!isReadyTemplate) return;
-    if (form.admElectronicFee !== "" || form.admValuationFee !== ""
-      || form.developerNocFee !== "" || form.communityNocFee !== "") return;
-    setForm((current) => ({
-      ...current,
-      admElectronicFee: "919",
-      admValuationFee: "1,037",
-      developerNocFee: "2,750",
-      communityNocFee: "1,050",
-      admAdminFee: "",
-    }));
-  }, [isReadyTemplate, form.admElectronicFee, form.admValuationFee, form.developerNocFee, form.communityNocFee]);
+    if (!selectedTemplate) return;
+    const next = selectedTemplate.defaults || {};
+    const prev = appliedDefaults.current;
+    appliedDefaults.current = next;
+    setForm((current) => {
+      const changes = {};
+      for (const key of new Set([...Object.keys(prev), ...Object.keys(next)])) {
+        if (current[key] === "" || current[key] === prev[key]) changes[key] = next[key] ?? "";
+      }
+      return Object.keys(changes).length ? { ...current, ...changes } : current;
+    });
+  }, [selectedTemplate]);
   const hasTemplateChoice = (init.config?.templates || []).length > 1;
   const navItems = useMemo(() => {
     const items = [];
@@ -926,7 +927,7 @@ export default function HomePage() {
             <Field id="developerName" label="Developer Name" tip={tips.developerName} value={form.developerName} onChange={patch} />
             <Field id="developerLegalName" label="Developer Legal Name" tip={tips.developerLegalName} value={form.developerLegalName} onChange={patch} />
             {!isCashToCash && <Field id="escrowAccountName" label="Escrow Account Name" tip={tips.escrowAccountName} value={form.escrowAccountName} onChange={patch} />}
-            {isMortgage ? (
+            {isMortgage && !isReadyTemplate ? (
               <>
                 <AutoMoneyField id="admFee" label="ADM Fee (2% or ADM valuation)" tip={tips.admFee} value={form.admFee} autoValue={preview?.summary?.admFee} onChange={patch} placeholder="Посчитается автоматически" />
                 <AutoMoneyField id="admElectronicFee" label="ADM Electronic Fee" tip={tips.admElectronicFee} value={form.admElectronicFee} onChange={patch} />
@@ -939,6 +940,7 @@ export default function HomePage() {
                 <AutoMoneyField id="admValuationFee" label="ADM Valuation Certificate" tip={tips.admValuationFee} value={form.admValuationFee} onChange={patch} />
                 <AutoMoneyField id="developerNocFee" label="Developer NOC Fee" tip={tips.developerNocFee} value={form.developerNocFee} onChange={patch} />
                 <AutoMoneyField id="communityNocFee" label="Community NOC Fee" tip={tips.communityNocFee} value={form.communityNocFee} onChange={patch} />
+                {hasUnitVerification && <AutoMoneyField id="unitVerificationFee" label="Unit Verification / Search Certificate" tip={tips.unitVerificationFee} value={form.unitVerificationFee} onChange={patch} />}
               </>
             ) : (
               <AutoMoneyField id="admAdminFee" label="ADM Admin Fee" tip={tips.admAdminFee} value={form.admAdminFee} onChange={patch} />

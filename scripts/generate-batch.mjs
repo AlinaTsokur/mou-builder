@@ -4,16 +4,16 @@
 import { getBotClients } from "./google-bot.mjs";
 import { createMouDocument } from "../lib/google/docs.js";
 import { normalizeForm, calculate, buildFlags, buildReplacementsV2, formForTemplate } from "../lib/mou/core.js";
-import { buildArticleNumbers, ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2, ARTICLE_DEFS_READY_CASH_V2 } from "../lib/mou/articles.js";
+import { buildArticleNumbers, getArticleDefsForTemplate } from "../lib/mou/articles.js";
 import { baseFor, templateFor, SCENARIOS, READY_SCENARIOS } from "./batch-scenarios.mjs";
 
 const MORTGAGE = process.argv.includes("--mortgage");
 const READY = process.argv.includes("--ready");
-const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : READY ? ARTICLE_DEFS_READY_CASH_V2 : ARTICLE_DEFS_OFFPLAN_V2;
 const BASE = baseFor(MORTGAGE, READY);
 // то же описание шаблона, что и на сайте: иначе в пакет уедет форма, которой
 // в реальной генерации не бывает (админ-часть ADM Fee, способ оплаты Продавцу)
 const TEMPLATE = templateFor(MORTGAGE, READY);
+const DEFS = getArticleDefsForTemplate(TEMPLATE);
 const CASES = READY ? [...SCENARIOS, ...READY_SCENARIOS] : SCENARIOS;
 
 const MOU_FOLDER = "1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm";
@@ -26,7 +26,7 @@ const { docs, drive } = getBotClients();
 const stamp = new Date().toISOString().slice(0, 10);
 const folder = await drive.files.create({
   requestBody: {
-    name: `ТЕСТЫ ${stamp} — ${MORTGAGE ? "off-plan №2 ипотека" : READY ? "ready №3 cash to cash" : "off-plan №1"}`,
+    name: `ТЕСТЫ ${stamp} — ${READY && MORTGAGE ? "ready №4 cash to mortgage" : MORTGAGE ? "off-plan №2 ипотека" : READY ? "ready №3 cash to cash" : "off-plan №1"}`,
     mimeType: "application/vnd.google-apps.folder",
     parents: [MOU_FOLDER],
   },

@@ -683,6 +683,32 @@ test("реестр: №3 Ready cash to cash — движок v2, признак 
   assert.equal(t.ready, true);
 });
 
+test("суммы сборов по умолчанию — свои у каждого шаблона", async () => {
+  const { MOU_TEMPLATES } = await import(`../lib/mou/config.js?defaults-check=${Date.now()}`);
+  const byId = (id) => MOU_TEMPLATES.find((x) => x.id === id);
+  assert.deepEqual(byId("1RjrVeLZG65Fyzc5h0TFR0sks8D--jJocEXyF2H9fg9g").defaults,
+    { admElectronicFee: "1,392", admValuationFee: "925.75" });
+  assert.deepEqual(byId("1d-bXwKBO9J8fUQ35vqKWw5KzADJ6lB6fmD4hxeSjy3k").defaults,
+    { admElectronicFee: "919", admValuationFee: "1,037", developerNocFee: "2,750", communityNocFee: "1,050" });
+});
+
+test("готовый объект с ипотекой: 19 статей, справка Unit Verification, способ оплаты зашит", () => {
+  const template = { engine: "v2", ready: true, mortgage: true, articles: "ready-mortgage-v2" };
+  const p = buildPreview({
+    sellingPrice: "1,670,000", unitStatus: "Ready", admAdminFee: "575", amountToSellerPaymentMethod: "cash",
+    unitVerificationFee: "103.50", buyerDepositEnabled: "Yes", sellerDepositEnabled: "Yes",
+  }, undefined, template);
+  assert.equal(p.articles.length, 19);
+  assert.equal(p.replacements.article_vacant_on_transfer_number, "13");
+  assert.equal(p.replacements.article_electronic_signature_number, "19");
+  assert.equal(p.replacements.unit_verification_fee, "103.50");
+  assert.equal(p.calc.admFee, 1670000 * 0.02);
+  assert.equal(p.replacements.amount_to_seller_payment_text, "Manager's Cheque.");
+  // ипотека: способ оплаты не спрашиваем; готовый объект: аренду требуем, только если сдан
+  assert.ok(!p.validation.errors.join(" ").includes("payment method"));
+  assert.ok(!p.validation.errors.join(" ").includes("Annual Rent"));
+});
+
 test("готовый объект: ADM Fee без админ-части, аренда прописью", () => {
   const template = { engine: "v2", ready: true, articles: "ready-cash-v2" };
   const p = buildPreview({

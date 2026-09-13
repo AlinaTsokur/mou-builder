@@ -3,12 +3,21 @@
 Оперативная память проекта: что сделано, что ждём, что дальше. Общий план —
 `plan.md`, правила и адреса — `project-memory.md`.
 
-Обновлено: 13.09.2026
+Обновлено: 13.09.2026, вечер
 
 ## Сейчас
 
 Три шаблона переведены на движок v2 и работают на проде: №1 off-plan, №2 off-plan
-ипотека, №3 Ready cash to cash. Следующий — №4 Ready cash to mortgage.
+ипотека, №3 Ready cash to cash.
+
+№4 Ready cash to mortgage размечен на ЧЕРНОВИКЕ `1FDPB9xRkLfmQwy-r_VHrps8OyjgrMJq7XxC0KJgzz5k`,
+182 правки. Проверки: вложенность ок, стиль против оригинала 0, 11 сценариев 0,
+6144 комбинации 0. Пакет договоров: `1TSfJWJYJLvpUtdw6Tf_tncpY7XwFW2C4` (18, сверены).
+Ждём «да» Алины на разметку оригинала: `node scripts/markup-ready-mortgage.mjs --original`,
+затем `fix-bold.mjs <оригинал> <бэкап> --mortgage`, проверки с `--mortgage --ready`,
+запись в реестр: engine v2, articles ready-mortgage-v2, ready, mortgage, unitVerification,
+defaults { admElectronicFee 1,392, admValuationFee 1,037, developerNocFee 2,750,
+communityNocFee 1,050, unitVerificationFee 103.50 }.
 
 ## Шаблоны на движке v2
 
@@ -29,6 +38,7 @@
 - №1 off-plan, 16 договоров: `1dlghjYRbyV86tPdpSF-D5naSYpoHyOzY`
 - №2 off-plan ипотека, 16 договоров: `1LULl4rudx4ceyH4XvsZ3vnIF1ithM8CE`
 - №3 Ready cash to cash, 18 договоров: `1lGuaPXKl2cE0HvzJCTk7bS2GxvqSwnJB`
+- №4 Ready cash to mortgage (черновик), 18 договоров: `1TSfJWJYJLvpUtdw6Tf_tncpY7XwFW2C4`
 
 Устаревшие пакеты переименовываются в «УСТАРЕЛО — …», а не удаляются.
 
@@ -51,13 +61,19 @@
 - ADM Fee в ипотеке и готовых объектах — ровно 2% от Selling Price, без админ-части.
 - Номер проекта в готовых объектах вводится вручную, номер парковки — конкретный.
 - «REVENUE ACCOU» в строке ADM Fee — не опечатка, так и должно быть.
+- Суммы сборов по умолчанию — свои у каждого шаблона, из его исходника, и правятся
+  в форме (13.09). Лежат в реестре `lib/mou/config.js`, поле `defaults`. У №4 ADM
+  Electronic 1,392 (как в исходнике №4), не 919 как в №3.
+- В №4 новая строка Unit Verification / Search Certificate: поле с подстановкой 103.50 (13.09).
+- В №4 статья 10 без «for an amount equal to the agreed Selling Price» — как в №2 (13.09).
+- В №4 убраны два пустых абзаца в конце документа — иначе мог появиться пустой лист.
 - Мягкий режим валидации оставлен: договор создаётся даже с пропусками, пока на
   Vercel нет `MOU_REQUIRE_VALIDATION=true`. Включать — решение Алины.
 
 ## Дальше
 
-1. №4 Ready cash to mortgage `1slUJ8aQCw8nKIhlKBHWvhUFkLWnLH3k_N_OtwH5sm3Y` — 19 статей.
-   Это №3 плюс ипотечная часть из №2, оба куска уже разобраны.
+1. №4 Ready cash to mortgage `1slUJ8aQCw8nKIhlKBHWvhUFkLWnLH3k_N_OtwH5sm3Y` — разметка
+   оригинала по «да» (см. «Сейчас»).
 2. №5 Ready mortgage to cash `1RDNBmgnI3V-1o-Nk--g4XJUpwvHP0sC2IrGY7R_hhw0`.
 3. №6 Ready mortgage to mortgage `1tRz59MGjnZKQpAZv0q_QMU4W6UPFLDBLr8uKPZYWP3w`.
 4. C3-1 и C3-2 — нужен блок стороны-юрлица, его ещё нет.

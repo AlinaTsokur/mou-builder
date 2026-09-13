@@ -5,12 +5,13 @@ import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
 import { renderLocal } from "./render-local.mjs";
 import { templateFor } from "./batch-scenarios.mjs";
-import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2, ARTICLE_DEFS_READY_CASH_V2 } from "../lib/mou/articles.js";
+import { getArticleDefsForTemplate } from "../lib/mou/articles.js";
 
 const MORTGAGE = process.argv.includes("--mortgage");
 const READY = process.argv.includes("--ready");
-const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : READY ? ARTICLE_DEFS_READY_CASH_V2 : ARTICLE_DEFS_OFFPLAN_V2;
+// --mortgage --ready вместе — №4, готовый объект с ипотекой Покупателя (19 статей)
 const TEMPLATE = templateFor(MORTGAGE, READY);
+const DEFS = getArticleDefsForTemplate(TEMPLATE);
 
 const BASE = {
   agreementDate: "28/01/2026", sellingPrice: "1,670,000", originalPrice: "1,494,050",
@@ -19,7 +20,8 @@ const BASE = {
   transferFee: "4,000", transferFeeLabel: "Transfer Fee / NOC Fee", unitStatus: READY ? "Ready" : "Off-plan",
   // готовый объект: два NOC-сбора, свои ADM-суммы, номер проекта и аренда
   ...(READY ? {
-    admAdminFee: "", admElectronicFee: "919", admValuationFee: "1,037",
+    admAdminFee: "", admElectronicFee: MORTGAGE ? "1,392" : "919", admValuationFee: "1,037",
+    ...(MORTGAGE ? { unitVerificationFee: "103.50" } : {}),
     developerNocFee: "2,750", communityNocFee: "1,050", projectNumber: "2023/278930",
     propertyRented: "No", annualRent: "150,000", tenancyEndDate: "12/12/2027",
     titleDeedNumber: "2026/0000", parkingSpaces: "B27",

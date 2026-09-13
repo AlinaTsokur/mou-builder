@@ -8,12 +8,13 @@ import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
 import { renderLocal } from "./render-local.mjs";
 import { baseFor, templateFor, SCENARIOS, READY_SCENARIOS } from "./batch-scenarios.mjs";
-import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2, ARTICLE_DEFS_READY_CASH_V2 } from "../lib/mou/articles.js";
+import { getArticleDefsForTemplate } from "../lib/mou/articles.js";
 
 const MORTGAGE = process.argv.includes("--mortgage");
 const READY = process.argv.includes("--ready");
-const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : READY ? ARTICLE_DEFS_READY_CASH_V2 : ARTICLE_DEFS_OFFPLAN_V2;
+// --mortgage --ready вместе — №4, готовый объект с ипотекой Покупателя (19 статей)
 const TEMPLATE = templateFor(MORTGAGE, READY);
+const DEFS = getArticleDefsForTemplate(TEMPLATE);
 const BASE = baseFor(MORTGAGE, READY);
 const CASES = READY ? [...SCENARIOS, ...READY_SCENARIOS] : SCENARIOS;
 const positional = process.argv.slice(2).filter((a) => !a.startsWith("--"));

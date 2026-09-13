@@ -11,15 +11,18 @@ import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
 import { renderLocal } from "./render-local.mjs";
 import { templateFor } from "./batch-scenarios.mjs";
-import { ARTICLE_DEFS_OFFPLAN_V2, ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2, ARTICLE_DEFS_READY_CASH_V2 } from "../lib/mou/articles.js";
+import { getArticleDefsForTemplate } from "../lib/mou/articles.js";
 
 const MORTGAGE = process.argv.includes("--mortgage");
 // --ready — шаблон №3 (готовый объект): застройщику не платят, зато два NOC-сбора
 // и статья про состояние объекта в двух вариантах
 const READY = process.argv.includes("--ready");
-const DEFS = MORTGAGE ? ARTICLE_DEFS_OFFPLAN_MORTGAGE_V2 : READY ? ARTICLE_DEFS_READY_CASH_V2 : ARTICLE_DEFS_OFFPLAN_V2;
+// --mortgage --ready вместе — №4, готовый объект с ипотекой Покупателя (19 статей)
 const TEMPLATE = templateFor(MORTGAGE, READY);
-const ADM_ELECTRONIC_READY = 919;
+const DEFS = getArticleDefsForTemplate(TEMPLATE);
+// №4 (готовый объект с ипотекой): ADM Electronic как у ипотеки и справка Unit Verification
+const ADM_ELECTRONIC_READY = MORTGAGE ? 1392 : 919;
+const UNIT_VERIFICATION = 103.5;
 const ADM_VALUATION_READY = 1037;
 const DEVELOPER_NOC = 2750;
 const COMMUNITY_NOC = 1050;
@@ -137,6 +140,7 @@ function formFor(c) {
       unitStatus: "Ready",
       admAdminFee: "", admElectronicFee: String(ADM_ELECTRONIC_READY), admValuationFee: String(ADM_VALUATION_READY),
       developerNocFee: String(DEVELOPER_NOC), communityNocFee: String(COMMUNITY_NOC),
+      ...(MORTGAGE ? { unitVerificationFee: String(UNIT_VERIFICATION) } : {}),
       projectNumber: "2023/278930", titleDeedNumber: "2026/0000", parkingSpaces: "B27",
       propertyRented: c.rented ? "Yes" : "No", annualRent: "150,000", tenancyEndDate: "12/12/2027",
     } : { paidAmountToDeveloper: String(PAID_FOR[c.paidThreshold]) }),
@@ -190,6 +194,7 @@ function expected(c) {
       buyerLd, sellerLd, buyerLd80, sellerLd80,
     ];
   if (READY && c.rented) amounts.push(150000);
+  if (READY && MORTGAGE) amounts.push(UNIT_VERIFICATION);
   if (topUp > 0) amounts.push(topUp);
   if (buyerDep !== "") amounts.push(buyerDep);
   if (sellerDep !== "") amounts.push(sellerDep);
@@ -311,7 +316,7 @@ for (const c of combos) {
   inRow("Amount to Seller", "to be paid by the Buyer to the Seller on the Transfer Date", e.toSeller);
   if (!READY) inRow("остаток застройщику", "of the Original Price to be paid to the Developer", e.remaining);
   inRow("ADM Fee", "2% from the Selling Price", e.admFee);
-  if (MORTGAGE) {
+  if (MORTGAGE && !READY) {
     inRow("ADM Electronic Fee", "ADM Electronic Fee:", ADM_ELECTRONIC);
     inRow("ADM Valuation Certificate", "ADM Valuation Certificate:", ADM_VALUATION);
   }
@@ -320,6 +325,7 @@ for (const c of combos) {
     inRow("Community NOC Fee", "Community NOC Fee:", COMMUNITY_NOC);
     inRow("ADM Electronic Fee", "ADM Electronic Fee:", ADM_ELECTRONIC_READY);
     inRow("ADM Valuation Certificate", "ADM Valuation Certificate:", ADM_VALUATION_READY);
+    if (MORTGAGE) inRow("Unit Verification", "Unit Verification / Search Certificate:", UNIT_VERIFICATION);
   }
   if (!READY) inRow("Transfer Fee", "Transfer Fee", TRANSFER_FEE);
   if (e.topUp > 0) inRow("добор порога", "Remaining balance to complete", e.topUp);

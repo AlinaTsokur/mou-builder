@@ -91,3 +91,36 @@ test("список правок для Ready cash-to-cash собирается �
   assert.ok(edits.some((e) => e.replace === "AED {{community_noc_fee}}"));
   assert.ok(edits.some((e) => e.insertBefore === "{{#if property_rented}}"));
 });
+
+// ═══ шаблон №4 — Ready cash to mortgage
+import { READY_MORTGAGE, ARTICLES_READY_MORTGAGE } from "../scripts/markup/ready-deals.mjs";
+import { ARTICLE_DEFS_READY_MORTGAGE_V2 } from "../lib/mou/articles.js";
+
+test("список правок для Ready cash-to-mortgage собирается целиком", () => {
+  const edits = buildEdits(READY_MORTGAGE);
+  assert.equal(edits.length, 182);
+  for (const e of edits) {
+    assert.ok(e.find || e.cellAfter, `правка без find: ${JSON.stringify(e)}`);
+    assert.ok(e.replace !== undefined || e.insertBefore !== undefined, `правка без замены: ${JSON.stringify(e)}`);
+  }
+  const heads = edits.filter((e) => /^Article \d+$/.test(e.find));
+  assert.equal(heads.length, 19);
+  assert.equal(heads[0].find, "Article 19");
+  // ипотечные ст.7–8 из №2, сборы и аренда из №3, плюс справка Unit Verification
+  assert.equal(edits.filter((e) => e.find === "described in Articles 10 and 11").length, 2);
+  assert.ok(edits.some((e) => e.replace === "AED {{unit_verification_fee}}"));
+  assert.ok(edits.some((e) => e.replace === "AED {{developer_noc_fee}}"));
+  assert.ok(edits.some((e) => e.insertBefore === "{{#if property_rented}}"));
+  // решение 13.09.2026: как в №2, сумма пре-одобрения из ст.10 убрана
+  assert.ok(edits.some((e) => e.replace === "obtained Mortgage Pre-Approval and that"));
+  // строк застройщику и порога в готовом объекте нет
+  assert.ok(!edits.some((e) => e.find === "Remaining balance of 70% of the Original Price"));
+});
+
+test("статьи №4 в разметке и в коде совпадают", () => {
+  assert.equal(ARTICLES_READY_MORTGAGE.length, ARTICLE_DEFS_READY_MORTGAGE_V2.length);
+  ARTICLES_READY_MORTGAGE.forEach(([num, key], i) => {
+    assert.equal(ARTICLE_DEFS_READY_MORTGAGE_V2[i][0], key);
+    assert.equal(ARTICLE_DEFS_READY_MORTGAGE_V2[i][1], num);
+  });
+});

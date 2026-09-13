@@ -81,7 +81,7 @@ export const THRESHOLD_ROW = {
   ],
 };
 
-const MORTGAGE_ARTICLE_REFS = "described in Articles {{article_mortgage_approval_number}} and {{article_bank_valuation_number}}";
+export const MORTGAGE_ARTICLE_REFS = "described in Articles {{article_mortgage_approval_number}} and {{article_bank_valuation_number}}";
 
 export const OFFPLAN_MORTGAGE = {
   agreementDate: "00/00/2026",
