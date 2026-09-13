@@ -497,9 +497,10 @@ export default function HomePage() {
 
   useEffect(() => {
     if (status !== "authenticated") return;
+    if (!init.config) return;
     const handle = setTimeout(() => updatePreview(), 350);
     return () => clearTimeout(handle);
-  }, [form, status, templateId]);
+  }, [form, status, templateId, init.config]);
 
   useEffect(() => {
     if (reservationMode !== "days") return;
@@ -629,6 +630,11 @@ export default function HomePage() {
   }
 
   async function updatePreview() {
+    // Без шаблона не считаем: сервер всё равно ответит 400, а цифры чужого шаблона вводят в заблуждение.
+    if (hasTemplateChoice && !templateId) {
+      setPreview({ error: "Выберите шаблон договора в разделе Template." });
+      return;
+    }
     try {
       const data = await api("/api/preview", { method: "POST", body: JSON.stringify({ ...form, templateId }) });
       setPreview(data.preview);
