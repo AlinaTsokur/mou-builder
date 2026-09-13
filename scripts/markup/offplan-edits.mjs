@@ -408,7 +408,8 @@ export function buildEdits(D) {
   // а в AML написать, что стороны сами предоставляют информацию
   // 01.09.2026, Алина: упоминание Agency Fee следует за наличием комиссий,
   // а не агентов — строка Agency Fee в таблице живёт по тому же флагу
-  { find: "The Selling Price, the amount payable to the Seller, and the Agency Fee set out",
+  // в №5 фраза короче — без «the amount payable to the Seller», правка задаётся в конфиге
+  D.finalBindingEdit || { find: "The Selling Price, the amount payable to the Seller, and the Agency Fee set out",
     replace: "The Selling Price{{#if any_agent_fee}}, the amount payable to the Seller, and the Agency Fee{{/if}}"
       + "{{#if !any_agent_fee}} and the amount payable to the Seller{{/if}} set out", note: "ст.4 итоговая строка" },
   { find: "unless otherwise agreed in writing by the Parties or in a separate Commission Agreement.",

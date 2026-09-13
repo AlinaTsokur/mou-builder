@@ -68,7 +68,12 @@ export const READY_FIELDS = {
 // как у ипотеки, плюс справка Unit Verification (Алина, 13.09.2026)
 export const READY_MORTGAGE_FIELDS = { admElectronicFee: "1,392", unitVerificationFee: "103.50" };
 
-export function baseFor(mortgage, ready = false) {
+// Готовый объект с ипотекой Продавца (№5): сбор за снятие ипотеки и банк Продавца,
+// деньги Покупателя по умолчанию свои (Алина, 13.09.2026)
+export const READY_SELLER_MORTGAGE_FIELDS = { mortgageReleaseFee: "960", sellerBankName: "Dubai Islamic Bank", buyerFunds: "own_funds" };
+
+export function baseFor(mortgage, ready = false, sellerMortgage = false) {
+  if (ready && sellerMortgage) return { ...BASE, ...READY_FIELDS, ...READY_SELLER_MORTGAGE_FIELDS };
   if (ready && mortgage) return { ...BASE, ...READY_FIELDS, ...READY_MORTGAGE_FIELDS };
   if (ready) return { ...BASE, ...READY_FIELDS };
   return mortgage ? { ...BASE, ...MORTGAGE_FIELDS } : BASE;
@@ -76,7 +81,8 @@ export function baseFor(mortgage, ready = false) {
 
 // Описание шаблона для formForTemplate: проверки должны считать форму так же,
 // как сайт, иначе в пакет уезжает то, чего в договоре быть не может.
-export function templateFor(mortgage, ready = false) {
+export function templateFor(mortgage, ready = false, sellerMortgage = false) {
+  if (ready && sellerMortgage) return { engine: "v2", ready: true, sellerMortgage: true, articles: "ready-mortgage-cash-v2" };
   if (ready && mortgage) return { engine: "v2", ready: true, mortgage: true, articles: "ready-mortgage-v2", unitVerification: true };
   if (ready) return { engine: "v2", ready: true, articles: "ready-cash-v2" };
   if (mortgage) return { engine: "v2", mortgage: true, articles: "offplan-mortgage-v2" };
@@ -87,6 +93,11 @@ export function templateFor(mortgage, ready = false) {
 export const READY_SCENARIOS = [
   ["17 объект сдан в аренду", { propertyRented: "Yes" }],
   ["18 сдан в аренду и без депозитов", { propertyRented: "Yes", buyerDepositEnabled: "No", sellerDepositEnabled: "No" }],
+];
+
+// сценарии шаблона с ипотекой Продавца: источник денег Покупателя
+export const SELLER_MORTGAGE_SCENARIOS = [
+  ["19 покупатель с кредитом или Equity Release", { buyerFunds: "financing" }],
 ];
 
 export const SCENARIOS = [

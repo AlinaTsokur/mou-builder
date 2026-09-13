@@ -124,3 +124,38 @@ test("статьи №4 в разметке и в коде совпадают", 
     assert.equal(ARTICLE_DEFS_READY_MORTGAGE_V2[i][1], num);
   });
 });
+
+// ═══ шаблон №5 — Ready mortgage to cash
+import { READY_MORTGAGE_CASH, ARTICLES_READY_MORTGAGE_CASH } from "../scripts/markup/ready-deals.mjs";
+import { ARTICLE_DEFS_READY_MORTGAGE_CASH_V2 } from "../lib/mou/articles.js";
+
+test("список правок для Ready mortgage-to-cash собирается целиком", () => {
+  const edits = buildEdits(READY_MORTGAGE_CASH);
+  assert.equal(edits.length, 183);
+  for (const e of edits) {
+    assert.ok(e.find || e.cellAfter, `правка без find: ${JSON.stringify(e)}`);
+    assert.ok(e.replace !== undefined || e.insertBefore !== undefined, `правка без замены: ${JSON.stringify(e)}`);
+  }
+  const heads = edits.filter((e) => /^Article \d+$/.test(e.find));
+  assert.equal(heads.length, 18);
+  // решения 13.09.2026: сбор за снятие ипотеки полем, банк Продавца полем, деньги Покупателя — выбор
+  assert.ok(edits.some((e) => e.replace === "AED {{mortgage_release_fee}}"));
+  assert.ok(edits.some((e) => e.replace === "{{seller_bank_name}}"));
+  assert.ok(edits.some((e) => e.insertBefore === "{{#if buyer_own_funds}}"));
+  assert.ok(edits.some((e) => e.replace?.includes("{{#if !buyer_own_funds}}")));
+  // приписка про Liability Letter стоит сразу после способа оплаты — его текст не трогаем
+  assert.ok(!edits.some((e) => e.replace === "{{amount_to_seller_payment_text}}"));
+  // сборы и аренда — как в №3
+  assert.ok(edits.some((e) => e.replace === "AED {{developer_noc_fee}}"));
+  assert.ok(edits.some((e) => e.insertBefore === "{{#if property_rented}}"));
+  // «___» из ст.6 №3 в №5 нет: общий поиск «___» задел бы «_____» в ст.8
+  assert.ok(!edits.some((e) => e.find === "___"));
+});
+
+test("статьи №5 в разметке и в коде совпадают", () => {
+  assert.equal(ARTICLES_READY_MORTGAGE_CASH.length, ARTICLE_DEFS_READY_MORTGAGE_CASH_V2.length);
+  ARTICLES_READY_MORTGAGE_CASH.forEach(([num, key], i) => {
+    assert.equal(ARTICLE_DEFS_READY_MORTGAGE_CASH_V2[i][0], key);
+    assert.equal(ARTICLE_DEFS_READY_MORTGAGE_CASH_V2[i][1], num);
+  });
+});

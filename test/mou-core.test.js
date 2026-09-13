@@ -7,7 +7,7 @@ import {
   buildSignatureTableStyleRequests,
 } from "../lib/google/docs.js";
 import { buildArticleNumbers, DEFAULT_RULES } from "../lib/mou/articles.js";
-import { buildPreview, buildReplacements, buildReplacementsV2, calculate, formatLongDate, normalizeForm, validateMou } from "../lib/mou/core.js";
+import { buildFlags, buildPreview, buildReplacements, buildReplacementsV2, calculate, formatLongDate, normalizeForm, validateMou } from "../lib/mou/core.js";
 
 function base(overrides = {}) {
   return normalizeForm({
@@ -713,6 +713,29 @@ test("готовый объект с ипотекой: 19 статей, спра
   // ипотека: способ оплаты не спрашиваем; готовый объект: аренду требуем, только если сдан
   assert.ok(!p.validation.errors.join(" ").includes("payment method"));
   assert.ok(!p.validation.errors.join(" ").includes("Annual Rent"));
+});
+
+test("готовый объект с ипотекой Продавца: сбор за снятие ипотеки, банк, деньги Покупателя", () => {
+  const template = { engine: "v2", ready: true, sellerMortgage: true, articles: "ready-mortgage-cash-v2" };
+  const form = {
+    sellingPrice: "1,670,000", unitStatus: "Ready", amountToSellerPaymentMethod: "cash",
+    mortgageReleaseFee: "960", sellerBankName: "Dubai Islamic Bank",
+    buyerDepositEnabled: "Yes", sellerDepositEnabled: "Yes",
+  };
+  const p = buildPreview(form, undefined, template);
+  assert.equal(p.articles.length, 18);
+  assert.equal(p.replacements.article_seller_mortgage_number, "10");
+  assert.equal(p.replacements.mortgage_release_fee, "960.00");
+  assert.equal(p.replacements.seller_bank_name, "Dubai Islamic Bank");
+  assert.equal(p.data.amountToSellerPaymentMethod, "manager_cheque");
+  // по умолчанию Покупатель платит своими деньгами (Алина, 13.09.2026)
+  assert.equal(buildFlags(p.data, p.calc).buyer_own_funds, true);
+  const financing = buildPreview({ ...form, buyerFunds: "financing" }, undefined, template);
+  assert.equal(buildFlags(financing.data, financing.calc).buyer_own_funds, false);
+  // без банка в ст.10 дырка — ошибка валидации
+  const noBank = buildPreview({ ...form, sellerBankName: "" }, undefined, template);
+  assert.ok(noBank.validation.errors.some((e) => e.startsWith("Seller's Bank")));
+  assert.ok(!p.validation.errors.some((e) => e.startsWith("Seller's Bank")));
 });
 
 test("готовый объект: ADM Fee без админ-части, аренда прописью", () => {

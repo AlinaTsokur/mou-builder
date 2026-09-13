@@ -11,6 +11,7 @@ const ENGINE_FLAGS = new Set([
   "seller_agent", "buyer_agent", "both_agents", "any_agent",
   "seller_agent_fee", "buyer_agent_fee", "any_agent_fee",
   "noc_fee", "has_top_up", "has_developer_balance", "property_rented", "seller_cheque_third_party", "any_agent_fee",
+  "buyer_own_funds",
 ]);
 
 const documentId = process.argv[2];

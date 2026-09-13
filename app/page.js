@@ -89,6 +89,9 @@ const initialForm = {
   developerNocFee: "",
   communityNocFee: "",
   unitVerificationFee: "",
+  mortgageReleaseFee: "",
+  sellerBankName: "",
+  buyerFunds: "own_funds",
   projectNumber: "",
   propertyRented: "No",
   annualRent: "",
@@ -274,6 +277,9 @@ const tips = {
   developerNocFee: "Сбор застройщика за NOC. Сумма по умолчанию — из выбранного шаблона, можно поменять.",
   communityNocFee: "Сбор сообщества за NOC, платит Seller. Сумма по умолчанию — из выбранного шаблона, можно поменять.",
   unitVerificationFee: "Unit Verification / Search Certificate — справка Abu Dhabi Municipality, платит Seller. Сумма по умолчанию — из шаблона, можно поменять.",
+  mortgageReleaseFee: "Mortgage Release Fee — сбор ADREC за снятие ипотеки с объекта, платит Seller. Сумма по умолчанию — из шаблона, можно поменять.",
+  sellerBankName: "Банк, в котором ипотека Продавца (Seller’s Bank). Выберите из списка или впишите свой.",
+  buyerFunds: "Чем платит Buyer. Own funds — только своими деньгами, покупка не зависит от кредита. Второй вариант — свои деньги, Personal Loan или Equity Release (кредит под залог другой недвижимости); отказ банка не освобождает Buyer от сделки.",
   projectNumber: "Номер проекта из документов на готовый объект, например 2023/278930. Вводится вручную.",
   propertyRented: "Объект сдан в аренду? От этого зависит статья о состоянии объекта: свободен на Transfer Date или продаётся с арендатором.",
   annualRent: "Годовая аренда по действующему договору. Сумма прописью в договоре пишется сама.",
@@ -388,7 +394,7 @@ function depositSectionStatus(form, side) {
   return makeSectionStatus(missing);
 }
 
-function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage = false, isReadyTemplate = false, hasUnitVerification = false) {
+function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage = false, isReadyTemplate = false, hasUnitVerification = false, hasSellerMortgage = false) {
   const isReady = String(form.unitStatus || "").toLowerCase() === "ready";
   const agreementMissing = missingFields(form, [
     ["agreementDate", "Agreement Date"],
@@ -412,6 +418,8 @@ function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage
   // поле ни на что не влияет — не показываем и не требуем; в готовых объектах
   // способ тоже один, поле показываем заблокированным и не требуем
   if (!isMortgage && !isReadyTemplate) paymentsRequired.push(["amountToSellerPaymentMethod", "Amount to Seller Payment Method"]);
+  // ипотека Продавца: без банка в статье о Liability Letter остаётся дырка
+  if (hasSellerMortgage) paymentsRequired.push(["sellerBankName", "Seller's Bank"]);
   if (!isMortgage && !isReadyTemplate && form.amountToSellerPaymentMethod === "manager_cheque_in_favour") {
     paymentsRequired.push(["amountToSellerChequeInFavourOf", "Cheque in favour of"]);
   }
@@ -440,6 +448,7 @@ function buildSectionStatuses(form, reservationMode, reservationDays, isMortgage
       ["communityNocFee", "Community NOC Fee"],
     );
     if (hasUnitVerification) projectRequired.push(["unitVerificationFee", "Unit Verification / Search Certificate"]);
+    if (hasSellerMortgage) projectRequired.push(["mortgageReleaseFee", "Mortgage Release Fee"]);
   } else {
     projectRequired.push(["admAdminFee", "ADM Admin Fee"]);
   }
@@ -538,9 +547,11 @@ export default function HomePage() {
   const isReadyTemplate = !!selectedTemplate?.ready;
   // строка «Unit Verification / Search Certificate» есть не во всех готовых шаблонах
   const hasUnitVerification = !!selectedTemplate?.unitVerification;
+  // квартира в ипотеке у Продавца (№5): сбор за снятие ипотеки, банк и деньги Покупателя
+  const hasSellerMortgage = !!selectedTemplate?.sellerMortgage;
   const sectionStatuses = useMemo(
-    () => buildSectionStatuses(form, reservationMode, reservationDays, isMortgage, isReadyTemplate, hasUnitVerification),
-    [form, reservationMode, reservationDays, isMortgage, isReadyTemplate, hasUnitVerification],
+    () => buildSectionStatuses(form, reservationMode, reservationDays, isMortgage, isReadyTemplate, hasUnitVerification, hasSellerMortgage),
+    [form, reservationMode, reservationDays, isMortgage, isReadyTemplate, hasUnitVerification, hasSellerMortgage],
   );
 
   // Суммы сборов по умолчанию — свои у каждого шаблона, взяты из его исходника
@@ -959,6 +970,7 @@ export default function HomePage() {
                 <AutoMoneyField id="developerNocFee" label="Developer NOC Fee" tip={tips.developerNocFee} value={form.developerNocFee} onChange={patch} />
                 <AutoMoneyField id="communityNocFee" label="Community NOC Fee" tip={tips.communityNocFee} value={form.communityNocFee} onChange={patch} />
                 {hasUnitVerification && <AutoMoneyField id="unitVerificationFee" label="Unit Verification / Search Certificate" tip={tips.unitVerificationFee} value={form.unitVerificationFee} onChange={patch} />}
+                {hasSellerMortgage && <AutoMoneyField id="mortgageReleaseFee" label="Mortgage Release Fee" tip={tips.mortgageReleaseFee} value={form.mortgageReleaseFee} onChange={patch} />}
               </>
             ) : (
               <AutoMoneyField id="admAdminFee" label="ADM Admin Fee" tip={tips.admAdminFee} value={form.admAdminFee} onChange={patch} />
@@ -1029,6 +1041,22 @@ export default function HomePage() {
                 placeholder="Введите имя и фамилию"
               />
             ) : null}
+            {hasSellerMortgage && (
+              <>
+                <Field id="sellerBankName" label="Seller's Bank (mortgage)" tip={tips.sellerBankName} value={form.sellerBankName} onChange={patch} options={lists.banks || []} />
+                <SelectField
+                  id="buyerFunds"
+                  label="Buyer Funds"
+                  tip={tips.buyerFunds}
+                  value={form.buyerFunds || "own_funds"}
+                  onChange={patch}
+                  options={[
+                    { value: "own_funds", label: "Own funds" },
+                    { value: "financing", label: "Own funds, Personal Loan, Equity Release" },
+                  ]}
+                />
+              </>
+            )}
             {!isCashToCash && <Field id="transferThresholdPercent" label="Transfer Threshold %" tip={tips.transferThresholdPercent} value={form.transferThresholdPercent} onChange={patch} list="thresholdList" options={lists.transfer_threshold_percent || []} />}
             {!isCashToCash && <AutoMoneyField id="thresholdTopUpAmount" label="Threshold Top-up to Developer" tip={tips.thresholdTopUpAmount} value={form.thresholdTopUpAmount} autoValue={preview?.summary?.thresholdTopUpAmount} onChange={patch} placeholder="Посчитается автоматически" />}
             {!isCashToCash && <AutoMoneyField id="remainingDeveloperBalance" label="Remaining Developer Balance" tip={tips.remainingDeveloperBalance} value={form.remainingDeveloperBalance} autoValue={preview?.summary?.remainingDeveloperBalance} onChange={patch} placeholder="Посчитается автоматически" />}

@@ -10,7 +10,9 @@ import { getArticleDefsForTemplate } from "../lib/mou/articles.js";
 const MORTGAGE = process.argv.includes("--mortgage");
 const READY = process.argv.includes("--ready");
 // --mortgage --ready вместе — №4, готовый объект с ипотекой Покупателя (19 статей)
-const TEMPLATE = templateFor(MORTGAGE, READY);
+// --ready --seller-mortgage — №5, готовый объект с ипотекой Продавца (18 статей)
+const SELLER_MORTGAGE = process.argv.includes("--seller-mortgage");
+const TEMPLATE = templateFor(MORTGAGE, READY, SELLER_MORTGAGE);
 const DEFS = getArticleDefsForTemplate(TEMPLATE);
 
 const BASE = {
@@ -22,6 +24,7 @@ const BASE = {
   ...(READY ? {
     admAdminFee: "", admElectronicFee: MORTGAGE ? "1,392" : "919", admValuationFee: "1,037",
     ...(MORTGAGE ? { unitVerificationFee: "103.50" } : {}),
+    ...(SELLER_MORTGAGE ? { mortgageReleaseFee: "960", sellerBankName: "Dubai Islamic Bank" } : {}),
     developerNocFee: "2,750", communityNocFee: "1,050", projectNumber: "2023/278930",
     propertyRented: "No", annualRent: "150,000", tenancyEndDate: "12/12/2027",
     titleDeedNumber: "2026/0000", parkingSpaces: "B27",
@@ -61,6 +64,10 @@ const SCENARIOS = [
   ...(READY ? [
     { name: "объект сдан в аренду", over: { propertyRented: "Yes" }, forbidden: [/shall be vacant on the Transfer Date/] },
     { name: "объект свободен", over: { propertyRented: "No" }, forbidden: [/currently leased/, /tenancy contract/] },
+  ] : []),
+  ...(SELLER_MORTGAGE ? [
+    { name: "покупатель на свои деньги", over: { buyerFunds: "own_funds" }, forbidden: [/Personal Loan/, /Equity Release/] },
+    { name: "покупатель с кредитом", over: { buyerFunds: "financing" }, forbidden: [/made solely with the Buyer’s own funds/] },
   ] : []),
   { name: "депозитов нет и агентств нет", over: { buyerDepositEnabled: "No", sellerDepositEnabled: "No", sellerAgentEnabled: "No", buyerAgentEnabled: "No" },
     forbidden: [/\bdeposits?\b/i, /\bAgents?\b/, /\bAgenc(y|ies)\b/] },

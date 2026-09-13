@@ -5,16 +5,18 @@ import { getBotClients } from "./google-bot.mjs";
 import { createMouDocument } from "../lib/google/docs.js";
 import { normalizeForm, calculate, buildFlags, buildReplacementsV2, formForTemplate } from "../lib/mou/core.js";
 import { buildArticleNumbers, getArticleDefsForTemplate } from "../lib/mou/articles.js";
-import { baseFor, templateFor, SCENARIOS, READY_SCENARIOS } from "./batch-scenarios.mjs";
+import { baseFor, templateFor, SCENARIOS, READY_SCENARIOS, SELLER_MORTGAGE_SCENARIOS } from "./batch-scenarios.mjs";
 
 const MORTGAGE = process.argv.includes("--mortgage");
 const READY = process.argv.includes("--ready");
-const BASE = baseFor(MORTGAGE, READY);
+// --ready --seller-mortgage — №5, ипотека Продавца
+const SELLER_MORTGAGE = process.argv.includes("--seller-mortgage");
+const BASE = baseFor(MORTGAGE, READY, SELLER_MORTGAGE);
 // то же описание шаблона, что и на сайте: иначе в пакет уедет форма, которой
 // в реальной генерации не бывает (админ-часть ADM Fee, способ оплаты Продавцу)
-const TEMPLATE = templateFor(MORTGAGE, READY);
+const TEMPLATE = templateFor(MORTGAGE, READY, SELLER_MORTGAGE);
 const DEFS = getArticleDefsForTemplate(TEMPLATE);
-const CASES = READY ? [...SCENARIOS, ...READY_SCENARIOS] : SCENARIOS;
+const CASES = READY ? [...SCENARIOS, ...READY_SCENARIOS, ...(SELLER_MORTGAGE ? SELLER_MORTGAGE_SCENARIOS : [])] : SCENARIOS;
 
 const MOU_FOLDER = "1wAOozC2ofCV3Hsm16wdJoywK6_jvjZpm";
 
@@ -26,7 +28,7 @@ const { docs, drive } = getBotClients();
 const stamp = new Date().toISOString().slice(0, 10);
 const folder = await drive.files.create({
   requestBody: {
-    name: `ТЕСТЫ ${stamp} — ${READY && MORTGAGE ? "ready №4 cash to mortgage" : MORTGAGE ? "off-plan №2 ипотека" : READY ? "ready №3 cash to cash" : "off-plan №1"}`,
+    name: `ТЕСТЫ ${stamp} — ${READY && SELLER_MORTGAGE ? "ready №5 mortgage to cash" : READY && MORTGAGE ? "ready №4 cash to mortgage" : MORTGAGE ? "off-plan №2 ипотека" : READY ? "ready №3 cash to cash" : "off-plan №1"}`,
     mimeType: "application/vnd.google-apps.folder",
     parents: [MOU_FOLDER],
   },

@@ -18,11 +18,16 @@ const MORTGAGE = process.argv.includes("--mortgage");
 // и статья про состояние объекта в двух вариантах
 const READY = process.argv.includes("--ready");
 // --mortgage --ready вместе — №4, готовый объект с ипотекой Покупателя (19 статей)
-const TEMPLATE = templateFor(MORTGAGE, READY);
+// --ready --seller-mortgage — №5, ипотека Продавца: строка Mortgage Release Fee, банк
+// Продавца и два варианта денег Покупателя в ст.10
+const SELLER_MORTGAGE = process.argv.includes("--seller-mortgage");
+const TEMPLATE = templateFor(MORTGAGE, READY, SELLER_MORTGAGE);
 const DEFS = getArticleDefsForTemplate(TEMPLATE);
 // №4 (готовый объект с ипотекой): ADM Electronic как у ипотеки и справка Unit Verification
 const ADM_ELECTRONIC_READY = MORTGAGE ? 1392 : 919;
 const UNIT_VERIFICATION = 103.5;
+const MORTGAGE_RELEASE = 960;
+const SELLER_BANK = "Dubai Islamic Bank";
 const ADM_VALUATION_READY = 1037;
 const DEVELOPER_NOC = 2750;
 const COMMUNITY_NOC = 1050;
@@ -84,6 +89,7 @@ const AXES = {
   // «ровно» — застройщику заплачено ровно столько, сколько требует порог:
   // добор равен нулю, строка из таблицы должна уйти. «сверх» — переплата.
   ...(READY ? { rented: [false, true] } : { paidThreshold: ["не добран", "ровно", "сверх"] }),
+  ...(SELLER_MORTGAGE ? { buyerFunds: ["свои", "кредит"] } : {}),
   // способ расчёта у сторон независимый: у одного процент, у другого сумма
   buyerDepositCalc: ["процент", "сумма"],
   sellerDepositCalc: ["процент", "сумма"],
@@ -141,6 +147,8 @@ function formFor(c) {
       admAdminFee: "", admElectronicFee: String(ADM_ELECTRONIC_READY), admValuationFee: String(ADM_VALUATION_READY),
       developerNocFee: String(DEVELOPER_NOC), communityNocFee: String(COMMUNITY_NOC),
       ...(MORTGAGE ? { unitVerificationFee: String(UNIT_VERIFICATION) } : {}),
+      ...(SELLER_MORTGAGE ? { mortgageReleaseFee: String(MORTGAGE_RELEASE), sellerBankName: SELLER_BANK,
+        buyerFunds: c.buyerFunds === "кредит" ? "financing" : "own_funds" } : {}),
       projectNumber: "2023/278930", titleDeedNumber: "2026/0000", parkingSpaces: "B27",
       propertyRented: c.rented ? "Yes" : "No", annualRent: "150,000", tenancyEndDate: "12/12/2027",
     } : { paidAmountToDeveloper: String(PAID_FOR[c.paidThreshold]) }),
@@ -195,6 +203,7 @@ function expected(c) {
     ];
   if (READY && c.rented) amounts.push(150000);
   if (READY && MORTGAGE) amounts.push(UNIT_VERIFICATION);
+  if (READY && SELLER_MORTGAGE) amounts.push(MORTGAGE_RELEASE);
   if (topUp > 0) amounts.push(topUp);
   if (buyerDep !== "") amounts.push(buyerDep);
   if (sellerDep !== "") amounts.push(sellerDep);
@@ -283,6 +292,15 @@ for (const c of combos) {
     if (!c.rented && (leased || !vacant)) found.push("объект свободен, а в тексте вариант «сдан»");
   }
 
+  if (SELLER_MORTGAGE) {
+    if (!text.includes(`existing mortgage in favour of ${SELLER_BANK} (the “Seller’s Bank”)`)) found.push("в ст.10 нет банка Продавца");
+    const own = /made solely with the Buyer’s own funds/.test(text);
+    const financing = /may be financed through the Buyer’s own funds, a Personal Loan, Equity Release/.test(text);
+    const wantOwn = c.buyerFunds === "свои";
+    if (own !== wantOwn || financing === wantOwn) found.push(`деньги Покупателя: в тексте «${own ? "свои" : ""}${financing ? "кредит" : ""}», а выбрано «${c.buyerFunds}»`);
+    if (/^_{2,}\s*$/m.test(text)) found.push("осталась строка-разделитель из подчёркиваний");
+  }
+
   // строка добора порога — только когда порог не закрыт
   const hasTopUpRow = /Remaining balance to complete/.test(text);
   if (!READY && hasTopUpRow !== (e.topUp > 0)) {
@@ -326,6 +344,7 @@ for (const c of combos) {
     inRow("ADM Electronic Fee", "ADM Electronic Fee:", ADM_ELECTRONIC_READY);
     inRow("ADM Valuation Certificate", "ADM Valuation Certificate:", ADM_VALUATION_READY);
     if (MORTGAGE) inRow("Unit Verification", "Unit Verification / Search Certificate:", UNIT_VERIFICATION);
+    if (SELLER_MORTGAGE) inRow("Mortgage Release Fee", "Mortgage Release Fee:", MORTGAGE_RELEASE);
   }
   if (!READY) inRow("Transfer Fee", "Transfer Fee", TRANSFER_FEE);
   if (e.topUp > 0) inRow("добор порога", "Remaining balance to complete", e.topUp);

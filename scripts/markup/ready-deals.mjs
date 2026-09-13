@@ -1,6 +1,7 @@
 import { OFFPLAN_MORTGAGE, MORTGAGE_ARTICLE_REFS } from "./offplan-deals.mjs";
 
-// Значения демо-сделок готовых шаблонов для разметки: №3 (cash to cash) и №4 (cash to mortgage).
+// Значения демо-сделок готовых шаблонов для разметки: №3 (cash to cash), №4 (cash to mortgage)
+// и №5 (mortgage to cash).
 // Правки собираются тем же buildEdits, что и off-plan: документы почти совпадают,
 // отличается платёжная таблица и статья про состояние объекта.
 
@@ -229,5 +230,72 @@ export const READY_MORTGAGE = {
   extra: [
     ...OFFPLAN_MORTGAGE.extra,
     ...TENANCY_EDITS,
+  ],
+};
+
+// ═══ №5 Ready mortgage to cash — 18 статей
+// Документ — №3 с ипотекой Продавца: строка Mortgage Release Fee, часть цены платится
+// банку Продавца по Liability Letter, в ст.10 — ипотека Продавца и два варианта
+// источника денег Покупателя.
+export const ARTICLES_READY_MORTGAGE_CASH = ARTICLES_READY_CASH.map(([num, key]) =>
+  [num, num === 10 ? "article_seller_mortgage_number" : key]);
+
+export const READY_MORTGAGE_CASH = {
+  ...READY_CASH,
+  // застройщик в определениях тот же, что в таблице
+  developerDefinitionName: undefined,
+  // после суммы Продавцу стоит приписка про Liability Letter: плейсхолдер способа
+  // оплаты дал бы «Manager's Cheque. (The exact…» — текст не трогаем, в готовом
+  // объекте способ всё равно один (Алина, 06.09.2026)
+  amountToSellerText: null,
+  feeEdits: [
+    ...READY_CASH.feeEdits,
+    // сумма из исходника, в форме подставляется по умолчанию и правится (Алина, 13.09.2026)
+    { find: "AED 960.00", replace: "AED {{mortgage_release_fee}}", note: "Mortgage Release Fee" },
+  ],
+  // в №5 в итоговой фразе нет «the amount payable to the Seller»: без комиссий
+  // остаётся одна Selling Price, глагол — в единственном числе
+  finalBindingEdit: {
+    find: "The Selling Price and the Agency Fee set out in the Payment Table are final and binding",
+    replace: "The Selling Price{{#if any_agent_fee}} and the Agency Fee{{/if}} set out in the Payment Table "
+      + "{{#if any_agent_fee}}are{{/if}}{{#if !any_agent_fee}}is{{/if}} final and binding",
+    note: "ст.4 итоговая строка",
+  },
+  articles: ARTICLES_READY_MORTGAGE_CASH,
+
+  pre: [
+    // дата в шапке прижата табами, как в №3
+    { find: "\t\t\t\t\t\t\t\t    \t", replace: "", note: "шапка: убрать табы перед датой" },
+    // скобка в строке ADM Fee не закрывалась — приводим к виду №1
+    { find: "or as per ADM valuation (whatever comes higher) to be paid",
+      replace: "or as per ADM valuation, whatever comes higher) to be paid", note: "ст.4: скобка в ADM Fee" },
+    // ст.8: мягкие переносы вокруг фразы о дефолте Продавца, как в №3
+    { find: "—-\u000bUpon Seller Default", replace: "—-Upon Seller Default", note: "ст.8: перенос после разделителя" },
+    { find: "not a penalty. \u000b\nThis amount shall be distributed",
+      replace: "not a penalty.\nThis amount shall be distributed", note: "ст.8: перенос в конце абзаца" },
+    // двойные пробелы исходника
+    { find: "REVENUE ACCOU  on the Transfer Date by a Manager", replace: "REVENUE ACCOU on the Transfer Date by a Manager",
+      note: "двойной пробел, ADM Fee" },
+    { find: "Manager’s Cheque  (The exact amounts", replace: "Manager’s Cheque (The exact amounts",
+      note: "двойной пробел, сумма Продавцу" },
+    { find: "the Seller’s Bank  or any governmental", replace: "the Seller’s Bank or any governmental",
+      note: "двойной пробел, ст.5" },
+    { find: "the Buyer’s own funds  and is not conditional", replace: "the Buyer’s own funds and is not conditional",
+      note: "двойной пробел, ст.10" },
+  ],
+
+  extra: [
+    ...TENANCY_EDITS,
+    // ст.10: банк Продавца — поле формы со списком банков (Алина, 13.09.2026)
+    { find: "Dubai Islamic Bank", replace: "{{seller_bank_name}}", note: "банк Продавца" },
+    // ст.10: деньги Покупателя — свои или с кредитом / Equity Release, по умолчанию свои
+    // (комментарии Даши, решение Алины 13.09.2026). Разделитель «___» уходит.
+    { find: "The Buyer confirms that the purchase of the Property is made solely", insertBefore: "{{#if buyer_own_funds}}",
+      note: "ст.10: открыть «свои средства»" },
+    { find: "shall constitute Default under this MOU.\n___\nThe Buyer confirms that the purchase of the Property may be financed",
+      replace: "shall constitute Default under this MOU.{{/if}}\n{{#if !buyer_own_funds}}The Buyer confirms that the purchase of the Property may be financed",
+      note: "ст.10: закрыть «свои средства», открыть «с кредитом», убрать «___»" },
+    { find: "constitute a valid reason for failure to complete the transfer.",
+      replace: "constitute a valid reason for failure to complete the transfer.{{/if}}", note: "ст.10: закрыть «с кредитом»" },
   ],
 };

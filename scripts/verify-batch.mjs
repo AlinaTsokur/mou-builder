@@ -7,16 +7,18 @@
 import { getBotClients } from "./google-bot.mjs";
 import { buildIndex } from "./docs-edit.mjs";
 import { renderLocal } from "./render-local.mjs";
-import { baseFor, templateFor, SCENARIOS, READY_SCENARIOS } from "./batch-scenarios.mjs";
+import { baseFor, templateFor, SCENARIOS, READY_SCENARIOS, SELLER_MORTGAGE_SCENARIOS } from "./batch-scenarios.mjs";
 import { getArticleDefsForTemplate } from "../lib/mou/articles.js";
 
 const MORTGAGE = process.argv.includes("--mortgage");
 const READY = process.argv.includes("--ready");
+// --ready --seller-mortgage — №5, ипотека Продавца
+const SELLER_MORTGAGE = process.argv.includes("--seller-mortgage");
 // --mortgage --ready вместе — №4, готовый объект с ипотекой Покупателя (19 статей)
-const TEMPLATE = templateFor(MORTGAGE, READY);
+const TEMPLATE = templateFor(MORTGAGE, READY, SELLER_MORTGAGE);
 const DEFS = getArticleDefsForTemplate(TEMPLATE);
-const BASE = baseFor(MORTGAGE, READY);
-const CASES = READY ? [...SCENARIOS, ...READY_SCENARIOS] : SCENARIOS;
+const BASE = baseFor(MORTGAGE, READY, SELLER_MORTGAGE);
+const CASES = READY ? [...SCENARIOS, ...READY_SCENARIOS, ...(SELLER_MORTGAGE ? SELLER_MORTGAGE_SCENARIOS : [])] : SCENARIOS;
 const positional = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const folderId = positional[0];
 const templateId = positional[1] || (MORTGAGE

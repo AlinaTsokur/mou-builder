@@ -142,7 +142,7 @@ function alreadyMarked(doc) {
 }
 
 // Стиль абзаца по его тексту — в теле, шапке или подвале (там обязателен segmentId).
-async function setParagraphStyle(docs, documentId, { contains, style, fields }) {
+export async function setParagraphStyle(docs, documentId, { contains, style, fields }) {
   const doc = (await docs.documents.get({ documentId })).data;
   const hits = [];
   const walk = (content, segmentId) => {

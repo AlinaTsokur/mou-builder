@@ -30,7 +30,9 @@ export async function POST(request) {
     const engine = templateEntry?.engine === "v2" ? "v2" : "legacy";
 
     const data = normalizeForm(formForTemplate(form, templateEntry));
-    const validation = validateMou(data, { mortgage: !!templateEntry?.mortgage, ready: !!templateEntry?.ready });
+    const validation = validateMou(data, {
+      mortgage: !!templateEntry?.mortgage, ready: !!templateEntry?.ready, sellerMortgage: !!templateEntry?.sellerMortgage,
+    });
     if (REQUIRE_VALIDATION_BEFORE_CREATE && !validation.ok) {
       return Response.json({ ok: false, validation }, { status: 422 });
     }
