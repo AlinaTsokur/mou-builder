@@ -728,3 +728,13 @@ test("готовый объект: ADM Fee без админ-части, аре�
   assert.equal(p.replacements.developer_noc_fee, "2,750.00");
   assert.equal(p.replacements.project_number, "2023/278930");
 });
+
+test("шаблон для генерации: без выбора при нескольких шаблонах — ошибка, а не первый попавшийся", async () => {
+  const { resolveTemplate } = await import(`../lib/mou/config.js?resolve-check=${Date.now()}`);
+  const list = [{ id: "a", label: "1" }, { id: "b", label: "4", ready: true }];
+  assert.equal(resolveTemplate("b", list).id, "b");
+  assert.equal(resolveTemplate("", list), null);
+  assert.equal(resolveTemplate("нет-такого", list), null);
+  // один шаблон в реестре — старый режим без выбора
+  assert.equal(resolveTemplate("", [{ id: "a" }]).id, "a");
+});

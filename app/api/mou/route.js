@@ -14,16 +14,18 @@ import {
   validateMou,
 } from "@/lib/mou/core";
 import { buildArticleNumbers, getArticleDefs, getArticleDefsForTemplate } from "@/lib/mou/articles";
-import { MOU_TEMPLATES } from "@/lib/mou/config";
+import { resolveTemplate } from "@/lib/mou/config";
 
 const REQUIRE_VALIDATION_BEFORE_CREATE = process.env.MOU_REQUIRE_VALIDATION === "true";
 
 export async function POST(request) {
   try {
-    const { drive, docs, sheets } = await getGoogleClients();
     const form = await request.json();
-    const templateId = form.templateId || "";
-    const templateEntry = MOU_TEMPLATES.find((t) => t.id === templateId) || MOU_TEMPLATES[0];
+    const templateEntry = resolveTemplate(form.templateId || "");
+    if (!templateEntry) {
+      return Response.json({ ok: false, error: "Не выбран шаблон договора: выберите его в разделе Template." }, { status: 400 });
+    }
+    const { drive, docs, sheets } = await getGoogleClients();
     const engine = templateEntry?.engine === "v2" ? "v2" : "legacy";
 
     const data = normalizeForm(formForTemplate(form, templateEntry));

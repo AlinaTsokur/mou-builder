@@ -650,6 +650,11 @@ export default function HomePage() {
       return;
     }
 
+    if (hasTemplateChoice && !templateId) {
+      setActionErrors(["Выберите шаблон договора в разделе Template."]);
+      return;
+    }
+
     setBusy(true);
     setResult(null);
     setActionErrors([]);
@@ -679,7 +684,13 @@ export default function HomePage() {
     setMessage("Loading draft...");
     try {
       const data = await api(`/api/drafts/${draftRow}`);
+      // суммы из черновика не должны перетираться умолчаниями шаблона при его выборе
+      appliedDefaults.current = {};
       setForm({ ...initialForm, ...data.form });
+      // шаблон хранится в черновике вместе с полями; без него «Create MOU» ушёл бы
+      // в первый шаблон реестра, то есть в off-plan №1
+      const draftTemplate = (init.config?.templates || []).find((t) => t.id === data.form?.templateId);
+      setTemplateId(draftTemplate ? draftTemplate.id : "");
       setResult(null);
       setMessage("Draft loaded");
     } catch (error) {
