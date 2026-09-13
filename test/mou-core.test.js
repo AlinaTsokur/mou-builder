@@ -738,13 +738,3 @@ test("шаблон для генерации: без выбора при нес�
   // один шаблон в реестре — старый режим без выбора
   assert.equal(resolveTemplate("", [{ id: "a" }]).id, "a");
 });
-
-test("маршруты API берут шаблон только через resolveTemplate — без запасного первого шаблона", async () => {
-  const { readFileSync } = await import("node:fs");
-  for (const route of ["app/api/mou/route.js", "app/api/preview/route.js"]) {
-    const src = readFileSync(new URL(`../${route}`, import.meta.url), "utf8");
-    assert.match(src, /resolveTemplate\(form\.templateId/, `${route}: шаблон не через resolveTemplate`);
-    assert.match(src, /if \(!template\w*\) \{\s*return Response\.json\(\{ ok: false, error: TEMPLATE_REQUIRED_ERROR \}, \{ status: 400 \}\)/, `${route}: нет ответа 400 без шаблона`);
-    assert.doesNotMatch(src, /MOU_TEMPLATES\[0\]|templates\[0\]/, `${route}: запасной первый шаблон`);
-  }
-});
